@@ -25,14 +25,14 @@
                         <div class="alert alert-danger d-flex align-items-center" role="alert">
                             <i class="feather-alert-octagon flex-shrink-0 me-2"></i>
                             <div>
-                                    {{ $errors[0] }}
+                                    {{ $errors }}
                             </div>
                         </div>
                     @endif
                     <div class="login-userset">
                         <div class="login-userheading">
                             <h3>Register</h3>
-                            <h4>Create New Dreamspos Account</h4>
+                            <h4>Create New Volunteer Account</h4>
                         </div>
                         <div class="form-login">
                             <label>Name</label>
@@ -120,7 +120,7 @@
                             <h4>Already have an account ? <a href="{{ route('login') }}" class="hover-a">Sign In
                                     Instead</a></h4>
                         </div>
-                        <div class="form-setlogin or-text">
+                        {{-- <div class="form-setlogin or-text">
                             <h4>OR</h4>
                         </div>
                         <div class="form-sociallink">
@@ -135,19 +135,13 @@
                                         <img src="{{ URL::asset('/build/img/icons/google.png') }}" alt="Google">
                                     </a>
                                 </li>
-                                <li>
-                                    <a href="javascript:void(0);" class="apple-logo">
-                                        <img src="{{ URL::asset('/build/img/icons/apple-logo.svg') }}" alt="Apple">
-                                    </a>
-                                </li>
-
                             </ul>
-                        </div>
+                        </div> --}}
                     </div>
                 </form>
             </div>
             <div class="my-4 d-flex justify-content-center align-items-center copyright-text">
-                <p>Copyright &copy; 2023 DreamsPOS. All rights reserved.</p>
+                <p>Copyright &copy; {{ date('Y') }} InsanTeknoSejahtera. All rights reserved.</p>
             </div>
         </div>
     </div>

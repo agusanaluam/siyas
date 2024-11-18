@@ -29148,7 +29148,7 @@ th.fixed-width {
   border-color: #FF9F43;
 }
 .pos-products .product-info:hover .img-bg img, .pos-products .product-info.active .img-bg img {
-  transform: scale(1.1);
+  transform: scale(1.2);
 }
 .pos-products .product-info:hover .img-bg span, .pos-products .product-info.active .img-bg span {
   display: block;

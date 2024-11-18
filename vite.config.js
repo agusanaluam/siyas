@@ -6,7 +6,7 @@ export default defineConfig({
     build: {
         manifest: true,
         rtl: true,
-        base: 'resources/build/',
+        base: 'resources/',
         outDir: 'public/build/',
         cssCodeSplit: true,
         rollupOptions: {
@@ -24,7 +24,10 @@ export default defineConfig({
     },
     plugins: [
         laravel({
-            input: ['resources/css/style.css', 'resources/js/script.js'],
+            input: [
+                'resources/css/style.css',
+                'resources/js/script.js',
+            ],
             refresh: true,
         }),
 

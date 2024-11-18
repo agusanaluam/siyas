@@ -170,38 +170,7 @@
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                {{-- <tr>
-                                                    <td>
-                                                        <div class="productimgname">
-                                                            <a href="javascript:void(0);"
-                                                                class="product-img stock-img">
-                                                                <img src="{{ URL::asset('/build/img/products/stock-img-02.png')}}"
-                                                                    alt="product">
-                                                            </a>
-                                                            <a href="javascript:void(0);">Nike Jordan</a>
-                                                        </div>
-                                                    </td>
-                                                    <td>
-                                                        <div class="product-quantity">
-                                                            <span class="quantity-btn">+<i
-                                                                    data-feather="plus-circle"
-                                                                    class="plus-circle"></i></span>
-                                                            <input type="text" class="quntity-input"
-                                                                value="2">
-                                                            <span class="quantity-btn"><i
-                                                                    data-feather="minus-circle"
-                                                                    class="feather-search"></i></span>
-                                                        </div>
-                                                    </td>
-                                                    <td>2000</td>
-                                                    <td>500</td>
-                                                    <td>
-                                                        0.00
-                                                    </td>
-                                                    <td>0.00</td>
-                                                    <td>0.00</td>
-                                                    <td>1500</td>
-                                                </tr> --}}
+
                                             </tbody>
                                         </table>
                                     </div>

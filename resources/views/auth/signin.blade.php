@@ -24,7 +24,7 @@
                         <div class="alert alert-danger d-flex align-items-center" role="alert">
                             <i class="feather-alert-octagon flex-shrink-0 me-2"></i>
                             <div>
-                                    {{ $errors[0] }}
+                                    {{ $errors }}
                             </div>
                         </div>
                     @endif
@@ -33,7 +33,7 @@
                         <div class="login-userset">
                             <div class="login-userheading">
                                 <h3>Sign In</h3>
-                                <h4>Access the Dreamspos panel using your email and passcode.</h4>
+                                <h4>Access the Volunteer panel using your email and passcode.</h4>
                             </div>
                             <div class="form-login">
                                 <label class="form-label">Email Address</label>
@@ -87,7 +87,7 @@
                                 <h4>New on our platform?<a href="{{ route('register') }}" class="hover-a"> Create an
                                         account</a></h4>
                             </div>
-                            <div class="form-setlogin or-text">
+                            {{-- <div class="form-setlogin or-text">
                                 <h4>OR</h4>
                             </div>
                             <div class="form-sociallink">
@@ -109,13 +109,13 @@
                                         </a>
                                     </li>
                                 </ul>
-                            </div>
+                            </div> --}}
                         </div>
                     </form>
 
                 </div>
                 <div class="my-4 d-flex justify-content-center align-items-center copyright-text">
-                    <p>Copyright &copy; 2023 DreamsPOS. All rights reserved</p>
+                    <p>Copyright &copy; {{ date('Y') }} InsanTeknoSejahtera. All rights reserved.</p>
                 </div>
             </div>
         </div>

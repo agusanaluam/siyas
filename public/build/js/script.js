@@ -23,7 +23,7 @@ $(document).ready(function(){
 
 	if (localStorage.theme) document.documentElement.setAttribute("data-layout-mode", localStorage.theme);
 
-	//theme Settings 
+	//theme Settings
 
 
 
@@ -96,7 +96,7 @@ $(document).ready(function(){
 	});
 	$('.notes-tog').on('click', function () {
 		$('.budget-role-notes').toggleClass('budgeted-role-notes');
-		
+
 	});
 	$('.notes-tog').on('click', function () {
 		$('.notes-page-wrapper').toggleClass('notes-tag-left');
@@ -126,7 +126,7 @@ $(document).ready(function(){
 		})
 	}
 
-	//Home popular 
+	//Home popular
 	if($('.owl-product').length > 0 ){
 		var owl = $('.owl-product');
 			owl.owlCarousel({
@@ -153,7 +153,7 @@ $(document).ready(function(){
 	if($('.datanew').length > 0) {
 		$('.datanew').DataTable({
 			"bFilter": true,
-			"sDom": 'fBtlpi',  
+			"sDom": 'fBtlpi',
 			"ordering": true,
 			"language": {
 				search: ' ',
@@ -169,24 +169,24 @@ $(document).ready(function(){
 				$('.dataTables_filter').appendTo('#tableSearch');
 				$('.dataTables_filter').appendTo('.search-input');
 
-			},	
+			},
 		});
 	}
-	
+
 
 	// image file upload image
 	function readURL(input) {
 		if (input.files && input.files[0]) {
 			var reader = new FileReader();
-	
+
 			reader.onload = function (e) {
 				$('#blah').attr('src', e.target.result);
 			}
-	
+
 			reader.readAsDataURL(input.files[0]);
 		}
 	}
-	
+
 	$("#imgInp").change(function(){
 		readURL(this);
 	});
@@ -218,7 +218,7 @@ $(document).ready(function(){
 			}
 		});
 	}
-	
+
 	// toggle-password
 	if($('.toggle-password').length > 0) {
 		$(document).on('click', '.toggle-password', function() {
@@ -256,8 +256,8 @@ $(document).ready(function(){
 
 
 
-	
-	
+
+
 
 	// Coming Soon
 	if($('.comming-soon-pg').length > 0) {
@@ -313,11 +313,11 @@ $(document).ready(function(){
 			width: '100%'
 		});
 	}
-	
+
 	// if ($('.select2').length > 0) {
 	// 	$(".select2").select2();
 	// }
-	// Counter 
+	// Counter
 	if($('.counter').length > 0) {
 		$('.counter').counterUp({
 			delay: 20,
@@ -334,31 +334,31 @@ $(document).ready(function(){
 			autostart: true
 		});
 	}
-	
+
 	if($('#timer-countup').length > 0) {
 		$( '#timer-countup' ).countdown( {
 			from: 0,
-			to: 180 
+			to: 180
 		});
 	}
-	
+
 	if($('#timer-countinbetween').length > 0) {
 		$( '#timer-countinbetween' ).countdown( {
 			from: 30,
-			to: 20 
+			to: 20
 		});
 	}
-	
+
 	if($('#timer-countercallback').length > 0) {
 		$( '#timer-countercallback' ).countdown( {
 			from: 10,
 			to: 0,
 			timerEnd: function() {
 				this.css( { 'text-decoration':'line-through' } ).animate( { 'opacity':.5 }, 500 );
-			} 
+			}
 		});
 	}
-	
+
 	if($('#timer-outputpattern').length > 0) {
 		$( '#timer-outputpattern' ).countdown( {
 			outputPattern: '$day Days $hour Hour $minute Min $second Sec..',
@@ -376,7 +376,7 @@ $(document).ready(function(){
 		focus: false                 // set focus to editable area after initializing summernote
 		});
 	}
-	
+
 	// Summernote
 
 	if($('#summernote2').length > 0) {
@@ -460,7 +460,7 @@ $(document).ready(function(){
 		$('.sidebar-menu ul li.submenu a.active').parents('li:last').children('a:first').addClass('active').trigger('click');
 	}
 
-	
+
 	// Sidebar Initiate
 	init();
 	$(document).on('mouseover', function(e) {
@@ -489,7 +489,7 @@ $(document).ready(function(){
 
 
 
-	
+
 	// Date Range Picker
 
 	if($('.bookingrange').length > 0) {
@@ -516,7 +516,7 @@ $(document).ready(function(){
 		booking_range(start, end);
 	}
 
-	
+
 
 	//toggle_btn
 	$(document).on('click', '#toggle_btn', function() {
@@ -566,7 +566,7 @@ $(document).ready(function(){
 		// 	}
 		// 	return false;
 		// });
-	
+
 
 
 	if (localStorage.getItem('screenModeNightTokenState') == 'night') {
@@ -578,12 +578,12 @@ $(document).ready(function(){
 
 	var myDiv = document.querySelector('.sticky-sidebar-one');
 
-	
+
 
 	$('.submenus').on('click', function(){
 		$('body').addClass('sidebarrightmenu');
 	});
-	
+
 	$('#searchdiv').on('click', function(){
 		$('.searchinputs').addClass('show');
 	});
@@ -675,13 +675,13 @@ $(document).ready(function(){
 			complete: function() {
 			$this.text(this.countNum);
 			}
-		
-		});  
-		
+
+		});
+
 	});
 
 
-	
+
 	if($('.select-color-add').length > 0) {
 		const colorSelect = document.getElementById('colorSelect');
 		const inputBox = document.getElementById('inputBox');
@@ -699,7 +699,7 @@ $(document).ready(function(){
 		inputBox.value = selectedValue;
 		});
 	}
-	
+
 
 	// toggle-password
 	if($('.toggle-password').length > 0) {
@@ -743,7 +743,7 @@ $(document).ready(function(){
 			});
 		});
 	}
-		
+
 	// Popover
 	if($('.popover-list').length > 0) {
 		var popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'))
@@ -752,7 +752,7 @@ $(document).ready(function(){
 		})
 	}
 
-	// Clipboard 
+	// Clipboard
 	if($('.clipboard').length > 0) {
 		var clipboard = new Clipboard('.btn');
 	}
@@ -762,7 +762,7 @@ $(document).ready(function(){
 	(function() {
 		if ($(window).width() > 991)
 			chatAppTarget.removeClass('chat-slide');
-		
+
 		$(document).on("click",".chat-window .chat-users-list a.media",function () {
 			if ($(window).width() <= 991) {
 				chatAppTarget.addClass('chat-slide');
@@ -772,22 +772,22 @@ $(document).ready(function(){
 		$(document).on("click","#back_user_list",function () {
 			if ($(window).width() <= 991) {
 				chatAppTarget.removeClass('chat-slide');
-			}	
+			}
 			return false;
 		});
 	})();
 
 	// Mail important
-	
+
 	$(document).on('click', '.mail-important', function() {
 		$(this).find('i.fa').toggleClass('fa-star').toggleClass('fa-star-o');
 	});
 
-		
+
 	var selectAllItems = "#select-all";
 	var checkboxItem = ":checkbox";
 	$(selectAllItems).click(function() {
-		
+
 		if (this.checked) {
 		$(checkboxItem).each(function() {
 			this.checked = true;
@@ -797,13 +797,13 @@ $(document).ready(function(){
 			this.checked = false;
 		});
 		}
-		
+
 	});
 
 	var selectAllItems = "#select-all2";
 	var checkboxItem = ":checkbox";
 	$(selectAllItems).click(function() {
-		
+
 		if (this.checked) {
 		$(checkboxItem).each(function() {
 			this.checked = true;
@@ -813,9 +813,9 @@ $(document).ready(function(){
 			this.checked = false;
 		});
 		}
-		
+
 	});
-		
+
 	// Tooltip
 	if($('[data-bs-toggle="tooltip"]').length > 0) {
 		var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
@@ -885,7 +885,7 @@ $(document).ready(function(){
     $("body").append(right_side_views);
 
 	// Sidebar Visible
-	
+
 	$('.open-layout').on("click", function (s) {
 		s.preventDefault();
 		$('.sidebar-layout').addClass('show-layout');
@@ -923,7 +923,7 @@ $(document).ready(function(){
 
 		if (currentTheme) {
 			app.setAttribute('data-theme', currentTheme);
-		  
+
 			if (currentTheme === 'dark') {
 				toggleSwitch.checked = true;
 			}
@@ -934,15 +934,15 @@ $(document).ready(function(){
 				app.setAttribute('data-theme', 'dark');
 				localStorage.setItem('theme', 'dark');
 			}
-			else {       
+			else {
 				app.setAttribute('data-theme', 'light');
 				localStorage.setItem('theme', 'light');
-			}    
+			}
 		}
 
-		toggleSwitch.addEventListener('change', switchTheme, false);	
+		toggleSwitch.addEventListener('change', switchTheme, false);
 	}
-	
+
 	if(window.location.hash == "#LightMode"){
 		localStorage.setItem('theme', 'dark');
 	}
@@ -952,7 +952,7 @@ $(document).ready(function(){
 		}
 	}
 
-	
+
 	$('ul.tabs li').click(function(){
 		var $this = $(this);
 		var $theTab = $(this).attr('id');
@@ -963,17 +963,17 @@ $(document).ready(function(){
 		  $this.closest('.tabs_wrapper').find('ul.tabs li, .tabs_container .tab_content').removeClass('active');
 		  $('.tabs_container .tab_content[data-tab="'+$theTab+'"], ul.tabs li[id="'+$theTab+'"]').addClass('active');
 		}
-		
+
 	});
 
 	$('body').append('<div class="sidebar-filter"></div>');
-		//theme Settings 
+		//theme Settings
 		setTimeout(function () {
 			if($('.navigation-add').length > 0) {
 				$(".navigation-add").click(function(){
 					$(".sidebar-filter").addClass("opened");
 				  });
-		
+
 			}
 		}, 1000);
 
@@ -994,7 +994,7 @@ $(document).ready(function(){
 				});
 			}
 		}, 1000);
-	
+
 
 
 	 '<div class="customizer-links">' +
@@ -1033,11 +1033,11 @@ $(document).ready(function(){
 					'</div>' +
 					'<div class="row  ">' +
 						'<div class="col-xl-6 ere">' +
-							'<div class="layout-wrap">' +								
+							'<div class="layout-wrap">' +
 								'<div class="d-flex align-items-center">' +
 									'<div class="status-toggle d-flex align-items-center me-2">' +
 										'<input type="checkbox" id="1" class="check">' +
-										'<label for="1" class="checktoggle"><a  href="index"class="layout-link">checkbox</a> </label>' + 
+										'<label for="1" class="checktoggle"><a  href="index"class="layout-link">checkbox</a> </label>' +
 									'</div>' +
 									'<span class="status-text">LTR</span>' +
 								'</div>' +
@@ -1047,11 +1047,11 @@ $(document).ready(function(){
 							'</div>' +
 						'</div>' +
 						'<div class="col-xl-6 ere">' +
-							'<div class="layout-wrap">' +								
+							'<div class="layout-wrap">' +
 								'<div class="d-flex align-items-center">' +
 									'<div class="status-toggle d-flex align-items-center me-2">' +
 										'<input type="checkbox" id="1" class="check">' +
-										'<label for="1" class="checktoggle"><a  href="../template-rtl/index"class="layout-link">checkbox</a> </label>' + 
+										'<label for="1" class="checktoggle"><a  href="../template-rtl/index"class="layout-link">checkbox</a> </label>' +
 									'</div>' +
 									'<span class="status-text">RTL</span>' +
 								'</div>' +
@@ -1063,11 +1063,11 @@ $(document).ready(function(){
 					'</div>' +
 					'<div class="row  ">' +
 						'<div class="col-xl-6 ere">' +
-							'<div class="layout-wrap">' +								
+							'<div class="layout-wrap">' +
 								'<div class="d-flex align-items-center">' +
 									'<div class="status-toggle d-flex align-items-center me-2">' +
 										'<input type="checkbox" id="3" class="check">' +
-										'<label for="3" class="checktoggle"><a  href="index-three"class="layout-link">checkbox</a> </label>' + 
+										'<label for="3" class="checktoggle"><a  href="index-three"class="layout-link">checkbox</a> </label>' +
 									'</div>' +
 									'<span class="status-text">Boxed</span>' +
 								'</div>' +
@@ -1077,11 +1077,11 @@ $(document).ready(function(){
 							'</div>' +
 						'</div>' +
 						'<div class="col-xl-6 ere">' +
-						 	'<div class="layout-wrap">' +								
+						 	'<div class="layout-wrap">' +
 								'<div class="d-flex align-items-center">' +
 								 	'<div class="status-toggle d-flex align-items-center me-2">' +
 									 	'<input type="checkbox" id="3" class="check">' +
-									 	'<label for="3" class="checktoggle"><a  href="index-four"class="layout-link">checkbox</a> </label>' + 
+									 	'<label for="3" class="checktoggle"><a  href="index-four"class="layout-link">checkbox</a> </label>' +
 								 	'</div>' +
 								 	'<span class="status-text">Collapsed</span>' +
 								'</div>' +
@@ -1094,7 +1094,7 @@ $(document).ready(function(){
 				'</div>' +
 			'</div>' +
 	 	'</div>' +
-		
+
 		'<div class="sidebar-settings nav-toggle">' +
 			'<div class="sidebar-content sticky-sidebar-one">' +
 				'<div class="sidebar-header">' +
@@ -1105,11 +1105,11 @@ $(document).ready(function(){
 				 	'<h6 class="theme-title">Navigation Type</h6>' +
 				 	'<div class="row  ">' +
 						'<div class="col-xl-6 ere">' +
-							'<div class="layout-wrap">' +								
+							'<div class="layout-wrap">' +
 								'<div class="d-flex align-items-center">' +
 									'<div class="status-toggle d-flex align-items-center me-2">' +
 										'<input type="checkbox" id="1" class="check">' +
-										'<label for="1" class="checktoggle"><a  href="index"class="layout-link">checkbox</a> </label>' + 
+										'<label for="1" class="checktoggle"><a  href="index"class="layout-link">checkbox</a> </label>' +
 									'</div>' +
 									'<span class="status-text">Vertical</span>' +
 								'</div>' +
@@ -1119,11 +1119,11 @@ $(document).ready(function(){
 							'</div>' +
 						'</div>' +
 						'<div class="col-xl-6 ere">' +
-						 	'<div class="layout-wrap">' +								
+						 	'<div class="layout-wrap">' +
 								'<div class="d-flex align-items-center">' +
 								 	'<div class="status-toggle d-flex align-items-center me-2">' +
 									 	'<input type="checkbox" id="2" class="check">' +
-									 	'<label for="2" class="checktoggle"><a  href="index-one"class="layout-link">checkbox</a> </label>' + 
+									 	'<label for="2" class="checktoggle"><a  href="index-one"class="layout-link">checkbox</a> </label>' +
 								 	'</div>' +
 								 	'<span class="status-text">Horizontal</span>' +
 								'</div>' +
@@ -1133,11 +1133,11 @@ $(document).ready(function(){
 						 	'</div>' +
 						'</div>' +
 						'<div class="col-xl-6 ere">' +
-						 	'<div class="layout-wrap">' +								
+						 	'<div class="layout-wrap">' +
 								'<div class="d-flex align-items-center">' +
 								 	'<div class="status-toggle d-flex align-items-center me-2">' +
 									 	'<input type="checkbox" id="3" class="check">' +
-									 	'<label for="3" class="checktoggle"><a  href="index-four"class="layout-link">checkbox</a> </label>' + 
+									 	'<label for="3" class="checktoggle"><a  href="index-four"class="layout-link">checkbox</a> </label>' +
 								 	'</div>' +
 								 	'<span class="status-text">Collapsed</span>' +
 								'</div>' +
@@ -1147,11 +1147,11 @@ $(document).ready(function(){
 						 	'</div>' +
 						'</div>' +
 						'<div class="col-xl-6 ere">' +
-						 	'<div class="layout-wrap">' +								
+						 	'<div class="layout-wrap">' +
 								'<div class="d-flex align-items-center">' +
 								 	'<div class="status-toggle d-flex align-items-center me-2">' +
 									 	'<input type="checkbox" id="3" class="check">' +
-									 	'<label for="3" class="checktoggle"><a  href="index-three"class="layout-link">checkbox</a> </label>' + 
+									 	'<label for="3" class="checktoggle"><a  href="index-three"class="layout-link">checkbox</a> </label>' +
 								 	'</div>' +
 								 	'<span class="status-text">Modern</span>' +
 								'</div>' +
@@ -1161,11 +1161,11 @@ $(document).ready(function(){
 						 	'</div>' +
 						'</div>' +
 						'<div class="col-xl-6 ere">' +
-						 	'<div class="layout-wrap">' +								
+						 	'<div class="layout-wrap">' +
 								'<div class="d-flex align-items-center">' +
 								 	'<div class="status-toggle d-flex align-items-center me-2">' +
 									 	'<input type="checkbox" id="3" class="check">' +
-									 	'<label for="3" class="checktoggle"><a  href="index-two"class="layout-link">checkbox</a> </label>' + 
+									 	'<label for="3" class="checktoggle"><a  href="index-two"class="layout-link">checkbox</a> </label>' +
 								 	'</div>' +
 								 	'<span class="status-text">Boxed</span>' +
 								'</div>' +
@@ -1196,7 +1196,7 @@ $('.sidebar-close').on("click", function () {
 	document.body.style.overflow = 'auto';
 });
 
-//theme Settings 
+//theme Settings
 setTimeout(function () {
 	$(".sidebar-close").click(function(e){
 		$(".sidebar-settings").removeClass("show-settings");
@@ -1208,10 +1208,10 @@ setTimeout(function () {
 // DarkMode with LocalStorage
 if($('#dark-mode-toggle').length > 0) {
 	$("#dark-mode-toggle").children(".light-mode").addClass("active");
-	let darkMode = localStorage.getItem('darkMode'); 
-	
+	let darkMode = localStorage.getItem('darkMode');
+
 	const darkModeToggle = document.querySelector('#dark-mode-toggle');
-	
+
 	const enableDarkMode = () => {
 		document.body.setAttribute('data-theme', 'dark');
 		$("#dark-mode-toggle").children(".dark-mode").addClass("active");
@@ -1225,51 +1225,51 @@ if($('#dark-mode-toggle').length > 0) {
 		$("#dark-mode-toggle").children(".light-mode").addClass("active");
 	  localStorage.setItem('darkMode', null);
 	}
-	 
+
 	if (darkMode === 'enabled') {
 		enableDarkMode();
 	}
 
 	darkModeToggle.addEventListener('click', () => {
-	  darkMode = localStorage.getItem('darkMode'); 
-	  
+	  darkMode = localStorage.getItem('darkMode');
+
 	  if (darkMode !== 'enabled') {
 		enableDarkMode();
-	  } else {  
-		disableDarkMode(); 
+	  } else {
+		disableDarkMode();
 	  }
 	});
 }
 
 // Otp Verfication  
-$('.digit-group').find('input').each(function () { 
-	$(this).attr('maxlength', 1); 
-	$(this).on('keyup', function (e) { 
-	 var parent = $($(this).parent()); 
-	 if (e.keyCode === 8 || e.keyCode === 37) { 
-	var prev = parent.find('input#' + $(this).data('previous')); 
-	if (prev.length) { $(prev).select(); 
-	 } 
-	 } 
-	else if ((e.keyCode >= 48 && e.keyCode <= 57) || (e.keyCode >= 65 && e.keyCode <= 90) || (e.keyCode >= 96 && e.keyCode <= 105) || e.keyCode === 39) {  
-	var next = parent.find('input#' + $(this).data('next')); 
-     if (next.length) { 
-	 $(next).select(); 
-	} else { 
-	if (parent.data('autosubmit')) { 
-	 parent.submit(); 
+$('.digit-group').find('input').each(function () {
+	$(this).attr('maxlength', 1);
+	$(this).on('keyup', function (e) {
+	 var parent = $($(this).parent());
+	 if (e.keyCode === 8 || e.keyCode === 37) {
+	var prev = parent.find('input#' + $(this).data('previous'));
+	if (prev.length) { $(prev).select();
 	 }
-	} 
-	 } 
-	}); 
-	}); 
-	 $('.digit-group input').on('keyup', function () { 
-	 var self = $(this); 
-	 if (self.val() != '') { 
-	 self.addClass('active'); 
-	 } else { 
-	self.removeClass('active'); 
-	} 
+	 }
+	else if ((e.keyCode >= 48 && e.keyCode <= 57) || (e.keyCode >= 65 && e.keyCode <= 90) || (e.keyCode >= 96 && e.keyCode <= 105) || e.keyCode === 39) {  
+	var next = parent.find('input#' + $(this).data('next'));
+     if (next.length) {
+	 $(next).select();
+	} else {
+	if (parent.data('autosubmit')) {
+	 parent.submit();
+	 }
+	}
+	 }
+	});
+	});
+	 $('.digit-group input').on('keyup', function () {
+	 var self = $(this);
+	 if (self.val() != '') {
+	 self.addClass('active');
+	 } else {
+	self.removeClass('active');
+	}
 	 });
 
 // Date Range Picker
@@ -1338,7 +1338,7 @@ $(".close_profile").on('click', function () {
 // 			$('.left-sidebar').addClass('hide-left-sidebar');
 // 			$('.chat').addClass('show-chatbar');
 // 		}
-		
+
 // 	});
 
 // 	$(".dream_profile_menu").on('click', function () {
@@ -1372,7 +1372,7 @@ $(".close_profile").on('click', function () {
 // 		$('.left-sidebar').removeClass('hide-left-sidebar');
 // 		$('.chat').removeClass('show-chatbar');
 // 	});
-		
+
 // });
 
 if($('.emoj-action').length > 0) {
@@ -1397,7 +1397,7 @@ if($('.custom-input').length > 0) {
 }
 
 // Mute Video
-	
+
 if($('.mute-video').length > 0) {
 	$(".mute-video").on('click', function(){
 		if($(this).hasClass("stop")) {
@@ -1408,8 +1408,8 @@ if($('.mute-video').length > 0) {
 			$(".video-avatar").removeClass("active");
 			$(this).attr("data-bs-original-title","Stop Camera");
 			$(".meeting .join-video.user-active").removeClass("video-hide");
-			
-			$(".join-video.user-active .more-icon").removeClass("vid-view");				
+
+			$(".join-video.user-active .more-icon").removeClass("vid-view");
 			$(".action-info.vid-view li .mute-vid i").removeClass("feather-video-off");
 			$(".action-info.vid-view li .mute-vid i").addClass("feather-video");
 		}
@@ -1421,7 +1421,7 @@ if($('.mute-video').length > 0) {
 			$(".video-avatar").addClass("active");
 			$(this).attr("data-bs-original-title","Start Camera");
 			$(".meeting .join-video.user-active").addClass("video-hide");
-			
+
 			$(".add-list .user-active .action-info").addClass("vid-view");
 			$(".action-info.vid-view li .mute-vid i").removeClass("feather-video");
 			$(".action-info.vid-view li .mute-vid i").addClass("feather-video-off");
@@ -1439,7 +1439,7 @@ if($('.mute-bt').length > 0) {
 			$(".mute-bt i").addClass("bx-microphone");
 			$(this).attr("data-bs-original-title","Mute Audio");
 			$(".join-video.user-active .more-icon").removeClass("mic-view");
-			
+
 			$(".action-info.vid-view li .mute-mic i").removeClass("feather-mic-off");
 			$(".action-info.vid-view li .mute-mic i").addClass("feather-mic");
 		}
@@ -1447,9 +1447,9 @@ if($('.mute-bt').length > 0) {
 			$(this).addClass("stop");
 			$(".mute-bt i").removeClass("bx-microphone");
 			$(".mute-bt i").addClass("bx-microphone-off");
-			$(this).attr("data-bs-original-title","Unmute Audio");				
+			$(this).attr("data-bs-original-title","Unmute Audio");
 			$(".join-video.user-active .more-icon").addClass("mic-view");
-			
+
 			$(".add-list .user-active .action-info").addClass("vid-view");
 			$(".action-info.vid-view li .mute-mic i").removeClass("feather-mic");
 			$(".action-info.vid-view li .mute-mic i").addClass("feather-mic-off");
@@ -1475,7 +1475,7 @@ if($('.other-mic-off').length > 0) {
 }
 
 // Mute User Video
-	
+
 if($('.other-video-off').length > 0) {
 	$(".other-video-off i").on('click', function(){
 		if($(this).parent().hasClass("stop")) {
@@ -1493,7 +1493,7 @@ if($('.other-video-off').length > 0) {
 
 
 // POS Category Slider
-if($('.video-slide').length > 0) {      
+if($('.video-slide').length > 0) {
 	$('.video-slide').owlCarousel({
 		items: 4,
 		loop:true,
@@ -1579,7 +1579,7 @@ $(".chat-search .form-control").on("keyup", function() {
 	  $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
 	});
 });
-	  
+
 
 });
 function toggleFullscreen(elem) {
@@ -1701,12 +1701,12 @@ function toggleFullscreen(elem) {
 			'<option>Computers</option>' +
 			'</select>' +
 			'</div>' +
-			'<div class="input-blocks">' + 
+			'<div class="input-blocks">' +
 			'<a href="#" class="btn btn-danger-outline trash"><i class="far fa-trash-alt"></i></a>' +
 			'</div>' +
 			'</div>' +
 			'</div>';
-			
+
 			setTimeout(function () {
 				$('.select');
 				setTimeout(function () {
@@ -1752,7 +1752,7 @@ function toggleFullscreen(elem) {
 			'<option>Computers</option>' +
 			'</select>' +
 			'</div>' +
-			'<div class="input-blocks">' + 
+			'<div class="input-blocks">' +
 			'<a href="#" class="btn btn-danger-outline trash"><i class="far fa-trash-alt"></i></a>' +
 			'</div>' +
 			'</div>' +
@@ -1766,7 +1766,7 @@ function toggleFullscreen(elem) {
 					});
 				}, 100);
 			}, 100);
-			
+
 
 		$(".add-product-new").append(servicecontent);
 		return false;
@@ -1776,7 +1776,7 @@ function toggleFullscreen(elem) {
 		$(document).on("click",".remove-color",function () {
 			$(this).parent().parent().parent().hide();
 		});
-	
+
 	// Collapse Header
 	if($('#btnFullscreen').length > 0) {
 		document.getElementById('btnFullscreen').addEventListener('click', function() {
@@ -1786,7 +1786,7 @@ function toggleFullscreen(elem) {
 
 
 $(document).ready(function(){
-	
+
 	if($('#collapse-header').length > 0) {
 		document.getElementById('collapse-header').onclick = function() {
 		    this.classList.toggle('active');
@@ -1806,7 +1806,7 @@ $(document).ready(function(){
 		});
 	}
 	// POS Category Slider
-	if($('.pos-category').length > 0) {      
+	if($('.pos-category').length > 0) {
 		$('.pos-category').owlCarousel({
 			items: 6,
 			loop:false,
@@ -1863,7 +1863,7 @@ $(document).ready(function(){
 	}
 
 	// Files Slider
-	if($('.files-carousel').length > 0) {      
+	if($('.files-carousel').length > 0) {
 		$('.files-carousel').owlCarousel({
 			items: 3,
 			loop:true,
@@ -1965,7 +1965,7 @@ $(document).ready(function(){
 	    item.val(Math.max(newValue, 0));
 	}
 
-	
+
 
 	//common Sidebar Toggle Fun
 	if($('.popup-toggle').length > 0) {

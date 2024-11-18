@@ -78,11 +78,10 @@
                 <li class="submenu-open">
                     <h6 class="submenu-hdr">Settings</h6>
                     <ul>
-                        <li class="submenu">
-                            <a class="{{ Route::is('user.profile') ? 'active' : '' }}"
-                                href="{{ route('user.profile') }}"><i data-feather="user"></i><span>Profile</span></a>
+                        <li class="{{ Route::is('user.profile') ? 'active' : '' }}">
+                            <a href="{{ route('user.profile') }}"><i data-feather="user"></i><span>Profile</span></a>
                         </li>
-                        <li class="submenu">
+                        <li>
                             <a href="javascript:void(0);" onclick="$('#logout-form').submit()" ><i data-feather="log-out"></i><span>Logout</span> </a>
                         </li>
                     </ul>

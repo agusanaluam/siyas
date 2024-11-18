@@ -23,7 +23,7 @@
                         <div class="alert alert-danger d-flex align-items-center" role="alert">
                             <i class="feather-alert-octagon flex-shrink-0 me-2"></i>
                             <div>
-                                    {{ $errors[0] }}
+                                    {{ $errors }}
                             </div>
                         </div>
                     @endif
@@ -51,7 +51,7 @@
 
             </div>
             <div class="my-4 d-flex justify-content-center align-items-center copyright-text">
-                <p>Copyright &copy; 2023 DreamsPOS. All rights reserved</p>
+                <p>Copyright &copy; {{ date('Y') }} InsanTeknoSejahtera. All rights reserved</p>
             </div>
         </div>
     </div>

@@ -7,10 +7,10 @@
     <meta name="description" content="POS - Bootstrap Admin Template">
     <meta name="keywords"
         content="admin, estimates, bootstrap, business, corporate, creative, invoice, html5, responsive, Projects">
-    <meta name="author" content="Dreamguys - Bootstrap Admin Template">
+    <meta name="author" content="InsanTeknoSejahtera - SIYAS Admin">
     <meta name="robots" content="noindex, nofollow">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Dreams Pos Admin Template</title>
+    <title>CahayaAyahBunda :: Dashboard</title>
 
     <!-- Favicon -->
     <link rel="shortcut icon" type="image/x-icon" href="{{ URL::asset('/build/img/favicon.png')}}">
