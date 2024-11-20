@@ -31,7 +31,7 @@
                                                 <p id="description">
                                                 </p>
                                             </div>
-                                            <div class="details-item" id="volunteer_info">
+                                            <div class="details-item">
                                                 <h6>Volunteer Info</h6>
                                                 <p id="volunteer_info">
                                                 </p>

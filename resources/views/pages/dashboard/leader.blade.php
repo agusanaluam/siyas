@@ -75,12 +75,12 @@
                                             <td>{{ $key+1 }}</td>
                                             <td>
                                                 <div class="product-info">
-                                                    <a href="{{ route('campaign.list') }}" class="product-img">
+                                                    <a href="{{ route('campaign.details',$campaign->id) }}" class="product-img">
                                                         <img src="{{ URL::asset('/storage/campaign_pictures/resized_'.$campaign->image[0]->picture_path) }}"
                                                             alt="product">
                                                     </a>
                                                     <div class="info">
-                                                        <a href="{{ route('campaign.list') }}">{{ $campaign->name }}</a>
+                                                        <a href="{{ route('campaign.details',$campaign->id) }}">{{ $campaign->name }}</a>
                                                         @switch($campaign->status)
                                                             @case(2)
                                                                 <span class="dull-text d-flex align-items-center text-green">Running</span>
@@ -141,12 +141,12 @@
                                             <td>{{ $key+1 }}</td>
                                             <td>
                                                 <div class="product-info">
-                                                    <a href="{{ url('product-list') }}" class="product-img">
+                                                    <a href="{{ route('campaign.details',$donation->campaign->id) }}" class="product-img">
                                                         <img src="{{ URL::asset('/storage/campaign_pictures/'.$donation->campaign->image[0]->picture_path) }}"
                                                             alt="product">
                                                     </a>
                                                     <div class="info">
-                                                        <a href="{{ url('product-list') }}">{{ $donation->campaign->name }}</a>
+                                                        <a href="{{ route('campaign.details',$donation->campaign->id) }}">{{ $donation->campaign->name }}</a>
                                                         <span class="dull-text d-flex align-items-center"><i
                                                                 data-feather="file" class="feather-14"></i>{{ $donation->donation->liq_number }}</span>
                                                     </div>

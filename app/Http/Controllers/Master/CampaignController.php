@@ -32,11 +32,10 @@ class CampaignController extends Controller
                 ->addColumn('campaign', function ($data){
                     $storage = "storage/campaign_pictures/".$data->image[0]->picture_path;
                     return '<div class="productimgname">
-                                <a href="javascript:void(0);" class="product-img stock-img">
-                                    <img src="'. asset($storage).'"
-                                        alt="product">
+                                <a href="'.route('campaign.details',$data->id).'" class="product-img stock-img">
+                                    <img src="'. asset($storage). '" alt="product">
                                 </a>
-                                <a href="javascript:void(0);">'.$data->name.' </a>
+                                <a href="' . route('campaign.details', $data->id) . '">'.$data->name.' </a>
                             </div>';
                 })
                 ->editColumn('start_date', function ($data) {
@@ -83,6 +82,12 @@ class CampaignController extends Controller
 
                     return '<span class="badge bg-outline-'.$badge.'">'.$formatType.'</span>';
                 })
+                ->addColumn('progress', function ($data) {
+                    return '<div class="progress progress-xl mb-3 progress-animate custom-progress-4 info" role="progressbar" aria-valuenow="'.round(floatval($data->total_amount/$data->target_amount)*100,2) .'" aria-valuemin="0" aria-valuemax="100">
+                                <div class="progress-bar bg-info" style="width:'.round(floatval($data->total_amount/$data->target_amount)*100,2) .'%"></div>
+                                    <div class="progress-bar-label">'.round(floatval($data->total_amount/$data->target_amount)*100,2) .'%</div>
+                            </div>';
+                })
                 ->addColumn('action', function ($data) {
                     if (auth()->user()->level == 'administrator') {
                         return
@@ -99,7 +104,7 @@ class CampaignController extends Controller
                         return '<div class="edit-delete-action"></div>';
                     };
                 })
-                ->rawColumns(['campaign','statusLabel', 'action'])
+                ->rawColumns(['campaign', 'progress','statusLabel', 'action'])
                 ->make();
         }
         $status = 0;
@@ -144,6 +149,7 @@ class CampaignController extends Controller
                 'start_date' => date("Y-m-d", strtotime($request->start_date)),
                 'end_date' => date("Y-m-d", strtotime($request->end_date)),
                 'target_amount' => $request->target_amount,
+                'target_object' => $request->target_object,
                 'description' => $request->description,
                 'pic' => $request->pic,
                 'close_type' => $request->close_type,
@@ -177,6 +183,12 @@ class CampaignController extends Controller
             return redirect()->back()->withErrors(['error' => 'Oops. Something wrong: ' .$e->getMessage()])
                 ->onlyInput('name','pic','description','start_date','end_date','category','close_type', 'target_amount');
         }
+    }
+
+    function details($id)
+    {
+        $data = Campaign::with('image','category','donationDetail')->find($id);
+        return view('pages.campaign.campaign-details', compact('data'));
     }
 
     function edit($id)

@@ -50,6 +50,7 @@ $(document).ready(function() {
                 {data: 'start_date'},
                 {data: 'end_date'},
                 {data: 'target_amount'},
+                {data: 'progress'},
                 {data: 'close_type'},
                 {data: 'statusLabel'},
                 {

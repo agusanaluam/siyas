@@ -64,7 +64,8 @@ Route::group(['middleware' => 'auth'],function () {
         Route::get('/search', [CampaignController::class, 'search'])->name('campaign.search');
         Route::get('/create', [CampaignController::class, 'create'])->name('campaign.create');
         Route::post('/store', [CampaignController::class, 'store'])->name('campaign.store');
-        Route::get('/detail/{id}', [CampaignController::class, 'edit'])->name('campaign.edit');
+        Route::get('/edit/{id}', [CampaignController::class, 'edit'])->name('campaign.edit');
+        Route::get('/details/{id}', [CampaignController::class, 'details'])->name('campaign.details');
         Route::post('/update', [CampaignController::class, 'update'])->name('campaign.update');
         Route::delete('/{id}', [CampaignController::class, 'destroy'])->name('campaign.destroy');
 

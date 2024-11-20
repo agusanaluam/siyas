@@ -102,6 +102,7 @@
                                     <th>Start</th>
                                     <th>End</th>
                                     <th>Target Amount</th>
+                                    <th>Progress</th>
                                     <th>Close Type</th>
                                     <th>Status</th>
                                     <th class="no-sort">Action</th>

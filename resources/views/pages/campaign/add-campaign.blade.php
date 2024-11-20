@@ -103,13 +103,19 @@
                                         </div>
 
                                         <div class="row">
-                                            <div class="col-lg-6 col-md-6 col-12">
+                                            <div class="col-lg-4 col-md-4 col-12">
                                                 <div class="mb-3 add-product">
                                                     <label class="form-label">Target Amount</label>
                                                     <input type="number" class="form-control" name="target_amount" placeholder="0">
                                                 </div>
                                             </div>
-                                            <div class="col-lg-6 col-md-6 col-12">
+                                            <div class="col-lg-4 col-md-4 col-12">
+                                                <div class="mb-3 add-product">
+                                                    <label class="form-label">Target Object (penerima manfaat)</label>
+                                                    <input type="number" class="form-control" name="target_object" placeholder="0">
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-4 col-md-4 col-12">
                                                 <div class="mb-3 add-product">
                                                     <label class="form-label">Close Type</label>
                                                     <select class="form-select" name="close_type">
