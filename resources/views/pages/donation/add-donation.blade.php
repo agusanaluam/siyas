@@ -27,8 +27,11 @@
                                         <div class="col-sm-2 col-md-6 col-lg-3 col-xl-3">
                                             <div class="product-info default-cover card" data-campaign="{{ json_encode($cmpg) }}">
                                                 <a href="javascript:void(0);" class="img-bg" id="{{ $cmpg->id }}">
-                                                    <img src="{{ URL::asset('storage/campaign_pictures/resized_'.$cmpg->image[0]->picture_path) }}"
-                                                        alt="Products">
+                                                    @if (count($cmpg->image) > 0)
+                                                            <img src="{{ URL::asset('/storage/campaign_pictures/resized_'.$cmpg->image[0]->picture_path) }}" alt="product">
+                                                        @else
+                                                            <img src="{{ URL::asset('/build/img/avatar/avatar-1.jpg') }}" alt="product">
+                                                        @endif
                                                     <span><i data-feather="check" class="feather-16"></i></span>
                                                 </a>
                                                 <hr/>

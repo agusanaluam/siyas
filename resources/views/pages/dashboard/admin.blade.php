@@ -125,8 +125,11 @@
                                             <td>
                                                 <div class="product-info">
                                                     <a href="{{ route('campaign.details',$campaign->id) }}" class="product-img">
-                                                        <img src="{{ URL::asset('/storage/campaign_pictures/resized_'.$campaign->image[0]->picture_path) }}"
-                                                            alt="product">
+                                                        @if (count($campaign->image) > 0)
+                                                            <img src="{{ URL::asset('/storage/campaign_pictures/resized_'.$campaign->image[0]->picture_path) }}" alt="product">
+                                                        @else
+                                                            <img src="{{ URL::asset('/build/img/avatar/avatar-1.jpg') }}" alt="product">
+                                                        @endif
                                                     </a>
                                                     <div class="info">
                                                         <a href="{{ route('campaign.details',$campaign->id) }}">{{ $campaign->name }}</a>
@@ -191,8 +194,11 @@
                                             <td>
                                                 <div class="product-info">
                                                     <a href="{{ route('campaign.details',$donation->campaign->id) }}" class="product-img">
-                                                        <img src="{{ URL::asset('/storage/campaign_pictures/'.$donation->campaign->image[0]->picture_path) }}"
-                                                            alt="product">
+                                                        @if (count($donation->campaign->image) > 0)
+                                                            <img src="{{ URL::asset('/storage/campaign_pictures/'.$donation->campaign->image[0]->picture_path) }}" alt="product">
+                                                        @else
+                                                            <img src="{{ URL::asset('/build/img/avatar/avatar-1.jpg') }}" alt="product">
+                                                        @endif
                                                     </a>
                                                     <div class="info">
                                                         <a href="{{ route('campaign.details',$donation->campaign->id) }}">{{ $donation->campaign->name }}</a>

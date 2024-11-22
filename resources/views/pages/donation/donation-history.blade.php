@@ -114,8 +114,11 @@
                                         <td class="productimgname">
                                             <div class="view-product me-2">
                                                 <a href="javascript:void(0);">
-                                                    <img src="{{ URL::asset('/storage/campaign_pictures/resized_'.$row->campaign->image[0]->picture_path) }}"
-                                                        alt="product">
+                                                    @if (count($row->campaign->image) > 0)
+                                                            <img src="{{ URL::asset('/storage/campaign_pictures/resized_'.$row->campaign->image[0]->picture_path) }}" alt="product">
+                                                        @else
+                                                            <img src="{{ URL::asset('/build/img/avatar/avatar-1.jpg') }}" alt="product">
+                                                        @endif
                                                 </a>
                                             </div>
                                             <a href="javascript:void(0);">{{ $row->campaign->name }}</a>

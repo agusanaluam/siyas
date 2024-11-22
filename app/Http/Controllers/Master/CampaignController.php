@@ -135,7 +135,7 @@ class CampaignController extends Controller
             'end_date' => 'required|date',
             'description' => 'required',
             'pic' => 'required|string|max:150',
-            'campaign_picture.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Validasi untuk foto
+            'campaign_picture.*' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048', // Validasi untuk foto
 
         ]);
 
