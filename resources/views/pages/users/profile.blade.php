@@ -21,7 +21,7 @@
                             <div class="profile-top">
                                 <div class="profile-content">
                                     <div class="profile-contentimg">
-                                        <img src="{{ URL::asset('storage/'.$user->profile_picture) }}" alt="img"
+                                        <img src="{{ (isset($user->profile_picture))? URL::asset('storage/'.$user->profile_picture) : URL::asset('build/img/avatar/avatar-1.jpg') }}" alt="img"
                                             id="blah">
                                         <div class="profileupload">
                                             <input type="file" id="imgInp" class="form-control" name="profile_picture">

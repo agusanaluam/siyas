@@ -199,7 +199,7 @@
             <a href="javascript:void(0);" class="dropdown-toggle nav-link userset" data-bs-toggle="dropdown">
                 <span class="user-info">
                     <span class="user-letter">
-                        <img src="{{ URL::asset('storage/'.Auth::user()->profile->profile_picture) }}" alt=""
+                        <img src="{{ (isset(Auth::user()->profile->profile_picture))? URL::asset('storage/'.Auth::user()->profile->profile_picture) : URL::asset('build/img/avatar/avatar-1.jpg') }}" alt=""
                             class="img-fluid">
                     </span>
                     <span class="user-detail">

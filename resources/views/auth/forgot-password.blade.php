@@ -28,7 +28,7 @@
                                 </div>
                             </div>
                             <div class="form-login">
-                                <button type="submit" class="btn btn-login">Sign Up</button>
+                                <button type="submit" class="btn btn-login">Request Reset Password</button>
                             </div>
                             <div class="signinform text-center">
                                 <h4>Return to<a href="{{ route('login') }}" class="hover-a"> login </a></h4>
