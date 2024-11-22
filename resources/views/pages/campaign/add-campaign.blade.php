@@ -106,7 +106,7 @@
                                             <div class="col-lg-4 col-md-4 col-12">
                                                 <div class="mb-3 add-product">
                                                     <label class="form-label">Target Amount</label>
-                                                    <input type="number" class="form-control" name="target_amount" placeholder="0">
+                                                    <input type="number" class="form-control" name="target_amount" placeholder="0" required>
                                                 </div>
                                             </div>
                                             <div class="col-lg-4 col-md-4 col-12">
@@ -163,7 +163,7 @@
                                                 <div class="add-choosen">
                                                     <div class="input-blocks">
                                                         <div class="image-upload">
-                                                            <input type="file" id="campaign_picture" name="campaign_picture[]" multiple accept="image/*">
+                                                            <input type="file" id="campaign_picture" name="campaign_picture[]" multiple accept="image/*" required>
                                                             <div class="image-uploads">
                                                                 <i data-feather="plus-circle"
                                                                     class="plus-down-add me-0"></i>
