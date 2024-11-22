@@ -1,13 +1,13 @@
-import './component/location';
-import './pages/profile';
-import './pages/campaign/category';
-import './pages/campaign/campaign';
-import './pages/donation-app';
-import './pages/donation/donation';
-import './pages/donation/mutation';
-import './pages/dashboard';
-import './pages/volunteer/group';
-import './pages/volunteer/volunteer';
+import './component/location.js';
+import './pages/profile.js';
+import './pages/campaign/category.js';
+import './pages/campaign/campaign.js';
+import './pages/donation-app.js';
+import './pages/donation/donation.js';
+import './pages/donation/mutation.js';
+import './pages/dashboard.js';
+import './pages/volunteer/group.js';
+import './pages/volunteer/volunteer.js';
 
 
 

@@ -2,7 +2,6 @@
 Author       : Dreamguys
 Template Name: POS - Bootstrap Admin Template
 */
-import './component/location';
 
 
 $(document).ready(function(){

@@ -62,7 +62,11 @@
 {{-- @include('layout.partials.theme-settings') --}}
 @include('layout.partials.footer-scripts')
 @if (Auth::check())
-@vite( asset('build/js/app.js'))
+@if (app()->environment('local'))
+    @vite(['resources/js/app.js'])
+@else
+    <script type="module" src="{{ asset('build/js/app.js') }}" defer></script>
+@endif
 @endif
 </body>
 

@@ -26,7 +26,17 @@ export default defineConfig({
         laravel({
             input: [
                 'resources/css/style.css',
-                'resources/js/script.js',
+                'resources/js/script.js'
+                // 'resources/js/pages/dashboard.js',
+                // 'resources/js/pages/donation-app.js',
+                // 'resources/js/pages/profile.js',
+                // 'resources/js/pages/campaign/campaign.js',
+                // 'resources/js/pages/campaign/category.js',
+                // 'resources/js/pages/donation/donation.js',
+                // 'resources/js/pages/donation/mutation.js',
+                // 'resources/js/pages/volunteer/group.js',
+                // 'resources/js/pages/volunteer/volunteer.js',
+                // 'resources/js/component/location.js'
             ],
             refresh: true,
         }),

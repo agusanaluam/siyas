@@ -164,6 +164,7 @@ $(document).on('click', '.donation-detail', function() {
             let data = response.data
             $('#liq_number').text('LIQ Number : '+data.liq_number);
             $('#donor_info').html(data.donatur_name+'<br>'+data.donatur_address+'<br>'+data.donatur_phone);
+            $('#volunteer_info').html(data.volunteer.name+'<br>'+data.volunteer.phone_number);
             $('#description').text(data.description);
             $('#liq_status').html('<span>'+data.trans_date+'</span><br/>'+data.status);
             let totalAmount = new Intl.NumberFormat("id-ID", {
@@ -172,7 +173,7 @@ $(document).on('click', '.donation-detail', function() {
             }).format(data.total_amount);
             $('#total_amount').text(totalAmount);
             $('#payment_method').text((data.via_transfer == 1)? 'Transfer': 'Cash');
-            $('#reference_code').text(data.reference_code);
+            $('#reference_code').html(`<a href="${BASE_URL}/storage/${data.reference_picture}" target="_blank">${data.reference_code}</a>`);
             $('#donationDetailTable').DataTable().clear().destroy();
             $('#donationDetailTable').DataTable({
                 responsive: true,
