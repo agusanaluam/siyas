@@ -79,7 +79,7 @@
                                             </td>
                                             <td>
                                                 <p class="head-text">Progress</p>
-                                                {{ round(($campaign->total_amount/$campaign->target_amount)*100, 2) }}%
+                                                {{-- {{ round(($campaign->total_amount/$campaign->target_amount)*100, 2) }}% --}}
                                             </td>
                                         </tr>
                                         @endforeach

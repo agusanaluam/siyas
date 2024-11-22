@@ -28,6 +28,7 @@
                                         <h4>PIC</h4>
                                         <h6>{{ $data->pic }}</h6>
                                     </li>
+                                    @if (Auth::user()->level != 'volunteer')
                                     <li>
                                         <h4>Target Amount</h4>
                                         <h6>@currency($data->target_amount)</h6>
@@ -40,6 +41,7 @@
                                         <h4>Progress Amount</h4>
                                         <h6>@currency($data->total_amount) ( {{ round(floatval($data->total_amount/$data->target_amount)*100,2)}}% )</h6>
                                     </li>
+                                    @endif
                                     <li>
                                         <h4>Start - End Data</h4>
                                         <h6>{{ date('d-m-Y', strtotime($data->start_date)) }} s/d {{ date('d-m-Y', strtotime($data->end_date)) }}</h6>
