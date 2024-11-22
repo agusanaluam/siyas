@@ -98,7 +98,9 @@ class AuthController extends Controller
             $userProfile = Volunteer::create([
                 'group_id' => $request->group,
                 'name' => $request->name,
-                'email' => $request->email
+                'email' => $request->email,
+                'profile_picture' => 'build/img/profiles/avatar-01.jpg'
+
             ]);
 
             // Buat token verifikasi
