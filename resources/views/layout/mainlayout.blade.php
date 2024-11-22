@@ -62,7 +62,7 @@
 {{-- @include('layout.partials.theme-settings') --}}
 @include('layout.partials.footer-scripts')
 @if (Auth::check())
-@vite('resources/js/app.js')
+@vite( asset('build/js/app.js'))
 @endif
 </body>
 
