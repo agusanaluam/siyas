@@ -4,9 +4,9 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0">
-    <meta name="description" content="POS - Bootstrap Admin Template">
+    <meta name="description" content="SIYAS - YCAB Volunteer Dashboard">
     <meta name="keywords"
-        content="admin, estimates, bootstrap, business, corporate, creative, invoice, html5, responsive, Projects">
+        content="admin, volunteer, yayasan, ycab, nonprofit, charity, donation, ayah, bunda, cahaya">
     <meta name="author" content="InsanTeknoSejahtera - SIYAS Admin">
     <meta name="robots" content="noindex, nofollow">
     <meta name="csrf-token" content="{{ csrf_token() }}">
