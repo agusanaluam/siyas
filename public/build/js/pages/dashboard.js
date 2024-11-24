@@ -90,31 +90,29 @@ $(document).ready(function() {
     });
 
     $('#verifyBtn').on('click', function () {
-        console.log('masuk');
         const formData = new FormData($('#emailVerifyForm')[0]);
 
         $.ajax({
-                    type: 'POST',
-                    url: `${BASE_URL}/resend-verification`, // Ganti dengan route yang sesuai
-                    data: formData,
-                    processData: false, // Untuk menghindari jQuery mengubah data
-                    contentType: false, // Memungkinkan pengiriman file
-                    success: function(response) {
-                        if (response.success) {
-                                $('#toastSuccess').toast('show');
-                                $('#toastSuccess .toast-body').text(response.message);
-
-                            } else {
-                                $('#toastDanger').toast('show');
-                                $('#toastDanger .toast-body').text(response.message);
-                            }
-                    },
-                    error: function(xhr) {
-                        const errors = xhr.responseText;
+            type: 'POST',
+            url: `${BASE_URL}/resend-verification`, // Ganti dengan route yang sesuai
+            data: formData,
+            processData: false, // Untuk menghindari jQuery mengubah data
+            contentType: false, // Memungkinkan pengiriman file
+            success: function(response) {
+                if (response.success) {
+                        $('#toastSuccess').toast('show');
+                        $('#toastSuccess .toast-body').text(response.message);
+                    } else {
                         $('#toastDanger').toast('show');
-                        $('#toastDanger .toast-body').text(errors);
+                        $('#toastDanger .toast-body').text('Silakan refresh halaman');
                     }
-                });
+            },
+            error: function(xhr) {
+                const errors = xhr.responseText;
+                $('#toastDanger').toast('show');
+                $('#toastDanger .toast-body').text(errors);
+            }
+        });
     });
 
     // Panggil fungsi pertama kali dengan default range

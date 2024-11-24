@@ -5,12 +5,12 @@
         <div class="content pos-design p-0">
             <div class="btn-row d-sm-flex align-items-center">
                 <a href="{{ route('dashboard') }}" class="btn btn-secondary mb-xs-3"><span class="me-1 d-flex align-items-center"><i data-feather="arrow-left"
-                            class="feather-16"></i></span>Back to Dashboard</a>
+                            class="feather-16"></i></span> Back to Dashboard</a>
                 <a href="javascript:void(0);" class="btn btn-info" onclick="location.reload()"><span class="me-1 d-flex align-items-center"><i
-                            data-feather="rotate-cw" class="feather-16"></i></span>Reset</a>
-                <a href="javascript:void(0);" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#recents"><span
-                        class="me-1 d-flex align-items-center"><i data-feather="refresh-ccw"
-                            class="feather-16"></i></span>Transaction</a>
+                            data-feather="rotate-cw" class="feather-16"></i></span> Reset</a>
+                <a href="javascript:void(0);" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#qr-code"><span
+                        class="me-1 d-flex align-items-center"><i data-feather="maximize"
+                            class="feather-16"></i></span> QR Code</a>
             </div>
 
             <div class="row align-items-start pos-wrapper">
@@ -122,7 +122,7 @@
                                 <input type="hidden" name="payment_method" value="" required/>
                                 <div class="appearance-settings">
                                     <div class="row">
-                                        <div class="col-6">
+                                        <div class="col-6>
                                             <div class="theme-type-images align-items-center mb-4">
                                                 <div class="theme-image payment_method" id="cash">
                                                     <div class="theme-image-set">
@@ -138,7 +138,7 @@
                                                     <div class="theme-image-set">
                                                         <img src="{{ URL::asset('/build/img/icons/credit-card.svg')}}" alt="Payment Method">
                                                     </div>
-                                                    <span>Transfer</span>
+                                                    <span>Bank Transfer</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -152,6 +152,24 @@
                             </div>
                         </aside>
                     </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade effect-scale" id="qr-code"  tabindex="-1" role="dialog"   aria-hidden="true">
+        <div class="modal-dialog  modal-dialog-centered">
+            <div class="modal-content">
+                <div class="page-wrapper p-0 m-0">
+                    <div class="content p-0">
+                        <div class="page-header p-4 mb-0">
+                            <button aria-label="Close" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="card">
+                            <div class="card-body">
+                                <img src="{{ URL::asset('build/img/barcode/qris-ycab.jpeg') }}" alt="qris" style="height:100%; width:auto;"/>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
