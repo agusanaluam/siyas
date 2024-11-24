@@ -122,7 +122,7 @@
                                 <input type="hidden" name="payment_method" value="" required/>
                                 <div class="appearance-settings">
                                     <div class="row">
-                                        <div class="col-6>
+                                        <div class="col-6">
                                             <div class="theme-type-images align-items-center mb-4">
                                                 <div class="theme-image payment_method" id="cash">
                                                     <div class="theme-image-set">
