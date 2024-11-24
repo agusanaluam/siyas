@@ -305,6 +305,9 @@ class DonationController extends Controller
             if ($data->status == 'Completed') {
                 return response()->json(['success' => false, 'message' => 'Oops. Something wrong: This transaction has been completed'], 422);
             }
+            if ($data->status == 'Approved') {
+                return response()->json(['success' => true, 'message' => 'This transaction has been approved before']);
+            }
             $data->status = "Approved";
             if ($data->via_transfer) {
                 if ((auth()->user()->level == 'administrator') || (auth()->user()->level == 'root')) {
@@ -344,6 +347,10 @@ class DonationController extends Controller
             $data = Donation::findOrFail($id);
             if ($data->status == 'Completed') {
                 return response()->json(['success' => false, 'message' => 'Oops. Something wrong: This transaction has been completed'], 422);
+            }
+            $mutationDetail = MutationDetail::where('donation_id', $id)->first();
+            if ($mutationDetail) {
+                return response()->json(['success' => false, 'message' => 'Oops. Something wrong: This transaction has been used in mutation'], 422);
             }
             $data->detail()->delete();
             $data->delete();
