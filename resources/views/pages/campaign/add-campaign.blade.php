@@ -183,7 +183,7 @@
                 <div class="col-lg-12">
                     <div class="btn-addproduct mb-4">
                         <a href="{{ route('campaign.list') }}" class="btn btn-cancel me-2">Cancel</a>
-                        <button type="submit" class="btn btn-submit">Save Product</button>
+                        <button type="submit" class="btn btn-submit">Save Campaign</button>
                     </div>
                 </div>
             </form>

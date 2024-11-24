@@ -44,7 +44,7 @@
                         </div>
                     </div>
                     <div class="dropdown-menu search-dropdown" aria-labelledby="dropdownMenuClickable">
-                        <div class="search-info">
+                        {{-- <div class="search-info">
                             <h6><span><i data-feather="search" class="feather-16"></i></span>Recent Searches
                             </h6>
                             <ul class="search-tags">
@@ -77,7 +77,7 @@
                                             class="img-fluid"></a>
                                 </li>
                             </ul>
-                        </div>
+                        </div> --}}
                     </div>
                 </form>
             </div>
