@@ -164,13 +164,16 @@ class MutationController extends Controller
             }
             foreach ($data->detail as $detail) {
                 $donation = Donation::with('detail')->find($detail->donation_id);
+                if ($donation->status == 'Completed') {
+                    foreach ($donation->detail as $donationDetail) {
+                        $campaign = Campaign::find($donationDetail->program_id);
+                        $campaign->total_amount -= $donationDetail->amount;
+                        $campaign->save();
+                    }
+                }
                 $donation->status = "Approved";
                 $donation->save();
-                foreach ($donation->detail as $donationDetail) {
-                    $campaign = Campaign::find($donationDetail->program_id);
-                    $campaign->total_amount -= $donationDetail->amount;
-                    $campaign->save();
-                }
+
             }
             $data->detail()->delete();
             $data->delete();
