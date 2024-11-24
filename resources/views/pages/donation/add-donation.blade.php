@@ -39,8 +39,8 @@
                                                 <h6 class="product-name"><a href="javascript:void(0);">{{ $cmpg->name }}</a>
                                                 </h6>
                                                 <div class="justify-content-between price">
-                                                    <span>Target Donasi :</span>
-                                                    <p>@currency($cmpg->target_amount)</p>
+                                                    {{-- <span>Target Donasi :</span>
+                                                    <p>@currency($cmpg->target_amount)</p> --}}
                                                 </div>
                                             </div>
                                         </div>
