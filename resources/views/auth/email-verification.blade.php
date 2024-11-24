@@ -32,16 +32,15 @@
                         <img src="{{ URL::asset('/build/img/logo-white.png') }}" alt="">
                     </a>
                     <div class="login-userheading text-center">
-                        <h3>Verify Your Email</h3>
-                        <h4 class="verfy-mail-content">We've sent a link to your email {{ $email }}. Please follow the
-                            link inside to continue</h4>
+                        <h3>Verifikasi Email Kamu</h3>
+                        <h4 class="verfy-mail-content">Kami telah mengirimkan email verifikasi ke email anda : {{ $email }}. Silahkan ikuti petunjuk berikutnya pada email.</h4>
                     </div>
                     <div class="signinform text-center">
-                        <h4>Didn't receive an email? <a href="javascript:void(0);" class="hover-a resend" onclick="$('#resend-verify-form').submit()">Resend Link</a>
+                        <h4>Tidak menerima pesan? <a href="javascript:void(0);" class="hover-a resend" onclick="$('#resend-verify-form').submit()">Kirim ulang Link</a>
                         </h4>
                     </div>
                     <div class="form-login">
-                        <a class="btn btn-login" href="{{ route('index') }}">Skip Now</a>
+                        <a class="btn btn-login" href="{{ route('index') }}">Lewati Dulu</a>
                     </div>
                 </div>
                 <form action="{{ route('email-verification.resend') }}" method="POST" id="resend-verify-form" style="display: none;">

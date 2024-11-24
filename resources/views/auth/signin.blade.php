@@ -32,11 +32,11 @@
                         @csrf
                         <div class="login-userset">
                             <div class="login-userheading">
-                                <h3>Sign In</h3>
-                                <h4>Access the Volunteer panel using your email and passcode.</h4>
+                                <h3>Masuk ke Dashboard</h3>
+                                <h4>Akses panel dashboard relawan dengan email dan password anda.</h4>
                             </div>
                             <div class="form-login">
-                                <label class="form-label">Email Address</label>
+                                <label class="form-label">Alamat Email</label>
                                 <div class="form-addons">
                                     <input type="text" class="form- control" id="email" name="email" placeholder="user@email.com">
                                     <img src="{{ URL::asset('/build/img/icons/mail.svg') }}" alt="img">
@@ -51,7 +51,7 @@
                                 </div>
                             </div>
                             <div class="form-login">
-                                <label class="form-label">Password</label>
+                                <label class="form-label">Kata Sandi</label>
                                 <div class="pass-group">
                                     <input type="password" class="pass-input form-control" id="password" name="password" placeholder="&#9679;&#9679;&#9679;&#9679;&#9679;">
                                     <span class="fas toggle-password fa-eye-slash"></span>
@@ -71,12 +71,12 @@
                                         <div class="custom-control custom-checkbox">
                                             <label class="checkboxs ps-4 mb-0 pb-0 line-height-1">
                                                 <input type="checkbox">
-                                                <span class="checkmarks"></span>Remember me
+                                                <span class="checkmarks"></span>Ingat saya
                                             </label>
                                         </div>
                                     </div>
                                     <div class="col-6 text-end">
-                                        <a class="forgot-link" href="{{ route('forgot-password') }}">Forgot Password?</a>
+                                        <a class="forgot-link" href="{{ route('forgot-password') }}">Lupa kata sandi?</a>
                                     </div>
                                 </div>
                             </div>
@@ -84,8 +84,7 @@
                                 <button class="btn btn-login" type="submit">Sign In</button>
                             </div>
                             <div class="signinform">
-                                <h4>New on our platform?<a href="{{ route('register') }}" class="hover-a"> Create an
-                                        account</a></h4>
+                                <h4>Daftar jadi relawan?<a href="{{ route('register') }}" class="hover-a"> Mulai buat akun</a></h4>
                             </div>
                             {{-- <div class="form-setlogin or-text">
                                 <h4>OR</h4>

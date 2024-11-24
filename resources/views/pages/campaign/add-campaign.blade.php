@@ -5,16 +5,16 @@
         <div class="content">
             @component('components.breadcrumb')
                 @slot('title')
-                    New Campaign
+                    Campaign Baru
                 @endslot
                 @slot('li_1')
-                    Create new Campaign
+                    Buat campaign baru
                 @endslot
                 @slot('li_2')
                     {{ route('campaign.list') }}
                 @endslot
                 @slot('li_3')
-                    Back to List
+                    Kembali ke list
                 @endslot
             @endcomponent
 

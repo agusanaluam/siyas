@@ -160,8 +160,8 @@
             </a>
             <div class="dropdown-menu notifications">
                 <div class="topnav-dropdown-header">
-                    <span class="notification-title">Notifications</span>
-                    <a href="javascript:void(0)" class="clear-noti"> Clear All </a>
+                    <span class="notification-title">Notifikasi</span>
+                    <a href="javascript:void(0)" class="clear-noti"> Bersihkan </a>
                 </div>
                 <div class="noti-content">
                     <ul class="notification-list">
@@ -186,7 +186,7 @@
                     </ul>
                 </div>
                 <div class="topnav-dropdown-footer">
-                    <a href="{{ url('activities') }}">View all Notifications</a>
+                    <a href="{{ url('activities') }}">Lihat semua</a>
                 </div>
             </div>
         </li>
@@ -221,13 +221,13 @@
                     </div>
                     <hr class="m-0">
                     <a class="dropdown-item" href="{{ route('user.profile') }}"> <i class="me-2"
-                            data-feather="user"></i> My Profile</a>
+                            data-feather="user"></i> Profil saya</a>
                     <a class="dropdown-item" href=""><i class="me-2"
-                            data-feather="settings"></i>Settings</a>
+                            data-feather="settings"></i>Pengaturan</a>
                     <hr class="m-0">
                     <a class="dropdown-item logout pb-0" href="javascript:void(0);" onclick="$('#logout-form').submit()"><img
                             src="{{ URL::asset('/build/img/icons/log-out.svg') }}" class="me-2"
-                            alt="img">Logout</a>
+                            alt="img">Keluar</a>
 
 
                 </div>
@@ -241,9 +241,9 @@
         <a href="javascript:void(0);" class="nav-link dropdown-toggle" data-bs-toggle="dropdown"
             aria-expanded="false"><i class="fa fa-ellipsis-v"></i></a>
         <div class="dropdown-menu dropdown-menu-right">
-            <a class="dropdown-item" href="{{ route('user.profile') }}">My Profile</a>
-            <a class="dropdown-item" href="#">Settings</a>
-            <a class="dropdown-item" href="javascript:void(0);" onclick="$('#logout-form').submit()">Logout</a>
+            <a class="dropdown-item" href="{{ route('user.profile') }}">Profil Saya</a>
+            <a class="dropdown-item" href="#">Pengaturan</a>
+            <a class="dropdown-item" href="javascript:void(0);" onclick="$('#logout-form').submit()">Keluar</a>
         </div>
     </div>
     <!-- /Mobile Menu -->

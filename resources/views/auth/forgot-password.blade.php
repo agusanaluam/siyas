@@ -16,12 +16,11 @@
                         @csrf
                         <div class="login-userset">
                             <div class="login-userheading">
-                                <h3>Forgot password?</h3>
-                                <h4>If you forgot your password, well, then we’ll email you instructions to reset your
-                                    password.</h4>
+                                <h3>Lupa Kata sandi?</h3>
+                                <h4>Apakah kamu lupa kata sandi, baiklah, kami akan mengirimkan pesan ke email kamu untuk melakukan reset kata sandi.</h4>
                             </div>
                             <div class="form-login">
-                                <label>Email</label>
+                                <label>Alamt Email</label>
                                 <div class="form-addons">
                                     <input type="email" class="form-control" name="email" placeholder="user@email.com">
                                     <img src="{{ URL::asset('/build/img/icons/mail.svg') }}" alt="img">
@@ -31,10 +30,10 @@
                                 <button type="submit" class="btn btn-login">Request Reset Password</button>
                             </div>
                             <div class="signinform text-center">
-                                <h4>Return to<a href="{{ route('login') }}" class="hover-a"> login </a></h4>
+                                <h4>Kembali ke halaman<a href="{{ route('login') }}" class="hover-a"> login </a></h4>
                             </div>
-                            <div class="form-setlogin or-text">
-                                <h4>OR</h4>
+                            {{-- <div class="form-setlogin or-text">
+                                <h4>A</h4>
                             </div>
                             <div class="form-sociallink">
                                 <ul class="d-flex justify-content-center">
@@ -56,7 +55,7 @@
                                     </li>
 
                                 </ul>
-                            </div>
+                            </div> --}}
                         </div>
                     </form>
                 </div>

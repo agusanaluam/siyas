@@ -11,7 +11,7 @@
                         </li>
                         @if ((Auth::user()->level == 'administrator') || (isset(Auth::user()->email_verified_at)))
                         <li class="{{ Request::is('donation.create') ? 'active' : '' }}"><a href="javascript:void(0);" id="createDonation"><i
-                                    data-feather="smartphone"></i><span>Create Donation</span></a></li>
+                                    data-feather="smartphone"></i><span>Buat Donation</span></a></li>
                         @endif
                     </ul>
                 </li>
@@ -83,10 +83,10 @@
                     <h6 class="submenu-hdr">Settings</h6>
                     <ul>
                         <li class="{{ Route::is('user.profile') ? 'active' : '' }}">
-                            <a href="{{ route('user.profile') }}"><i data-feather="user"></i><span>Profile</span></a>
+                            <a href="{{ route('user.profile') }}"><i data-feather="user"></i><span>Profil</span></a>
                         </li>
                         <li>
-                            <a href="javascript:void(0);" onclick="$('#logout-form').submit()" ><i data-feather="log-out"></i><span>Logout</span> </a>
+                            <a href="javascript:void(0);" onclick="$('#logout-form').submit()" ><i data-feather="log-out"></i><span>Keluar</span> </a>
                         </li>
                     </ul>
                 </li>

@@ -31,11 +31,11 @@
                     @csrf
                     <div class="login-userset">
                         <div class="login-userheading">
-                            <h3>Reset password?</h3>
-                            <h4>Enter New Password & Confirm Password to get inside</h4>
+                            <h3>Reset Kata sandi?</h3>
+                            <h4>Masukan kata sandi baru & konfirmasi kata sandi untuk login.</h4>
                         </div>
                         <div class="form-login">
-                            <label>Email Address</label>
+                            <label>Alamat Email</label>
                             <div class="form-addons">
                                 <input type="text" class="form-control" id="email" name="email" value="{{ $email }}">
                                 <input type="hidden" class="form-control" id="token" name="token" value="{{ $token }}">
@@ -43,7 +43,7 @@
                             </div>
                         </div>
                         <div class="form-login">
-                            <label>New Password</label>
+                            <label>Kata sandi Baru</label>
                             <div class="pass-group">
                                 <input type="password" class="pass-input" id="password" name="password" placeholder="&#9679;&#9679;&#9679;&#9679;&#9679;">
                                 <span class="fas toggle-password fa-eye-slash"></span>
@@ -55,7 +55,7 @@
                             </div>
                         </div>
                         <div class="form-login">
-                            <label> New Confirm Passworrd</label>
+                            <label>Konfirmasi kata sandi baru</label>
                             <div class="pass-group">
                                 <input type="password" class="pass-inputs" id="confirmpassword" name="confirmpassword" placeholder="&#9679;&#9679;&#9679;&#9679;&#9679;">
                                 <span class="fas toggle-passwords fa-eye-slash"></span>
@@ -67,10 +67,10 @@
                             </div>
                         </div>
                         <div class="form-login">
-                            <button type="submit" class="btn btn-login">Change Password</button>
+                            <button type="submit" class="btn btn-login">Ubah Kata sandi</button>
                         </div>
                         <div class="signinform text-center">
-                            <h4>Return to <a href="{{ url('signin-3') }}" class="hover-a"> login </a></h4>
+                            <h4>Kembali ke halaman <a href="{{ url('signin-3') }}" class="hover-a"> login </a></h4>
                         </div>
                     </div>
                 </form>

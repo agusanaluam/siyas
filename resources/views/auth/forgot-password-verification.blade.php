@@ -15,12 +15,11 @@
                         <img src="{{ URL::asset('/build/img/logo-white.png') }}" alt="">
                     </a>
                     <div class="login-userheading text-center">
-                        <h3>Check Your Email</h3>
-                        <h4 class="verfy-mail-content">We've sent a link to your email {{ $email }}. Please follow the
-                            link inside to continue</h4>
+                        <h3>Cek Kotak masuk email kamu</h3>
+                        <h4 class="verfy-mail-content">Kami telah mengirimkan pesan ke email anda : {{ $email }}. Silahkan ikuti petunjuk berikutnya pada email.</h4>
                     </div>
                     <div class="form-login">
-                        <a class="btn btn-login" href="{{ route('index') }}">Skip Now</a>
+                        <a class="btn btn-login" href="{{ route('index') }}">Lewati Dulu</a>
                     </div>
                 </div>
 

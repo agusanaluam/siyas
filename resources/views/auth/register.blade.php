@@ -31,11 +31,11 @@
                     @endif
                     <div class="login-userset">
                         <div class="login-userheading">
-                            <h3>Register</h3>
-                            <h4>Create New Volunteer Account</h4>
+                            <h3>Daftar</h3>
+                            <h4>Buat akun relawan</h4>
                         </div>
                         <div class="form-login">
-                            <label>Name</label>
+                            <label>Nama Lengkap</label>
                             <div class="form-addons">
                                 <input type="text" class="form-control" id="name" name="name" placeholder="Nama Lengkap">
                                 <img src="{{ URL::asset('/build/img/icons/user-icon.svg') }}" alt="img">
@@ -47,7 +47,7 @@
                             </div>
                         </div>
                         <div class="form-login">
-                            <label>Group / Communiry</label>
+                            <label>Grup / Komunitas</label>
                             <div class="form-addons">
                                 <select id="group" name="group" class="form-control select select2-hidden-accessible" required>
                                     <option value="" selected disabled hidden>--Pilih--</option>
@@ -63,7 +63,7 @@
                             </div>
                         </div>
                         <div class="form-login">
-                            <label>Email Address</label>
+                            <label>Alamat Email</label>
                             <div class="form-addons">
                                 <input type="text" class="form-control" id="email" name="email" placeholder="user@email.com">
                                 <img src="{{ URL::asset('/build/img/icons/mail.svg') }}" alt="img">
@@ -75,7 +75,7 @@
                             </div>
                         </div>
                         <div class="form-login">
-                            <label>Password</label>
+                            <label>Kata Sandi</label>
                             <div class="pass-group">
                                 <input type="password" class="pass-input" id="password" name="password" placeholder="&#9679;&#9679;&#9679;&#9679;&#9679;">
                                 <span class="fas toggle-password fa-eye-slash"></span>
@@ -87,7 +87,7 @@
                             </div>
                         </div>
                         <div class="form-login">
-                            <label>Confirm Passworrd</label>
+                            <label>Konfirmasi kata sandi</label>
                             <div class="pass-group">
                                 <input type="password" class="pass-inputs" id="confirmpassword" name="confirmpassword" placeholder="&#9679;&#9679;&#9679;&#9679;&#9679;">
                                 <span class="fas toggle-passwords fa-eye-slash"></span>
@@ -105,8 +105,8 @@
                                         <div class="custom-control custom-checkbox">
                                             <label class="checkboxs ps-4 mb-0 pb-0 line-height-1">
                                                 <input type="checkbox">
-                                                <span class="checkmarks"></span>I agree to the <a href="#"
-                                                    class="hover-a">Terms & Privacy</a>
+                                                <span class="checkmarks"></span>Saya setuju <a href="#"
+                                                    class="hover-a">Syarat & Ketentuan</a>
                                             </label>
                                         </div>
                                     </div>
@@ -114,11 +114,10 @@
                             </div>
                         </div>
                         <div class="form-login">
-                            <button type="submit" class="btn btn-login">Sign Up</button>
+                            <button type="submit" class="btn btn-login">Daftar</button>
                         </div>
                         <div class="signinform">
-                            <h4>Already have an account ? <a href="{{ route('login') }}" class="hover-a">Sign In
-                                    Instead</a></h4>
+                            <h4>Sudah punya akun ? <a href="{{ route('login') }}" class="hover-a">Masuk sekarang</a></h4>
                         </div>
                         {{-- <div class="form-setlogin or-text">
                             <h4>OR</h4>
