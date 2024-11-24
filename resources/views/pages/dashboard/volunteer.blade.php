@@ -5,11 +5,23 @@
         <div class="content">
             <div class="welcome d-lg-flex align-items-center justify-content-between">
                 <div class="d-flex align-items-center welcome-text">
+                    @if (!isset(Auth::user()->email_verified_at))
                     <h3 class="d-flex align-items-center"><img src="{{ URL::asset('/build/img/icons/hi.svg') }}"
-                            alt="img">&nbsp;Hi {{ Auth::user()->name }},</h3>&nbsp;<h6>let see how you're doing today ;).
-                    </h6>
+                            alt="img">&nbsp;Hi {{ Auth::user()->name }},</h3>&nbsp;<h6>Your email not verified, verify Now with click verify button.</h6>
+                    @else
+                    <h3 class="d-flex align-items-center"><img src="{{ URL::asset('/build/img/icons/hi.svg') }}"
+                            alt="img">&nbsp;Hi {{ Auth::user()->name }},</h3>&nbsp;<h6>let see how you're doing today ;).</h6>
+                    @endif
                 </div>
                 <div class="d-flex align-items-center">
+                    @if (!isset(Auth::user()->email_verified_at))
+                    <form id="emailVerifyForm">
+                        @csrf
+                        @method('POST')
+                        <input type="hidden" name="email" value="{{ Auth::user()->email }}" readonly>
+                        <button type="button" id="verifyBtn" class="btn btn-primary d-none d-md-inline-block">Verify Email</button>
+                    </form>
+                    @endif
                     <button type="button" data-toggle="tooltip" class="btn btn-white-outline d-none d-md-inline-block"
                         data-bs-toggle="tooltip" data-bs-placement="top" title="Refresh"><i data-feather="rotate-ccw"
                             class="feather-16"></i></button>
@@ -81,8 +93,10 @@
                                                 </div>
                                             </td>
                                             <td>
-                                                <p class="head-text">Progress</p>
-                                                {{-- {{ round(($campaign->total_amount/$campaign->target_amount)*100, 2) }}% --}}
+                                                <div class="progress progress-xl mb-3 progress-animate custom-progress-4 info" role="progressbar" aria-valuenow="{{ round(floatval($campaign->total_amount/$campaign->target_amount)*100,2) }}" aria-valuemin="0" aria-valuemax="100">
+                                                    <div class="progress-bar bg-info" style="width: {{ round(floatval($campaign->total_amount/$campaign->target_amount)*100,2) }}%"></div>
+                                                        <div class="progress-bar-label">{{ round(floatval($campaign->total_amount/$campaign->target_amount)*100,2) }}%</div>
+                                                </div>
                                             </td>
                                         </tr>
                                         @endforeach

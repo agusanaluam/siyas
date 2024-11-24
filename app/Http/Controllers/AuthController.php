@@ -142,17 +142,24 @@ class AuthController extends Controller
 
     public function resendVerification(Request $request)
     {
+        if (Auth::check()) {
+            if (isset(Auth::user()->email_verified_at)) {
+                return redirect()->route('dashboard');
+            }
+        }
         // Buat token verifikasi
         $token = Str::random(32);
 
-        $user = User::where('email', $request->email)
-        ->first();
+        $user = User::where('email', $request->email)->first();
         $user->updated_at = now();
         $user->remember_token = $token; // Hapus token
         $user->save();
 
         $verificationLink = route('email-verification.verify', ['token' => $token, 'email' => $user->email]);
         Mail::to($user->email)->send(new EmailVerificationMail($verificationLink));
+        if (request()->ajax()) {
+            return response()->json(['success' => true, 'message' => 'Email verification request was resend']);
+        }
 
         return redirect()->route('email-verification', ['email' => $user->email])->withSuccess('Email verification request was resend');
 
@@ -178,6 +185,10 @@ class AuthController extends Controller
         $user->updated_at = now();
         $user->remember_token = null; // Hapus token
         $user->save();
+
+        if (Auth::check()) {
+            return redirect()->route('dashboard');
+        }
 
         return redirect("login")->withSuccess('Email verification Success, please login');
     }

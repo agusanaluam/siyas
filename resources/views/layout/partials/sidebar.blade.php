@@ -9,10 +9,13 @@
                         <li class="{{ Route::is('dashboard', '/') ? 'active' : '' }}">
                             <a href="{{ route('dashboard') }}" ><i data-feather="grid"></i><span>Dashboard</span></a>
                         </li>
+                        @if ((Auth::user()->level == 'administrator') || (isset(Auth::user()->email_verified_at)))
                         <li class="{{ Request::is('donation.create') ? 'active' : '' }}"><a href="javascript:void(0);" id="createDonation"><i
                                     data-feather="smartphone"></i><span>Create Donation</span></a></li>
+                        @endif
                     </ul>
                 </li>
+                @if ((Auth::user()->level == 'administrator') || (isset(Auth::user()->email_verified_at)))
                 <li class="submenu-open">
                     <h6 class="submenu-hdr">Manage</h6>
                     <ul>
@@ -75,6 +78,7 @@
                         @endif
                     </ul>
                 </li>
+                @endif
                 <li class="submenu-open">
                     <h6 class="submenu-hdr">Settings</h6>
                     <ul>

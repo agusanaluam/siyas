@@ -40,7 +40,6 @@ $(document).ready(function() {
                     processData: false, // Untuk menghindari jQuery mengubah data
                     contentType: false, // Memungkinkan pengiriman file
                     success: function(response) {
-                        console.log(response);
                         if (response.success) {
                                 $('#toastSuccess').toast('show');
                                 $('#toastSuccess .toast-body').text(response.message);
