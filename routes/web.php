@@ -120,6 +120,7 @@ Route::group(['middleware' => 'auth'],function () {
 
         Route::prefix('mutations')->group(function() {
             Route::get('/', [MutationController::class, 'index'])->name('mutation.list');
+            Route::get('/detail/{id}', [MutationController::class, 'detailbyID'])->name('mutation.detail');
             Route::post('/store', [MutationController::class, 'store'])->name('mutation.store');
             Route::patch('/approve/{id}', [MutationController::class, 'approve'])->name('mutation.approve');
             Route::delete('/cancel/{id}', [MutationController::class, 'destroy'])->name('mutation.cancel');

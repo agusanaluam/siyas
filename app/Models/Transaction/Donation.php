@@ -39,4 +39,9 @@ class Donation extends Model
     {
         return $this->belongsTo(Volunteer::class);
     }
+
+    public function mutation()
+    {
+        return $this->belongsTo(MutationDetail::class);
+    }
 }

@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use App\Models\Master\Volunteer;
+use App\Models\Transaction\Mutation;
 
 class User extends Authenticatable
 {
@@ -56,4 +57,15 @@ class User extends Authenticatable
     {
         return $this->hasOne(Volunteer::class, 'id', 'volunteer_id');
     }
+
+    public function mutationRequest()
+    {
+        return $this->belongsTo(Mutation::class, 'created_by', 'id');
+    }
+
+    public function mutationApprove()
+    {
+        return $this->belongsTo(Mutation::class, 'approve_by', 'id');
+    }
+
 }

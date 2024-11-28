@@ -99,6 +99,7 @@
                                             <span class="checkmarks"></span>
                                         </label>
                                     </th>
+                                    <th>Requested By</th>
                                     <th>Invoice</th>
                                     <th>Date</th>
                                     <th>Total LIQ</th>

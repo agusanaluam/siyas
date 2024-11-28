@@ -22,4 +22,8 @@ class MutationDetail extends Model
     {
         return $this->belongsTo(Mutation::class);
     }
+    public function donation()
+    {
+        return $this->hasOne(Donation::class, 'id', 'donation_id');
+    }
 }

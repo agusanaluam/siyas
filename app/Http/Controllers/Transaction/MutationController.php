@@ -18,7 +18,7 @@ class MutationController extends Controller
     public function index()
     {
         if (request()->ajax()) {
-            $data = Mutation::with('detail');
+            $data = Mutation::with('detail','approver','requester');
             return DataTables::of($data->get())
                 ->addIndexColumn()
                 ->editColumn('trans_date', function ($data) {
@@ -50,7 +50,7 @@ class MutationController extends Controller
 						</a>
 						<ul class="dropdown-menu" id="' . $data->id . '">
 							<li>
-								<a href="javascript:void(0);" class="dropdown-item mutation-detail" data-bs-toggle="modal" data-bs-target="#mutation-details"><i class="fa fa-eye info-img"></i>Mutation Detail</a>
+								<a href="javascript:void(0);" class="dropdown-item mutation-detail" data-bs-toggle="modal" data-bs-target="#view-mutation"><i class="fa fa-eye info-img"></i>Mutation Detail</a>
 							</li>';
                         if ((auth()->user()->level == 'administrator') && (!isset($data->approve_date))) {
                                 $button .= '<li>
@@ -71,8 +71,10 @@ class MutationController extends Controller
         return view('pages.mutation.list');
     }
 
-    public function detail($id) {
-
+    public function detailbyID($id)
+    {
+        $mutation = Mutation::with('detail.donation')->where('id', $id)->first();
+        return response()->json(['success' => true, 'message' => 'success get details', 'data' => $mutation]);
     }
 
     public function store(Request $request)

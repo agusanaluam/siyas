@@ -43,12 +43,13 @@ $(document).ready(function() {
                                 '</label>';
                     }
                 },
+                {data: 'requester.name'},
                 {data: 'invoice_number'},
                 {data: 'trans_date'},
                 {data: 'total_liq'},
                 {data: 'total_amount'},
                 {data: 'statusLabel'},
-                {data: 'approve_by'},
+                {data: 'approver.name'},
                 {
                     data: 'action',
                     className: 'text-center',
@@ -284,12 +285,71 @@ function formatDate(date) {
 }
 
 function calculateTotal() {
-        let total = 0;
-        $('#addMutationTable .option-donation:checked').each(function() {
-            // Mengambil harga di kolom harga yang bersangkutan
-            let price = parseFloat($(this).closest('tr').find('.liq-amount').val());
-            total += price;
-        });
-        // Menampilkan total harga
-        $('input[name="total_amount"]').val(total);
-    }
+    let total = 0;
+    $('#addMutationTable .option-donation:checked').each(function() {
+        // Mengambil harga di kolom harga yang bersangkutan
+        let price = parseFloat($(this).closest('tr').find('.liq-amount').val());
+        total += price;
+    });
+    // Menampilkan total harga
+    $('input[name="total_amount"]').val(total);
+    let totalAmount = new Intl.NumberFormat("id-ID", {
+        style: "currency",
+        currency: "IDR"
+    }).format(total);
+    $('#total_amount').val(totalAmount);
+}
+
+$(document).on('click', '.mutation-detail', function() {
+    let id = $(this).parent().parent().attr('id');
+    $.ajax({
+        url: `${BASE_URL}`+'/donation/mutations/detail/'+id,
+        type: "GET",
+        cache: false,
+        data: {
+            "_token": $('meta[name="csrf-token"]').attr('content'),
+        },
+        success:function(response){
+            let data = response.data
+            $('#invoice_number').val(data.invoice_number);
+            $('#trans_date').val(data.trans_date);
+            let totalAmount = new Intl.NumberFormat("id-ID", {
+                style: "currency",
+                currency: "IDR"
+            }).format(data.total_amount);
+            $('#total_amount').val(totalAmount);
+            $('#description').text(data.description);
+            $('#viewMutationTable').DataTable().clear().destroy();
+            $('#viewMutationTable').DataTable({
+                responsive: true,
+                processing: true,
+                "bFilter": false,
+                "sDom": 'fBtlpi',
+                autoWidth: false,
+                "language": {
+                    sLengthMenu: '_MENU_',
+                    info: "_START_ - _END_ of _TOTAL_ items",
+                    paginate: {
+                            next: ' <i class=" fa fa-angle-right"></i>',
+                            previous: '<i class="fa fa-angle-left"></i> '
+                        },
+                },
+                data: response.data.detail,
+                columns: [
+                    {data: 'liq_number'},
+                    {data: 'donation.donatur_name'},
+                    {data: 'donation.trans_date'},
+                    {
+                        data: 'amount',
+                        render: function(data, type, row) {
+                            return new Intl.NumberFormat("id-ID", {
+                                style: "currency",
+                                currency: "IDR"
+                            }).format(data);
+                        }
+                    },
+                ]
+            });
+        }
+    });
+})

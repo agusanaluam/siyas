@@ -63,21 +63,10 @@ $(document).ready(function() {
                     data: 'points',
                     render: function(data, type, row) {
                         return `
-                            <div class="stars-points" data-rate="${data}"></div>`;
+                            <i class="fa fa-star" aria-hidden="true"></i><span> ${data}</span>`;
                     }
                 },
-            ],
-            createdRow: function(row, data) {
-            // Temukan elemen di kolom "rating" dan inisialisasi Rater.js
-            const ratingElement = $(row).find('.stars-points')[0];
-            new raterJs({
-                element: ratingElement,
-                rating: data.points, // Sesuaikan agar point bisa diubah ke rating (misal 0-5)
-                max: 10,
-                readOnly: true,
-                step: 0.1
-            });
-        }
+            ]
         });
     });
 

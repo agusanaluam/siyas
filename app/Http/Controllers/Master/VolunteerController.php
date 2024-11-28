@@ -33,7 +33,11 @@ class VolunteerController extends Controller
             return DataTables::of($data->get())
                 ->addIndexColumn()
                 ->addColumn('profile', function ($data) {
-                    $storage = "storage/" . $data->profile_picture;
+                    if (isset($data->profile_picture)) {
+                        $storage = "storage/" . $data->profile_picture;
+                    } else {
+                        $storage = "storage/profile_pictures/user-01.jpg";
+                    }
                     return '<div class="productimgname">
                                 <a href="javascript:void(0);" class="product-img stock-img">
                                     <img src="' . asset($storage) . '"

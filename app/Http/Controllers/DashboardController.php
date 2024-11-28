@@ -133,11 +133,11 @@ class DashboardController extends Controller
 
     public function volunteerLeaderboard(Request $request) {
         if (request()->ajax()) {
-            $data = Volunteer::with('group')->with('donationList','user')->whereRelation('user','level','volunteer');
+            $data = Volunteer::with('group')->with('donationList','user');
             if (auth()->user()->level == 'leader') {
                 $data = $data->where('group_id', auth()->user()->profile->group_id);
             }
-            return DataTables::of($data->get())
+            return DataTables::of($data->orderBy('points', 'desc')->get())
                 ->addIndexColumn()
                 ->addColumn('totalProgram', function ($data) {
                     $donation_id = array();

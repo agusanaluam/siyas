@@ -177,6 +177,12 @@ class DonationController extends Controller
                 $request->file('reference_picture')->storeAs('public/payment_reference/' . $filenameSimpan);
                 $path = 'payment_reference/' . $filenameSimpan; // Simpan foto baru
             }
+            $reference_code = $request->reference_code;
+            if ($request->payment_method == 'transfer') {
+                if ($reference_code == "") {
+                    $reference_code = $path;
+                }
+            }
 
             $donation = Donation::create([
                 'volunteer_id' => auth()->user()->volunteer_id,
@@ -188,7 +194,7 @@ class DonationController extends Controller
                 'total_amount' => $request->total_amount,
                 'trans_date' => date("Y-m-d", strtotime(now())),
                 'via_transfer' => ($request->payment_method == 'transfer')? true: false,
-                'reference_code' => $request->reference_code,
+                'reference_code' => $reference_code,
                 'reference_picture' => $path,
                 'created_by' => auth()->user()->id,
                 'status' => ($request->payment_method == 'transfer') ? 'at Rekening' : 'at Volunteer',
