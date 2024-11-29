@@ -25,7 +25,11 @@ $(document).ready(function() {
             showLoaderOnConfirm: true,
             preConfirm: (value) => {
                 if (!value) {
-                    return 'Nomor LIQ tidak boleh kosong!';
+                    Swal.showValidationMessage('Nomor LIQ tidak boleh kosong!');
+                    return false;
+                }
+                if (value.toLowerCase() == 'kalender') {
+                    value = `${value}_${Date.now()}`
                 }
                 return $.ajax({
                     url: `${BASE_URL}/donation/check/${value}`,
