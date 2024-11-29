@@ -63,6 +63,7 @@ $(document).ready(function() {
 
     $('#btnAddMutation').on('click', function(e) {
         e.preventDefault();
+        $('input[name="invoice_number"]').val(`INV-${Date.now()}`);
 
         $.ajax({
             url: `${BASE_URL}/donation/search`,
