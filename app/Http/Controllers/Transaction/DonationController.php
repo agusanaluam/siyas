@@ -406,13 +406,13 @@ class DonationController extends Controller
                 break;
 
             case 'last_30_days':
-                $query->selectRaw(`concat(MONTH(created_at),' / ',DAY(created_at)) as period, COUNT(distinct(donation_id)) as total_coupon, SUM(amount) as total_amount`)
+                $query->selectRaw("concat(MONTH(created_at),' / ',DAY(created_at)) as period, COUNT(distinct(donation_id)) as total_coupon, SUM(amount) as total_amount")
                 ->where('created_at', '>=', Carbon::now()->subMonth())
                     ->groupBy('period');
                 break;
 
             case 'last_7_days':
-                $query->selectRaw(`concat(MONTH(created_at),' / ',DAY(created_at)) as period, COUNT(distinct(donation_id)) as total_coupon, SUM(amount) as total_amount`)
+                $query->selectRaw("concat(MONTH(created_at),' / ',DAY(created_at)) as period, COUNT(distinct(donation_id)) as total_coupon, SUM(amount) as total_amount")
                 ->where('created_at', '>=', Carbon::now()->subDays(7))
                     ->groupBy('period');
                 break;
