@@ -99,7 +99,7 @@ class AuthController extends Controller
                 'group_id' => $request->group,
                 'name' => $request->name,
                 'email' => $request->email,
-                'profile_picture' => 'build/img/profiles/avatar-01.jpg'
+                'profile_picture' => 'profile_pictures/user-01.jpg'
 
             ]);
 

@@ -158,7 +158,7 @@ class DonationController extends Controller
         $request->validate([
             'liq_number' => 'required|string|unique:t_donation,liq_number',
             'donatur_name' => 'required|string|max:150',
-            'donatur_phone' => 'required|string',
+            'donatur_phone' => 'required|string|max:14',
             'payment_method' => 'required',
             'campaign_id.*' => 'required',
             'amount.*' => 'required',
@@ -406,13 +406,13 @@ class DonationController extends Controller
                 break;
 
             case 'last_30_days':
-                $query->selectRaw('DAY(created_at) as period, COUNT(distinct(donation_id)) as total_coupon, SUM(amount) as total_amount')
+                $query->selectRaw(`concat(MONTH(created_at),' / ',DAY(created_at)) as period, COUNT(distinct(donation_id)) as total_coupon, SUM(amount) as total_amount`)
                 ->where('created_at', '>=', Carbon::now()->subMonth())
                     ->groupBy('period');
                 break;
 
             case 'last_7_days':
-                $query->selectRaw('DAY(created_at) as period, COUNT(distinct(donation_id)) as total_coupon, SUM(amount) as total_amount')
+                $query->selectRaw(`concat(MONTH(created_at),' / ',DAY(created_at)) as period, COUNT(distinct(donation_id)) as total_coupon, SUM(amount) as total_amount`)
                 ->where('created_at', '>=', Carbon::now()->subDays(7))
                     ->groupBy('period');
                 break;

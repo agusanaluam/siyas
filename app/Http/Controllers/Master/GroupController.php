@@ -13,7 +13,7 @@ class GroupController extends Controller
     function index()
     {
         if (request()->ajax()) {
-            $data = Group::with('volunteer.user')->orderBy('created_at', 'asc');
+            $data = Group::with('volunteer.user')->whereRelation('volunteer.user', 'level', 'volunteer')->orderBy('created_at', 'asc');
             return DataTables::of($data->get())
                 ->addIndexColumn()
                 ->addColumn('leader', function ($data) {
