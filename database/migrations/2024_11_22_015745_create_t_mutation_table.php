@@ -22,8 +22,8 @@ return new class extends Migration
             $table->timestamp('approve_date')->nullable();
             $table->unsignedInteger('approve_by')->nullable();
             $table->unsignedInteger('created_by');
-            $table->timestamp('created_at');
-            $table->timestamp('updated_at')->nullable();
+            $table->timestamp('created_at')->useCurrent();
+            $table->timestamp('updated_at')->useCurrent();
             $table->softDeletes();
         });
     }

@@ -17,8 +17,8 @@ return new class extends Migration
             $table->unsignedInteger('donation_id');
             $table->string('liq_number', 100);
             $table->unsignedInteger('amount');
-            $table->timestamp('created_at');
-            $table->timestamp('updated_at')->nullable();
+            $table->timestamp('created_at')->useCurrent();
+            $table->timestamp('updated_at')->useCurrent();
         });
     }
 

@@ -37,7 +37,7 @@ return new class extends Migration
             $table->string('email', 150)->nullable();
             $table->timestamp('created_at')->useCurrent();
             $table->timestamp('updated_at')->useCurrent();
-            $table->softDeletes()->nullable(false);
+            $table->softDeletes();
 
             $table->index(['nkk', 'nik'], 'nkk_nik_idx');
         });
