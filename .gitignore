@@ -3,12 +3,14 @@
 /public/build
 /public/hot
 /public/storage
+/public/error_log
 /storage/*.key
 /vendor
 .env
 .env.backup
 .env.production
 .phpunit.result.cache
+error_log
 Homestead.json
 Homestead.yaml
 auth.json
