@@ -1,11 +1,10 @@
 'use client'
-
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { authService } from '@/lib/api/auth'
 
-export default function ResetPasswordPage() {
+function ResetPasswordContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [formData, setFormData] = useState({
@@ -23,11 +22,11 @@ export default function ResetPasswordPage() {
     const email = searchParams.get('email')
     const token = searchParams.get('token')
     if (email && token) {
-      setFormData({
-        ...formData,
+      setFormData((prev) => ({
+        ...prev,
         email,
         token,
-      })
+      }))
     }
   }, [searchParams])
 
@@ -166,6 +165,14 @@ export default function ResetPasswordPage() {
         </form>
       </div>
     </div>
+  )
+}
+
+export default function ResetPasswordPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <ResetPasswordContent />
+    </Suspense>
   )
 }
 

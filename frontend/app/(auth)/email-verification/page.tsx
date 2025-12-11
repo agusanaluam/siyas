@@ -1,29 +1,15 @@
 'use client'
-
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { authService } from '@/lib/api/auth'
 
-export default function EmailVerificationPage() {
+function EmailVerificationContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [email, setEmail] = useState('')
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState('')
-
-  useEffect(() => {
-    const emailParam = searchParams.get('email')
-    const token = searchParams.get('token')
-    
-    if (emailParam) {
-      setEmail(emailParam)
-    }
-
-    if (emailParam && token) {
-      verifyEmail(emailParam, token)
-    }
-  }, [searchParams])
 
   const verifyEmail = async (email: string, token: string) => {
     setLoading(true)
@@ -39,6 +25,20 @@ export default function EmailVerificationPage() {
       setLoading(false)
     }
   }
+
+  useEffect(() => {
+    const emailParam = searchParams.get('email')
+    const token = searchParams.get('token')
+    
+    if (emailParam) {
+      setEmail(emailParam)
+    }
+
+    if (emailParam && token) {
+      verifyEmail(emailParam, token)
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams])
 
   const handleResend = async () => {
     if (!email) return
@@ -100,6 +100,14 @@ export default function EmailVerificationPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function EmailVerificationPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <EmailVerificationContent />
+    </Suspense>
   )
 }
 

@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import DashboardLayout from '@/components/layout/DashboardLayout'
 import { useAuth } from '@/hooks/useAuth'
 import { apiClient } from '@/lib/api/client'
+import { toast } from 'react-hot-toast'
 
 interface HeroSlide {
   id: number

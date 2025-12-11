@@ -185,9 +185,9 @@ export default function CampaignDetailsPage() {
         <div>
           <div className="bg-white rounded-lg shadow p-6">
             <h2 className="text-xl font-semibold text-gray-900 mb-4">Gambar Campaign</h2>
-            {campaign.images && campaign.images.length > 0 ? (
+            {campaign.image && campaign.image.length > 0 ? (
               <div className="space-y-4">
-                {campaign.images.map((image, index) => (
+                {campaign.image.map((image: any, index: number) => (
                   <div key={index}>
                     <img
                       src={`http://localhost:8000/storage/campaign_pictures/${image.picture_path}`}

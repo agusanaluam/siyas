@@ -66,8 +66,8 @@ export default function EditCampaignPage() {
         close_type: campaignData.close_type.toString(),
       })
 
-      if (campaignData.images) {
-        setExistingImages(campaignData.images.map((img) => img.picture_path))
+      if (campaignData.image) {
+        setExistingImages(campaignData.image.map((img: any) => img.picture_path))
       }
     } catch (error) {
       console.error('Error fetching data:', error)

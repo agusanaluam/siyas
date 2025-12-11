@@ -65,7 +65,7 @@ export default function DashboardPage() {
             <div key={key} className="bg-white rounded-lg shadow p-6">
               <h3 className="text-sm font-medium text-gray-500 uppercase">{key}</h3>
               <p className="mt-2 text-2xl font-semibold text-gray-900">
-                {typeof value === 'number' ? value.toLocaleString('id-ID') : value}
+                {typeof value === 'number' ? value.toLocaleString('id-ID') : String(value)}
               </p>
             </div>
           ))}

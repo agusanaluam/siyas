@@ -121,7 +121,7 @@ export default function BlogCategoriesPage() {
     return (
       <DashboardLayout>
         <div className="text-center py-12">
-          <p className="text-gray-600">You don't have access to this page</p>
+          <p className="text-gray-600">You don&apos;t have access to this page</p>
         </div>
       </DashboardLayout>
     )
