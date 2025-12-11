@@ -38,6 +38,9 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 # Install dependencies
 RUN composer install --no-interaction --prefer-dist --optimize-autoloader
 
+# Create storage symlink
+RUN php artisan storage:link
+
 # Set permissions
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 
