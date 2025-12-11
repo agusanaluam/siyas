@@ -10,18 +10,6 @@ const DEFAULT_SLIDES = [
     title: 'Bantu Mereka yang Membutuhkan',
     description: 'Bantuan sekecil apapun membuat perubahan berarti dalam kehidupan mereka yang membutuhkan'
   },
-  {
-    id: 2,
-    image: 'https://images.unsplash.com/photo-1593113598332-cd288d649433?q=80&w=1600&auto=format&fit=crop',
-    title: 'Berbagi Kebahagiaan',
-    description: 'Senyum mereka adalah kebahagiaan kita semua. Mari berbagi untuk masa depan yang lebih baik.'
-  },
-  {
-    id: 3,
-    image: 'https://images.unsplash.com/photo-1509099836639-18ba1795216d?q=80&w=1600&auto=format&fit=crop',
-    title: 'Peduli Sesama',
-    description: 'Uluran tangan anda sangat berarti bagi kelangsungan hidup dan pendidikan mereka.'
-  }
 ]
 
 interface HeroSlide {
@@ -34,6 +22,8 @@ interface HeroSlide {
 export default function HeroSection() {
   const [currentSlide, setCurrentSlide] = useState(0)
   const [slides, setSlides] = useState<HeroSlide[]>(DEFAULT_SLIDES)
+  const [loading, setLoading] = useState(true)
+  const [imagesLoaded, setImagesLoaded] = useState<{ [key: number]: boolean }>({})
 
   useEffect(() => {
     const fetchSlides = async () => {
@@ -46,6 +36,8 @@ export default function HeroSection() {
         }
       } catch (error) {
         console.error('Error fetching slides:', error)
+      } finally {
+        setLoading(false)
       }
     }
     fetchSlides()
@@ -63,42 +55,81 @@ export default function HeroSection() {
     return `${process.env.NEXT_PUBLIC_API_URL?.replace('/api', '')}${path}`
   }
 
-  return (
-    <section className="relative h-[600px] md:h-[700px] overflow-hidden">
-      {slides.map((slide, index) => (
-        <div
-          key={slide.id}
-          className={`absolute inset-0 transition-opacity duration-1000 ${
-            index === currentSlide ? 'opacity-100' : 'opacity-0'
-          }`}
-        >
-          {/* Background Image with Overlay */}
-          <div 
-            className="absolute inset-0 bg-cover bg-center"
-            style={{ backgroundImage: `url(${getImageUrl(slide.image)})` }}
-          >
-            <div className="absolute inset-0 bg-black/40" />
-          </div>
+  const handleImageLoad = (slideId: number) => {
+    setImagesLoaded(prev => ({ ...prev, [slideId]: true }))
+  }
 
-          {/* Content */}
-          <div className="relative container mx-auto px-4 h-full flex items-center">
-            <div className="max-w-2xl text-white">
-              <h1 className="text-4xl md:text-6xl font-bold mb-6 leading-tight">
-                {slide.title}
-              </h1>
-              <p className="text-lg md:text-xl mb-8 opacity-90">
-                {slide.description}
-              </p>
-              <Link
-                href="/donate"
-                className="inline-block bg-brand-600 text-white px-8 py-3 rounded-full font-semibold text-lg hover:bg-brand-700 transition-colors shadow-lg hover:shadow-xl transform hover:-translate-y-1"
-              >
-                Donasi Sekarang
-              </Link>
-            </div>
+  if (loading) {
+    return (
+      <section className="relative h-[600px] md:h-[700px] overflow-hidden bg-gradient-to-br from-gray-200 to-gray-300 animate-pulse">
+        <div className="absolute inset-0 flex items-center justify-center">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-white mx-auto mb-4"></div>
+            <p className="text-white text-lg font-medium">Memuat...</p>
           </div>
         </div>
-      ))}
+      </section>
+    )
+  }
+
+  return (
+    <section className="relative h-[600px] md:h-[700px] overflow-hidden">
+      {slides.map((slide, index) => {
+        const imageUrl = getImageUrl(slide.image)
+        const isImageLoaded = imagesLoaded[slide.id]
+        const isActive = index === currentSlide
+
+        return (
+          <div
+            key={slide.id}
+            className={`absolute inset-0 transition-opacity duration-1000 ${
+              isActive ? 'opacity-100' : 'opacity-0'
+            }`}
+          >
+            {/* Background Image with Overlay */}
+            <div className="absolute inset-0 bg-gradient-to-br from-brand-500/60 via-brand-600/70 to-support-500/60">
+              {!isImageLoaded && (
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white"></div>
+                </div>
+              )}
+              <div
+                className={`absolute inset-0 bg-cover bg-center transition-opacity duration-500 ${
+                  isImageLoaded ? 'opacity-100' : 'opacity-0'
+                }`}
+                style={{ backgroundImage: `url(${imageUrl})` }}
+              >
+                <img
+                  src={imageUrl}
+                  alt=""
+                  className="hidden"
+                  onLoad={() => handleImageLoad(slide.id)}
+                  onError={() => handleImageLoad(slide.id)}
+                />
+              </div>
+              <div className="absolute inset-0 bg-black/35" />
+            </div>
+
+            {/* Content */}
+            <div className="relative container mx-auto px-4 h-full flex items-center">
+              <div className="max-w-2xl text-white">
+                <h1 className="text-4xl md:text-6xl font-bold mb-6 leading-tight">
+                  {slide.title}
+                </h1>
+                <p className="text-lg md:text-xl mb-8 opacity-90">
+                  {slide.description}
+                </p>
+                <Link
+                  href="/donate"
+                  className="inline-block bg-accent-500 text-white px-8 py-3 rounded-full font-semibold text-lg hover:bg-accent-600 transition-colors shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+                >
+                  Donasi Sekarang
+                </Link>
+              </div>
+            </div>
+          </div>
+        )
+      })}
 
       {/* Navigation Dots */}
       <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex space-x-2">
@@ -107,7 +138,7 @@ export default function HeroSection() {
             key={index}
             onClick={() => setCurrentSlide(index)}
             className={`w-3 h-3 rounded-full transition-all ${
-              index === currentSlide ? 'bg-white w-8' : 'bg-white/50 hover:bg-white/80'
+              index === currentSlide ? 'bg-accent-500 w-8' : 'bg-white/60 hover:bg-accent-400'
             }`}
             aria-label={`Go to slide ${index + 1}`}
           />
@@ -115,7 +146,7 @@ export default function HeroSection() {
       </div>
 
       {/* Arrows */}
-      <button 
+      <button
         onClick={() => setCurrentSlide((prev) => (prev - 1 + slides.length) % slides.length)}
         className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/10 hover:bg-white/20 text-white p-2 rounded-full backdrop-blur-sm transition-colors"
       >
@@ -123,7 +154,7 @@ export default function HeroSection() {
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
         </svg>
       </button>
-      <button 
+      <button
         onClick={() => setCurrentSlide((prev) => (prev + 1) % slides.length)}
         className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/10 hover:bg-white/20 text-white p-2 rounded-full backdrop-blur-sm transition-colors"
       >

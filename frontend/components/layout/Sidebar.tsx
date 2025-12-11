@@ -134,6 +134,7 @@ export default function Sidebar() {
           children: [
               { name: 'Profil Yayasan', href: '/settings/profile', icon: '' },
               { name: 'Layout', href: '/settings/layout', icon: '' },
+              { name: 'About', href: '/settings/about', icon: '' },
             ],
         }]
       : []),

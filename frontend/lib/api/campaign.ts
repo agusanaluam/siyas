@@ -1,10 +1,9 @@
 import { apiClient } from './client'
-import { Campaign, CampaignCategory } from '@/types'
+import { Campaign, CampaignCategory, PaginatedResponse } from '@/types'
 
 export const campaignService = {
-  async getAll(status?: number): Promise<Campaign[]> {
-    const params = status ? { status } : {}
-    const response = await apiClient.get<Campaign[]>('/campaigns', { params })
+  async getAll(params?: { status?: number; category_id?: number | null; page?: number; per_page?: number }): Promise<PaginatedResponse<Campaign>> {
+    const response = await apiClient.get<PaginatedResponse<Campaign>>('/campaigns', { params })
     return response.data
   },
 

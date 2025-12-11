@@ -3,12 +3,15 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { toast } from 'react-hot-toast'
 import DashboardLayout from '@/components/layout/DashboardLayout'
 import BlogModal from '@/components/BlogModal'
 import { useAuth } from '@/hooks/useAuth'
 import { blogService } from '@/lib/api/blog'
 import { blogCategoryService } from '@/lib/api/blogMeta'
 import { BlogPost } from '@/types'
+
+// ... (rest of imports and component logic)
 
 export default function BlogListPage() {
   const router = useRouter()
@@ -68,12 +71,15 @@ export default function BlogListPage() {
 
     try {
       await blogService.delete(id)
+      toast.success('Blog berhasil dihapus')
       fetchBlogs()
     } catch (error) {
       console.error('Error deleting blog:', error)
-      alert('Gagal menghapus blog')
+      toast.error('Gagal menghapus blog')
     }
   }
+
+  // ... (rest of component logic)
 
   const formatDate = (date: string) => {
     return new Date(date).toLocaleDateString('en-US', {
@@ -208,7 +214,7 @@ export default function BlogListPage() {
                 {/* Category Badge */}
                 <div className="absolute top-3 left-3">
                   <span className="px-3 py-1 bg-white text-xs font-medium text-gray-700 rounded-full">
-                    {blog.category || 'Features'}
+                    {typeof blog.category === 'object' ? blog.category?.name : blog.category || 'Features'}
                   </span>
                 </div>
                 {/* Status Badge */}

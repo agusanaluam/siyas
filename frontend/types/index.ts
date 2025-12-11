@@ -70,6 +70,12 @@ export interface DonationDetail {
   campaign?: Campaign
 }
 
+export interface BlogCategory {
+  id: number
+  name: string
+  status?: boolean
+}
+
 export interface BlogPost {
   id: number
   title: string
@@ -81,7 +87,7 @@ export interface BlogPost {
   created_at: string
   updated_at: string
   creator?: User
-  category?: string
+  category?: BlogCategory
   image_url?: string
 }
 

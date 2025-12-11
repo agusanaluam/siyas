@@ -35,7 +35,7 @@ export default function LandingHeader({ forceScrolledStyle = false }: LandingHea
       }
     }
     window.addEventListener('scroll', handleScroll)
-    
+
     fetchSettings()
     checkAuth()
 
@@ -50,22 +50,22 @@ export default function LandingHeader({ forceScrolledStyle = false }: LandingHea
         console.log('Auth check - Running on server, skipping')
         return
       }
-      
+
       console.log('Auth check - Starting...')
       console.log('Auth check - All cookies:', document.cookie)
-      
+
       // Get token from cookie manually to avoid SSR issues
       const cookies = document.cookie.split(';')
       const authCookie = cookies.find(c => c.trim().startsWith('auth_token='))
       const token = authCookie?.split('=')[1]?.trim()
-      
+
       console.log('Auth check - Token found:', !!token)
       console.log('Auth check - Token value:', token ? token.substring(0, 20) + '...' : 'none')
-      
+
       if (token) {
         const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'
         console.log('Auth check - API URL:', apiUrl)
-        
+
         const response = await fetch(`${apiUrl}/auth/user`, {
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -73,7 +73,7 @@ export default function LandingHeader({ forceScrolledStyle = false }: LandingHea
           },
         })
         console.log('Auth check - Response status:', response.status)
-        
+
         if (response.ok) {
           const data = await response.json()
           console.log('Auth check - User data received:', data)
@@ -107,15 +107,15 @@ export default function LandingHeader({ forceScrolledStyle = false }: LandingHea
     }
   }
 
-  const logoUrl = setting?.photo 
+  const logoUrl = setting?.photo
     ? `${process.env.NEXT_PUBLIC_API_URL?.replace('/api', '')}/storage/${setting.photo}`
     : null
 
   // Dynamic classes based on scroll state
-  const navLinkClass = isScrolled 
+  const navLinkClass = isScrolled
     ? "text-gray-600 font-medium hover:text-brand-600 transition-colors"
     : "text-white font-medium hover:text-brand-200 transition-colors"
-  
+
   const activeNavLinkClass = isScrolled
     ? "text-brand-600 font-medium hover:text-brand-700"
     : "text-white font-bold hover:text-brand-200"
@@ -129,19 +129,19 @@ export default function LandingHeader({ forceScrolledStyle = false }: LandingHea
     : "text-white"
 
   return (
-    <header 
+    <header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         isScrolled ? 'bg-white shadow-md py-2' : 'bg-transparent py-4'
       }`}
     >
-      <div className="container mx-auto px-4 md:px-6">
+      <div className="container mx-auto px-4 md:px-[150px]">
         <div className="flex items-center justify-between">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2">
             {logoUrl ? (
-              <img 
-                src={logoUrl} 
-                alt={setting?.name || 'Logo'} 
+              <img
+                src={logoUrl}
+                alt={setting?.name || 'Logo'}
                 className="h-10 md:h-12 object-contain"
               />
             ) : (
@@ -172,14 +172,14 @@ export default function LandingHeader({ forceScrolledStyle = false }: LandingHea
               {/* Dropdown Menu */}
               <div className="absolute left-0 mt-2 w-48 bg-white rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
                 <div className="py-2">
-                  <Link 
-                    href="/program" 
+                  <Link
+                    href="/program"
                     className="block px-4 py-2 text-sm text-gray-700 hover:bg-brand-50 hover:text-brand-600 transition-colors"
                   >
                     Donasi
                   </Link>
-                  <Link 
-                    href="#program" 
+                  <Link
+                    href="#program"
                     className="block px-4 py-2 text-sm text-gray-700 hover:bg-brand-50 hover:text-brand-600 transition-colors"
                   >
                     Event
@@ -187,13 +187,13 @@ export default function LandingHeader({ forceScrolledStyle = false }: LandingHea
                 </div>
               </div>
             </div>
-            <Link href="#donation" className={navLinkClass}>
+            <Link href="/rekening-donasi" className={pathname === '/rekening-donasi' ? activeNavLinkClass : navLinkClass}>
               Rekening Donasi
             </Link>
-            <Link href="#news" className={navLinkClass}>
+            <Link href="/berita-kegiatan" className={pathname === '/berita-kegiatan' ? activeNavLinkClass : navLinkClass}>
               Berita & Kegiatan
             </Link>
-            <Link href="#contact" className={navLinkClass}>
+            <Link href="/contact" className={pathname === '/contact' ? activeNavLinkClass : navLinkClass}>
               Kontak Kami
             </Link>
           </nav>
@@ -201,8 +201,8 @@ export default function LandingHeader({ forceScrolledStyle = false }: LandingHea
           {/* CTA Button / User Icon */}
           <div className="hidden md:block">
             {isAuthenticated && user && user.name ? (
-              <Link 
-                href="/dashboard" 
+              <Link
+                href="/dashboard"
                 className="flex items-center space-x-2 hover:opacity-80 transition-opacity"
                 title={user.name}
               >
@@ -213,17 +213,17 @@ export default function LandingHeader({ forceScrolledStyle = false }: LandingHea
                 </div>
               </Link>
             ) : (
-              <Link 
-                href="/login" 
-                className="bg-brand-600 text-white px-6 py-2.5 rounded-full font-medium hover:bg-brand-700 transition-colors shadow-lg shadow-brand-200"
+              <Link
+                href="/login"
+                className="bg-[rgb(246,90,141)] text-white px-6 py-2.5 rounded-full font-medium hover:bg-accent-600 transition-colors shadow-lg shadow-accent-200"
               >
-                Jadi Relawan
+                Masuk
               </Link>
             )}
           </div>
 
           {/* Mobile Menu Button */}
-          <button 
+          <button
             className={`md:hidden ${mobileMenuButtonClass}`}
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
           >
@@ -244,22 +244,22 @@ export default function LandingHeader({ forceScrolledStyle = false }: LandingHea
               <Link href="/" className={pathname === '/' ? 'text-brand-600 font-medium' : 'text-gray-600 font-medium'}>Beranda</Link>
               <Link href="/about" className={pathname === '/about' ? 'text-brand-600 font-medium' : 'text-gray-600 font-medium'}>Tentang Kami</Link>
               <Link href="#program" className="text-gray-600 font-medium">Program</Link>
-              <Link href="#donation" className="text-gray-600 font-medium">Rekening Donasi</Link>
-              <Link href="#news" className="text-gray-600 font-medium">Berita & Kegiatan</Link>
-              <Link href="#contact" className="text-gray-600 font-medium">Kontak Kami</Link>
+              <Link href="/rekening-donasi" className={pathname === '/rekening-donasi' ? 'text-brand-600 font-medium' : 'text-gray-600 font-medium'}>Rekening Donasi</Link>
+              <Link href="/berita-kegiatan" className={pathname === '/berita-kegiatan' ? 'text-brand-600 font-medium' : 'text-gray-600 font-medium'}>Berita & Kegiatan</Link>
+              <Link href="/contact" className={pathname === '/contact' ? 'text-brand-600 font-medium' : 'text-gray-600 font-medium'}>Kontak Kami</Link>
               {isAuthenticated && user && user.name ? (
-                <Link 
-                  href="/dashboard" 
-                  className="bg-brand-600 text-white px-6 py-2 rounded-full font-medium text-center"
+                <Link
+                  href="/dashboard"
+                  className="bg-[rgb(246,90,141)] text-white px-6 py-2 rounded-full font-medium text-center hover:bg-accent-600"
                 >
                   Profil
                 </Link>
               ) : (
-                <Link 
-                  href="/login" 
-                  className="bg-brand-600 text-white px-6 py-2 rounded-full font-medium text-center"
+                <Link
+                  href="/login"
+                  className="bg-[rgb(246,90,141)] text-white px-6 py-2 rounded-full font-medium text-center hover:bg-accent-600"
                 >
-                  Jadi Relawan
+                  Login
                 </Link>
               )}
             </nav>

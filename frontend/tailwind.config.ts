@@ -10,22 +10,37 @@ const config: Config = {
     extend: {
       colors: {
         primary: {
-          50: '#f0f9ff',
-          100: '#e0f2fe',
-          200: '#bae6fd',
-          300: '#7dd3fc',
-          400: '#38bdf8',
-          500: '#0ea5e9',
-          600: '#0284c7',
-          700: '#0369a1',
-          800: '#075985',
-          900: '#0c4a6e',
+          50: '#f1f5ff',
+          100: '#e3ebff',
+          200: '#c8d7ff',
+          300: '#a5baff',
+          400: '#7d95ff',
+          500: '#5b76ff',
+          600: '#3351e9',
+          700: '#1e3fc7',
+          800: '#1b35a3',
+          900: '#182d86',
         },
         brand: {
-          300: '#5B8FE8',
-          400: '#3A7AE6',
-          500: '#1C63E3',
-          600: '#1650B8',
+          300: '#6FA2F1',
+          400: '#4D89EC',
+          500: '#1E63E9', // utama (biru)
+          600: '#194FBA',
+        },
+        accent: {
+          400: '#3DD2BF', // toska lembut
+          500: '#18BCA8', // pelengkap toska
+          600: '#139A8A',
+        },
+        support: {
+          400: '#F98FB0',
+          500: '#F65A8D', // aksen (pink)
+          600: '#E24078',
+        },
+        highlight: {
+          400: '#F7D95C',
+          500: '#F3CD3B', // kuning lembut sebagai aksen kecil
+          600: '#DCB528',
         },
       },
     },

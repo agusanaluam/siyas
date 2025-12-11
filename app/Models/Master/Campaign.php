@@ -16,6 +16,27 @@ class Campaign extends Model
     protected $primaryKey = 'id';
     protected $guarded = [];
 
+    /**
+     * Determine campaign status based on dates
+     * 1 = Pending (before start_date)
+     * 2 = Running (between start_date and end_date)
+     * 3 = Closed (after end_date)
+     */
+    public static function determineStatus($startDate, $endDate)
+    {
+        $now = now();
+        $start = \Carbon\Carbon::parse($startDate);
+        $end = \Carbon\Carbon::parse($endDate);
+
+        if ($now->lt($start)) {
+            return 1; // Pending
+        } elseif ($now->between($start, $end)) {
+            return 2; // Running
+        } else {
+            return 3; // Closed
+        }
+    }
+
     public function category()
     {
         return $this->belongsTo(CampaignCategory::class);

@@ -40,20 +40,23 @@ class DashboardController extends Controller
     }
 
     public function volunteer() {
-        $donation = Donation::with('detail')->where('volunteer_id', auth()->user()->volunteer_id);
-        $totalPenerimaan = $donation->sum('total_amount');
-        $jmlKupon = $donation->distinct('liq_number')->count('liq_number');
-        $data = $donation->get();
-        $program_id = array();
-        foreach($data as $row){
-            foreach ($row->detail as $detail) {
-                if (!in_array($detail->program_id, $program_id, true)) {
-                    array_push($program_id, $detail->program_id);
-                }
-            }
-        }
+        $volunteerId = auth()->user()->volunteer_id;
+        
+        // Optimasi: gunakan single query untuk statistics
+        $donationStats = Donation::where('volunteer_id', $volunteerId)
+            ->selectRaw('SUM(total_amount) as total_penerimaan, COUNT(DISTINCT liq_number) as jml_kupon')
+            ->first();
+        
+        $totalPenerimaan = $donationStats->total_penerimaan ?? 0;
+        $jmlKupon = $donationStats->jml_kupon ?? 0;
+        
+        // Optimasi: gunakan distinct untuk program_id
+        $program_id = DonationDetail::whereHas('donation', function($q) use ($volunteerId) {
+            $q->where('volunteer_id', $volunteerId);
+        })->distinct('program_id')->pluck('program_id')->toArray();
+        
         $jmlProgram = count($program_id);
-        $points = Volunteer::where('id', auth()->user()->volunteer_id)->first()->points;
+        $points = Volunteer::where('id', $volunteerId)->value('points') ?? 0;
         $statistic = array(
             "totalPenerimaan" => $totalPenerimaan,
             "jmlKupon" => $jmlKupon,
@@ -61,27 +64,42 @@ class DashboardController extends Controller
             "points" => $points
         );
 
-        $uncontribCampaign = Campaign::with('image','category')->whereRaw('(total_amount/target_amount)*100 < 40')->orWhereNotIn('id',$program_id)->get();
-        $recentDonation = DonationDetail::with('campaign.image','donation')->whereRelation('donation','volunteer_id', auth()->user()->volunteer_id)->orderBy('created_at', 'desc')->limit(10)->get();
+        $uncontribCampaign = Campaign::with(['image', 'category'])
+            ->where(function($q) use ($program_id) {
+                $q->whereRaw('(total_amount/target_amount)*100 < 40')
+                  ->orWhereNotIn('id', $program_id);
+            })
+            ->limit(10)
+            ->get();
+        $recentDonation = DonationDetail::with(['campaign.image', 'donation'])
+            ->whereHas('donation', function($q) use ($volunteerId) {
+                $q->where('volunteer_id', $volunteerId);
+            })
+            ->orderBy('created_at', 'desc')
+            ->limit(10)
+            ->get();
         $category = CampaignCategory::select('id', 'name')->get();
 
         return view('pages.dashboard.volunteer',compact('statistic', 'uncontribCampaign', 'recentDonation','category'));
     }
     public function leader() {
-        $volunteers = Volunteer::select('id')->where('group_id',auth()->user()->profile->group_id)->get();
-        $donation = Donation::with('detail')->whereIn('volunteer_id', $volunteers);
-        $totalPenerimaan = $donation->sum('total_amount');
-        $jmlKupon = $donation->distinct('liq_number')->count('liq_number');
-        $jmlRelawan = $donation->distinct('volunteer_id')->count('volunteer_id');
-        $data = $donation->get();
-        $program_id = array();
-        foreach ($data as $row) {
-            foreach ($row->detail as $detail) {
-                if (!in_array($detail->program_id, $program_id, true)) {
-                    array_push($program_id, $detail->program_id);
-                }
-            }
-        }
+        $groupId = auth()->user()->profile->group_id;
+        $volunteerIds = Volunteer::where('group_id', $groupId)->pluck('id');
+        
+        // Optimasi: gunakan single query untuk statistics
+        $donationStats = Donation::whereIn('volunteer_id', $volunteerIds)
+            ->selectRaw('SUM(total_amount) as total_penerimaan, COUNT(DISTINCT liq_number) as jml_kupon, COUNT(DISTINCT volunteer_id) as jml_relawan')
+            ->first();
+        
+        $totalPenerimaan = $donationStats->total_penerimaan ?? 0;
+        $jmlKupon = $donationStats->jml_kupon ?? 0;
+        $jmlRelawan = $donationStats->jml_relawan ?? 0;
+        
+        // Optimasi: gunakan distinct untuk program_id
+        $program_id = DonationDetail::whereHas('donation', function($q) use ($volunteerIds) {
+            $q->whereIn('volunteer_id', $volunteerIds);
+        })->distinct('program_id')->pluck('program_id')->toArray();
+        
         $jmlProgram = count($program_id);
         $statistic = array(
             "totalPenerimaan" => $totalPenerimaan,
@@ -91,24 +109,38 @@ class DashboardController extends Controller
         );
 
         $campaignProgress = Campaign::with('image')->orderBy('total_amount', 'desc')->limit(8)->get();
-        $recentDonation = DonationDetail::with('campaign.image', 'donation.volunteer')->whereHas('donation', function (Builder $query) {
-            $volunteers = Volunteer::select('id')->where('group_id', auth()->user()->profile->group_id)->get();
-            $query->whereIn('volunteer_id', $volunteers);
-        })->orderBy('created_at', 'desc')->limit(10)->get();
+        $recentDonation = DonationDetail::with(['campaign.image', 'donation.volunteer'])
+            ->whereHas('donation', function (Builder $query) use ($volunteerIds) {
+                $query->whereIn('volunteer_id', $volunteerIds);
+            })
+            ->orderBy('created_at', 'desc')
+            ->limit(10)
+            ->get();
         $category = CampaignCategory::select('id', 'name')->get();
 
         return view('pages.dashboard.leader', compact('statistic', 'campaignProgress', 'recentDonation', 'category'));
     }
 
     public function administrator() {
-        $totalPenerimaan = Donation::where('status', 'Completed')->sum('total_amount');
-        $totalPenerimaanRekening = Donation::where('status', 'Completed')->where('via_transfer', true)->sum('total_amount');
-        $potensiPenerimaanCash = Donation::whereNot('status', 'Completed')->where('via_transfer', false)->sum('total_amount');
-        $potensiPenerimaanRekening = Donation::whereNot('status', 'Completed')->where('via_transfer', true)->sum('total_amount');
+        // Optimasi: gunakan single query untuk semua statistics
+        $donationStats = Donation::selectRaw('
+            SUM(CASE WHEN status = "Completed" THEN total_amount ELSE 0 END) as total_penerimaan,
+            SUM(CASE WHEN status = "Completed" AND via_transfer = 1 THEN total_amount ELSE 0 END) as total_penerimaan_rekening,
+            SUM(CASE WHEN status != "Completed" AND via_transfer = 0 THEN total_amount ELSE 0 END) as potensi_penerimaan_cash,
+            SUM(CASE WHEN status != "Completed" AND via_transfer = 1 THEN total_amount ELSE 0 END) as potensi_penerimaan_rekening,
+            COUNT(DISTINCT donatur_name) as jml_uniq_donatur,
+            COUNT(DISTINCT liq_number) as jml_kupon
+        ')->first();
 
-        $jmlUniqDonatur = Donation::distinct('donatur_name')->count('donatur_name');
-        $jmlKupon = Donation::distinct('liq_number')->count('liq_number');
-        $jmlRelawan = User::with('volunteer')->where('level','volunteer')->count();
+        $totalPenerimaan = $donationStats->total_penerimaan ?? 0;
+        $totalPenerimaanRekening = $donationStats->total_penerimaan_rekening ?? 0;
+        $potensiPenerimaanCash = $donationStats->potensi_penerimaan_cash ?? 0;
+        $potensiPenerimaanRekening = $donationStats->potensi_penerimaan_rekening ?? 0;
+        $jmlUniqDonatur = $donationStats->jml_uniq_donatur ?? 0;
+        $jmlKupon = $donationStats->jml_kupon ?? 0;
+        
+        // Optimasi: tidak perlu load relationship untuk count
+        $jmlRelawan = User::where('level','volunteer')->count();
         $jmlProgramAktif = Campaign::where('status',2)->count();
 
         $campaignProgress = Campaign::with('image')->orderBy('total_amount', 'desc')->limit(10)->get();

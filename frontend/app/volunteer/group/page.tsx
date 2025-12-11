@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { toast } from 'react-hot-toast'
 import DashboardLayout from '@/components/layout/DashboardLayout'
 import { useAuth } from '@/hooks/useAuth'
 import { apiClient } from '@/lib/api/client'
@@ -55,8 +56,10 @@ export default function VolunteerGroupPage() {
     try {
       if (editingGroup) {
         await apiClient.put(`/groups/${editingGroup.id}`, formData)
+        toast.success('Group berhasil diupdate')
       } else {
         await apiClient.post('/groups', formData)
+        toast.success('Group berhasil dibuat')
       }
       setShowModal(false)
       setEditingGroup(null)
@@ -70,7 +73,9 @@ export default function VolunteerGroupPage() {
         })
         setErrors(apiErrors)
       } else {
-        setErrors({ general: error.response?.data?.message || 'Gagal menyimpan group' })
+        const message = error.response?.data?.message || 'Gagal menyimpan group'
+        toast.error(message)
+        setErrors({ general: message })
       }
     } finally {
       setSubmitting(false)
@@ -90,10 +95,11 @@ export default function VolunteerGroupPage() {
 
     try {
       await apiClient.delete(`/groups/${id}`)
+      toast.success('Group berhasil dihapus')
       fetchGroups()
     } catch (error) {
       console.error('Error deleting group:', error)
-      alert('Gagal menghapus group')
+      toast.error('Gagal menghapus group')
     }
   }
 

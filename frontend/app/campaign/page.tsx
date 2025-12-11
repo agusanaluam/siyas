@@ -3,41 +3,33 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { toast } from 'react-hot-toast'
 import DashboardLayout from '@/components/layout/DashboardLayout'
 import { useAuth } from '@/hooks/useAuth'
 import { campaignService } from '@/lib/api/campaign'
+import { useCampaigns } from '@/hooks/useCampaign'
 import { Campaign } from '@/types'
 
 export default function CampaignListPage() {
   const router = useRouter()
-  const { user, loading, isAuthenticated } = useAuth()
-  const [campaigns, setCampaigns] = useState<Campaign[]>([])
-  const [dataLoading, setDataLoading] = useState(true)
+  const { user, loading: authLoading, isAuthenticated } = useAuth()
+  const { data, loading: campaignsLoading, fetchCampaigns } = useCampaigns()
   const [status, setStatus] = useState<number>(0)
+  
+  const campaigns = data?.data || []
+  const loading = authLoading || campaignsLoading
 
   useEffect(() => {
-    if (!loading && !isAuthenticated) {
+    if (!authLoading && !isAuthenticated) {
       router.push('/login')
     }
-  }, [loading, isAuthenticated, router])
+  }, [authLoading, isAuthenticated, router])
 
   useEffect(() => {
     if (isAuthenticated) {
-      fetchCampaigns()
+      fetchCampaigns({ status: status || undefined })
     }
-  }, [isAuthenticated, status])
-
-  const fetchCampaigns = async () => {
-    try {
-      setDataLoading(true)
-      const data = await campaignService.getAll(status || undefined)
-      setCampaigns(data)
-    } catch (error) {
-      console.error('Error fetching campaigns:', error)
-    } finally {
-      setDataLoading(false)
-    }
-  }
+  }, [isAuthenticated, status, fetchCampaigns])
 
   const handleDelete = async (id: number) => {
     if (!confirm('Apakah Anda yakin ingin menghapus campaign ini?')) {
@@ -46,10 +38,11 @@ export default function CampaignListPage() {
 
     try {
       await campaignService.delete(id)
-      fetchCampaigns()
+      toast.success('Campaign berhasil dihapus')
+      fetchCampaigns({ status: status || undefined })
     } catch (error) {
       console.error('Error deleting campaign:', error)
-      alert('Gagal menghapus campaign')
+      toast.error('Gagal menghapus campaign')
     }
   }
 
@@ -87,7 +80,7 @@ export default function CampaignListPage() {
     }
   }
 
-  if (loading || dataLoading) {
+  if (loading) {
     return (
       <DashboardLayout>
         <div className="flex items-center justify-center h-64">
@@ -210,8 +203,8 @@ export default function CampaignListPage() {
                 campaigns.map((campaign) => {
                   const progress = getProgress(campaign)
                   const statusInfo = getStatusLabel(campaign.status)
-                  const imageUrl = campaign.images && campaign.images.length > 0
-                    ? `http://localhost:8000/storage/campaign_pictures/${campaign.images[0].picture_path}`
+                  const imageUrl = campaign.image && campaign.image.length > 0
+                    ? `http://localhost:8000/storage/campaign_pictures/${campaign.image[0].picture_path}`
                     : '/placeholder-image.jpg'
 
                   return (
@@ -299,4 +292,3 @@ export default function CampaignListPage() {
     </DashboardLayout>
   )
 }
-

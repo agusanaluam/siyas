@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { toast } from 'react-hot-toast'
 import DashboardLayout from '@/components/layout/DashboardLayout'
 import { useAuth } from '@/hooks/useAuth'
 import { volunteerService, Volunteer } from '@/lib/api/volunteer'
@@ -35,6 +36,21 @@ export default function VolunteerListPage() {
       console.error('Error fetching volunteers:', error)
     } finally {
       setDataLoading(false)
+    }
+  }
+
+  const handleDelete = async (id: number) => {
+    if (!confirm('Apakah Anda yakin ingin menghapus volunteer ini?')) {
+      return
+    }
+
+    try {
+      await volunteerService.delete(id)
+      toast.success('Volunteer berhasil dihapus')
+      fetchVolunteers()
+    } catch (error) {
+      console.error('Error deleting volunteer:', error)
+      toast.error('Gagal menghapus volunteer')
     }
   }
 
@@ -213,16 +229,7 @@ export default function VolunteerListPage() {
                               Edit
                             </Link>
                             <button
-                              onClick={async () => {
-                                if (confirm('Apakah Anda yakin ingin menghapus volunteer ini?')) {
-                                  try {
-                                    await volunteerService.delete(volunteer.id)
-                                    fetchVolunteers()
-                                  } catch (error) {
-                                    alert('Gagal menghapus volunteer')
-                                  }
-                                }
-                              }}
+                              onClick={() => handleDelete(volunteer.id)}
                               className="text-red-600 hover:text-red-900"
                             >
                               Hapus

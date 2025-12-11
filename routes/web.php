@@ -9,6 +9,8 @@ use App\Http\Controllers\Master\LocationController;
 use App\Http\Controllers\Master\CampaignController;
 use App\Http\Controllers\Master\VolunteerController;
 use App\Http\Controllers\Master\CampaignCategoryController;
+use App\Http\Controllers\Master\BlogPostController;
+use App\Http\Controllers\SettingController;
 use App\Http\Controllers\Transaction\DonationController;
 use App\Http\Controllers\Transaction\MutationController;
 
@@ -53,6 +55,11 @@ Route::group(['middleware' => 'auth'],function () {
 
     });
 
+    Route::prefix('settings')->group(function() {
+        Route::get('/profile', [SettingController::class, 'profile'])->name('settings.profile');
+        Route::post('/profile/update', [SettingController::class, 'profileUpdate'])->name('settings.profile.update');
+    });
+
     Route::prefix('location')->group(function () {
         Route::get('/get-kota/{provinsiId}', [LocationController::class, 'getKotaByProvinsi'])->name('location.kota');
         Route::get('/get-kecamatan/{kotaId}', [LocationController::class, 'getKecamatanByKota'])->name('location.kecamatan');
@@ -81,6 +88,17 @@ Route::group(['middleware' => 'auth'],function () {
 
         });
 
+    });
+
+    Route::prefix('blog')->group(function () {
+        Route::get('/', [BlogPostController::class, 'index'])->name('blog.list');
+        Route::get('/create', [BlogPostController::class, 'create'])->name('blog.create');
+        Route::post('/store', [BlogPostController::class, 'store'])->name('blog.store');
+        Route::get('/edit/{id}', [BlogPostController::class, 'edit'])->name('blog.edit');
+        Route::get('/details/{id}', [BlogPostController::class, 'details'])->name('blog.details');
+        Route::post('/update', [BlogPostController::class, 'update'])->name('blog.update');
+        Route::post('/upload-image', [BlogPostController::class, 'uploadImage'])->name('blog.upload-image');
+        Route::delete('/{id}', [BlogPostController::class, 'destroy'])->name('blog.destroy');
     });
 
     Route::prefix('volunteer')->group(function () {

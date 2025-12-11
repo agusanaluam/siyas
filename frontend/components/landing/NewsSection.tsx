@@ -1,8 +1,70 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import Image from 'next/image'
 import Link from 'next/link'
 import { BlogPost } from '@/types'
+
+interface NewsCardProps {
+  post: BlogPost
+  formatDate: (dateString: string) => string
+}
+
+function NewsCard({ post, formatDate }: NewsCardProps) {
+  const [imageLoaded, setImageLoaded] = useState(false)
+  const imageUrl = post.featured_image
+    ? `${process.env.NEXT_PUBLIC_API_URL?.replace('/api', '')}/storage/blog_images/${post.featured_image}`
+    : null
+
+  return (
+    <div className="group">
+      <div className="relative h-64 rounded-xl overflow-hidden mb-6">
+        {imageUrl ? (
+          <>
+            {!imageLoaded && (
+              <div className="absolute inset-0 flex items-center justify-center bg-gray-200">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-400"></div>
+              </div>
+            )}
+            <Image
+              src={imageUrl}
+              alt={post.title}
+              fill
+              className={`object-cover transform group-hover:scale-110 transition-transform duration-500 transition-opacity duration-300 ${
+                imageLoaded ? 'opacity-100' : 'opacity-0'
+              }`}
+              sizes="(max-width: 768px) 100vw, 33vw"
+              onLoad={() => setImageLoaded(true)}
+              onError={() => setImageLoaded(true)}
+            />
+          </>
+        ) : (
+          <div className="w-full h-full bg-gray-200 flex items-center justify-center text-gray-400">
+            <svg className="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+          </div>
+        )}
+      </div>
+      
+      <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-brand-600 transition-colors line-clamp-2">
+        {post.title}
+      </h3>
+      <p className="text-sm text-gray-500 mb-3">
+        {formatDate(post.created_at)}
+      </p>
+      <p className="text-gray-600 mb-4 line-clamp-3 text-sm">
+        {post.excerpt || post.content.replace(/<[^>]*>/g, '').substring(0, 100) + '...'}
+      </p>
+      <Link 
+        href={`/blog/${post.id}`}
+        className="inline-block bg-[rgb(246,90,141)] text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-accent-600 transition-colors"
+      >
+        Lanjutkan membaca
+      </Link>
+    </div>
+  )
+}
 
 export default function NewsSection() {
   const [posts, setPosts] = useState<BlogPost[]>([])
@@ -40,7 +102,7 @@ export default function NewsSection() {
   }
 
   return (
-    <section className="py-16 bg-white" id="news">
+    <section className="py-16 bg-gradient-to-b from-white via-brand-50/40 to-accent-50/40" id="news">
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-end mb-12">
           <div>
@@ -53,52 +115,34 @@ export default function NewsSection() {
           </div>
           <Link 
             href="/blog" 
-            className="hidden md:inline-block bg-brand-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-brand-700 transition-colors"
+            className="hidden md:inline-block bg-[rgb(246,90,141)] text-white px-6 py-2 rounded-lg font-medium hover:bg-accent-600 transition-colors"
           >
             Lihat Semua
           </Link>
         </div>
 
         {loading ? (
-          <div className="flex justify-center py-12">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-600"></div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {[1, 2, 3].map((i) => (
+              <div key={i}>
+                <div className="h-64 bg-gray-300 rounded-xl mb-6 animate-pulse"></div>
+                <div className="space-y-4">
+                  <div className="h-6 bg-gray-300 rounded animate-pulse"></div>
+                  <div className="h-4 bg-gray-300 rounded w-1/2 animate-pulse"></div>
+                  <div className="space-y-2">
+                    <div className="h-4 bg-gray-300 rounded animate-pulse"></div>
+                    <div className="h-4 bg-gray-300 rounded w-5/6 animate-pulse"></div>
+                    <div className="h-4 bg-gray-300 rounded w-4/6 animate-pulse"></div>
+                  </div>
+                  <div className="h-10 bg-gray-300 rounded w-32 animate-pulse"></div>
+                </div>
+              </div>
+            ))}
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {posts.map((post) => (
-              <div key={post.id} className="group">
-                <div className="relative h-64 rounded-xl overflow-hidden mb-6">
-                  {post.featured_image ? (
-                    <img
-                      src={`${process.env.NEXT_PUBLIC_API_URL?.replace('/api', '')}/storage/blog_images/${post.featured_image}`}
-                      alt={post.title}
-                      className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500"
-                    />
-                  ) : (
-                    <div className="w-full h-full bg-gray-200 flex items-center justify-center text-gray-400">
-                      <svg className="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                      </svg>
-                    </div>
-                  )}
-                </div>
-                
-                <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-brand-600 transition-colors line-clamp-2">
-                  {post.title}
-                </h3>
-                <p className="text-sm text-gray-500 mb-3">
-                  {formatDate(post.created_at)}
-                </p>
-                <p className="text-gray-600 mb-4 line-clamp-3 text-sm">
-                  {post.excerpt || post.content.replace(/<[^>]*>/g, '').substring(0, 100) + '...'}
-                </p>
-                <Link 
-                  href={`/blog/${post.id}`}
-                  className="inline-block bg-brand-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-brand-700 transition-colors"
-                >
-                  Lanjutkan membaca
-                </Link>
-              </div>
+              <NewsCard key={post.id} post={post} formatDate={formatDate} />
             ))}
           </div>
         )}
@@ -106,7 +150,7 @@ export default function NewsSection() {
         <div className="mt-8 text-center md:hidden">
           <Link 
             href="/blog" 
-            className="inline-block bg-brand-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-brand-700 transition-colors"
+            className="inline-block bg-accent-500 text-white px-6 py-2 rounded-lg font-medium hover:bg-accent-600 transition-colors"
           >
             Lihat Semua
           </Link>

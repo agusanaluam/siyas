@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { toast } from 'react-hot-toast'
 import DashboardLayout from '@/components/layout/DashboardLayout'
 import { useAuth } from '@/hooks/useAuth'
 import { campaignCategoryService } from '@/lib/api/campaign'
@@ -65,7 +66,9 @@ export default function CampaignCategoriesPage() {
         })
         setErrors(apiErrors)
       } else {
-        setErrors({ general: error.response?.data?.message || 'Gagal menyimpan kategori' })
+        const message = error.response?.data?.message || 'Gagal menyimpan kategori'
+        toast.error(message)
+        setErrors({ general: message })
       }
     } finally {
       setSubmitting(false)
@@ -85,10 +88,11 @@ export default function CampaignCategoriesPage() {
 
     try {
       await campaignCategoryService.delete(id)
+      toast.success('Kategori berhasil dihapus')
       fetchCategories()
     } catch (error) {
       console.error('Error deleting category:', error)
-      alert('Gagal menghapus kategori')
+      toast.error('Gagal menghapus kategori')
     }
   }
 

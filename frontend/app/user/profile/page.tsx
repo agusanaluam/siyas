@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { toast } from 'react-hot-toast'
 import DashboardLayout from '@/components/layout/DashboardLayout'
 import { useAuth } from '@/hooks/useAuth'
 import { apiClient } from '@/lib/api/client'
@@ -182,7 +183,7 @@ export default function UserProfilePage() {
         },
       })
 
-      alert('Profil berhasil diupdate')
+      toast.success('Profil berhasil diupdate')
       fetchProfile()
     } catch (error: any) {
       if (error.response?.data?.errors) {
@@ -192,7 +193,9 @@ export default function UserProfilePage() {
         })
         setErrors(apiErrors)
       } else {
-        setErrors({ general: error.response?.data?.message || 'Gagal mengupdate profil' })
+        const message = error.response?.data?.message || 'Gagal mengupdate profil'
+        toast.error(message)
+        setErrors({ general: message })
       }
     } finally {
       setSubmitting(false)

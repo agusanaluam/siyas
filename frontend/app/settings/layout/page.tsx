@@ -81,11 +81,13 @@ export default function SettingsLayoutPage() {
         await apiClient.post(`/hero-slides/${editingSlide.id}`, formData, {
           headers: { 'Content-Type': 'multipart/form-data' }
         })
+        toast.success('Slide updated successfully')
       } else {
-        if (!slideImage) return alert('Image is required')
+        if (!slideImage) return toast.error('Image is required')
         await apiClient.post('/hero-slides', formData, {
           headers: { 'Content-Type': 'multipart/form-data' }
         })
+        toast.success('Slide added successfully')
       }
 
       setSlideForm({ title: '', description: '' })
@@ -94,7 +96,7 @@ export default function SettingsLayoutPage() {
       fetchData()
     } catch (error) {
       console.error('Error saving slide:', error)
-      alert('Failed to save slide')
+      toast.error('Failed to save slide')
     } finally {
       setSubmittingSlide(false)
     }
@@ -104,16 +106,17 @@ export default function SettingsLayoutPage() {
     if (!confirm('Are you sure you want to delete this slide?')) return
     try {
       await apiClient.delete(`/hero-slides/${id}`)
+      toast.success('Slide deleted successfully')
       fetchData()
     } catch (error) {
       console.error('Error deleting slide:', error)
-      alert('Failed to delete slide')
+      toast.error('Failed to delete slide')
     }
   }
 
   const handlePartnerSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!partnerImage) return alert('Image is required')
+    if (!partnerImage) return toast.error('Image is required')
     
     setSubmittingPartner(true)
     try {
@@ -127,10 +130,11 @@ export default function SettingsLayoutPage() {
 
       setPartnerForm({ name: '' })
       setPartnerImage(null)
+      toast.success('Partner added successfully')
       fetchData()
     } catch (error) {
       console.error('Error saving partner:', error)
-      alert('Failed to save partner')
+      toast.error('Failed to save partner')
     } finally {
       setSubmittingPartner(false)
     }
@@ -140,10 +144,11 @@ export default function SettingsLayoutPage() {
     if (!confirm('Are you sure you want to delete this partner?')) return
     try {
       await apiClient.delete(`/partners/${id}`)
+      toast.success('Partner deleted successfully')
       fetchData()
     } catch (error) {
       console.error('Error deleting partner:', error)
-      alert('Failed to delete partner')
+      toast.error('Failed to delete partner')
     }
   }
 

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter, useParams } from 'next/navigation'
+import { toast } from 'react-hot-toast'
 import Link from 'next/link'
 import DashboardLayout from '@/components/layout/DashboardLayout'
 import { useAuth } from '@/hooks/useAuth'
@@ -47,10 +48,10 @@ export default function DonationDetailsPage() {
 
     try {
       await donationService.approve(Number(params.id))
-      alert('Donation berhasil disetujui')
+      toast.success('Donation berhasil disetujui')
       fetchDonation()
     } catch (error: any) {
-      alert(error.response?.data?.message || 'Gagal menyetujui donation')
+      toast.error(error.response?.data?.message || 'Gagal menyetujui donation')
     }
   }
 

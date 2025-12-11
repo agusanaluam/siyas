@@ -49,5 +49,10 @@ export const donationService = {
   async delete(id: number): Promise<void> {
     await apiClient.delete(`/donations/${id}`)
   },
+
+  async getAccounts(): Promise<any[]> {
+    const response = await apiClient.get<any[]>('/donation-accounts')
+    return response.data
+  },
 }
 
