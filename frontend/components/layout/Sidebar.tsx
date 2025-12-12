@@ -44,12 +44,14 @@ export default function Sidebar() {
   }
 
   const menuItems: MenuItem[] = [
-    {
-      name: 'Dashboard',
-      href: '/dashboard',
-      icon: 'grid',
-    },
-    ...(user && (user.level === 'administrator' || user.email_verified_at)
+    ...(user?.level !== 'donatur' 
+      ? [{
+          name: 'Dashboard',
+          href: '/dashboard',
+          icon: 'grid',
+        }]
+      : []),
+    ...(user && (user.level === 'administrator' || user.email_verified_at) && user.level !== 'donatur'
       ? [
           {
             name: 'Buat Donation',
@@ -61,7 +63,7 @@ export default function Sidebar() {
   ]
 
   const manageItems: MenuItem[] = [
-    ...(user && user.level !== 'volunteer'
+    ...(user && user.level !== 'volunteer' && user.level !== 'donatur'
       ? [
           {
             name: 'Campaign',
@@ -84,15 +86,19 @@ export default function Sidebar() {
       href: '#',
       icon: 'package',
       children: [
-        { name: 'All Donation', href: '/donation', icon: '' },
-        { name: 'Tranfered Donation', href: '/donation/transfer', icon: '' },
+        ...(user?.level !== 'donatur' 
+          ? [
+              { name: 'All Donation', href: '/donation', icon: '' },
+              { name: 'Tranfered Donation', href: '/donation/transfer', icon: '' },
+            ] 
+          : []),
         { name: 'Donation History', href: '/donation/history', icon: '' },
-        ...(user && user.level !== 'volunteer'
+        ...(user && user.level !== 'volunteer' && user.level !== 'donatur'
           ? [{ name: 'Mutation Donation', href: '/donation/mutation', icon: '' }]
           : []),
       ],
     },
-    ...(user && user.level !== 'volunteer'
+    ...(user && user.level !== 'volunteer' && user.level !== 'donatur'
       ? [
           {
             name: 'Volunteers',
@@ -108,7 +114,7 @@ export default function Sidebar() {
           },
         ]
       : []),
-    ...(user && (user.level === 'administrator' || user.level === 'root')
+    ...(user && (user.level === 'administrator' || user.level === 'root' || user.level === 'volunteer')
       ? [
           {
             name: 'Blog Post',
@@ -116,8 +122,13 @@ export default function Sidebar() {
             icon: 'file-text',
             children: [
               { name: 'Blog List', href: '/blog', icon: '' },
-              { name: 'Blog Tags', href: '/blog/tags', icon: '' },
-              { name: 'Categories', href: '/blog/categories', icon: '' },
+              ...(user.level === 'administrator' || user.level === 'root' 
+                ? [
+                  { name: 'Blog Tags', href: '/blog/tags', icon: '' },
+                  { name: 'Categories', href: '/blog/categories', icon: '' },
+                ]
+                : []
+              )
             ],
           },
         ]
@@ -258,7 +269,7 @@ export default function Sidebar() {
           </ul>
         </div>
 
-        {user && (user.level === 'administrator' || user.email_verified_at) && (
+        {user && (user.level === 'administrator' || user.email_verified_at || user.level === 'donatur' || user.level === 'volunteer') && (
           <div>
             <h6 className={`px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 transition-opacity duration-300 ${isCollapsed ? 'opacity-0 h-0 overflow-hidden' : 'opacity-100'}`}>
               Manage

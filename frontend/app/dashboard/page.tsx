@@ -15,8 +15,10 @@ export default function DashboardPage() {
   useEffect(() => {
     if (!loading && !isAuthenticated) {
       router.push('/login')
+    } else if (!loading && isAuthenticated && user?.level === 'donatur') {
+      router.push('/donation/history')
     }
-  }, [loading, isAuthenticated, router])
+  }, [loading, isAuthenticated, router, user])
 
   useEffect(() => {
     if (isAuthenticated) {

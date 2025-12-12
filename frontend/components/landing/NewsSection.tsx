@@ -13,7 +13,7 @@ interface NewsCardProps {
 function NewsCard({ post, formatDate }: NewsCardProps) {
   const [imageLoaded, setImageLoaded] = useState(false)
   const imageUrl = post.featured_image
-    ? `${process.env.NEXT_PUBLIC_API_URL?.replace('/api', '')}/storage/blog_images/${post.featured_image}`
+    ? `${(process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api').replace('/api', '')}/storage/blog_images/${post.featured_image}`
     : null
 
   return (
@@ -54,10 +54,10 @@ function NewsCard({ post, formatDate }: NewsCardProps) {
         {formatDate(post.created_at)}
       </p>
       <p className="text-gray-600 mb-4 line-clamp-3 text-sm">
-        {post.excerpt || post.content.replace(/<[^>]*>/g, '').substring(0, 100) + '...'}
+        {post.excerpt || post.content.replace(/<[^>]*>/g, '').substring(0, 25) + '...'}
       </p>
       <Link 
-        href={`/blog/${post.id}`}
+        href={`/berita-kegiatan/${post.id}`}
         className="inline-block bg-[rgb(246,90,141)] text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-accent-600 transition-colors"
       >
         Lanjutkan membaca
@@ -83,7 +83,7 @@ export default function NewsSection() {
       // Filter for 'realisasi' category if possible, or just take latest 3
       // Assuming backend returns all or paginated
       const filtered = Array.isArray(data) 
-        ? data.filter((post: any) => post.category?.toLowerCase().includes('realisasi') || true).slice(0, 3)
+        ? data.filter((post: any) => post.category?.name?.toLowerCase().includes('realisasi') || true).slice(0, 4)
         : []
       setPosts(filtered)
     } catch (error) {
@@ -122,8 +122,8 @@ export default function NewsSection() {
         </div>
 
         {loading ? (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {[1, 2, 3].map((i) => (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {[1, 2, 3, 4].map((i) => (
               <div key={i}>
                 <div className="h-64 bg-gray-300 rounded-xl mb-6 animate-pulse"></div>
                 <div className="space-y-4">
@@ -140,7 +140,7 @@ export default function NewsSection() {
             ))}
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {posts.map((post) => (
               <NewsCard key={post.id} post={post} formatDate={formatDate} />
             ))}

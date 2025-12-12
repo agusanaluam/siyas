@@ -90,6 +90,7 @@ class DonationController extends Controller
                 'description' => $request->description,
                 'status' => $request->payment_method === 'transfer' ? 'at Rekening' : 'at Volunteer',
                 'volunteer_id' => auth()->user()->volunteer_id,
+                'user_id' => auth()->id(),
             ]);
 
             foreach ($request->campaign_id as $key => $campaignId) {
@@ -193,13 +194,14 @@ class DonationController extends Controller
             $donation = Donation::findOrFail($id);
 
             $path = $donation->reference_picture;
+            $publicPath = 'public/';
             if ($request->hasFile('reference_picture')) {
-                if ($donation->reference_picture && Storage::exists('public/' . $donation->reference_picture)) {
-                    Storage::delete('public/' . $donation->reference_picture);
+                if ($donation->reference_picture && Storage::exists($publicPath . $donation->reference_picture)) {
+                    Storage::delete($publicPath . $donation->reference_picture);
                 }
                 $extension = $request->file('reference_picture')->getClientOriginalExtension();
                 $filenameSimpan = Str::random(16) . '_' . time() . '.' . $extension;
-                $request->file('reference_picture')->storeAs('public/payment_reference', $filenameSimpan);
+                $request->file('reference_picture')->storeAs($publicPath . 'payment_reference', $filenameSimpan);
                 $path = 'payment_reference/' . $filenameSimpan;
             }
 
@@ -293,8 +295,18 @@ class DonationController extends Controller
 
     public function getHistory()
     {
+        $user = auth()->user();
+        
         $donations = Donation::with('detail.campaign.image')
-            ->where('volunteer_id', auth()->user()->volunteer_id)
+            ->where(function ($query) use ($user) {
+                // Show personal donations (logged in user made them)
+                $query->where('user_id', $user->id);
+                
+                // If volunteer, also show donations they managed/collected
+                if ($user->volunteer_id) {
+                    $query->orWhere('volunteer_id', $user->volunteer_id);
+                }
+            })
             ->orderBy('created_at', 'desc')
             ->get();
 

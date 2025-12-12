@@ -55,29 +55,36 @@ class AuthController extends Controller
             'email' => 'required|email|unique:users,email',
             'password' => 'required|min:8|confirmed',
             'phone_number' => 'nullable|string',
-            'group_id' => 'required|exists:m_group,id',
+            'role' => 'required|in:relawan,donatur',
+            'group_id' => 'required_if:role,relawan|nullable|exists:m_group,id',
         ]);
 
         DB::beginTransaction();
 
         try {
             $token = Str::random(60);
+            $volunteerId = null;
+            $userLevel = 'donatur';
 
-            $volunteer = Volunteer::create([
-                'group_id' => $request->group_id,
-                'name' => $request->name,
-                'email' => $request->email,
-                'profile_picture' => 'profile_pictures/user-01.jpg',
-                'points' => 0,
-            ]);
+            if ($request->role === 'relawan') {
+                $volunteer = Volunteer::create([
+                    'group_id' => $request->group_id,
+                    'name' => $request->name,
+                    'email' => $request->email,
+                    'profile_picture' => 'profile_pictures/user-01.jpg',
+                    'points' => 0,
+                ]);
+                $volunteerId = $volunteer->id;
+                $userLevel = 'volunteer';
+            }
 
             $user = User::create([
                 'name' => $request->name,
                 'email' => $request->email,
                 'password' => Hash::make($request->password),
                 'phone_number' => $request->phone_number,
-                'level' => 'volunteer',
-                'volunteer_id' => $volunteer->id,
+                'level' => $userLevel,
+                'volunteer_id' => $volunteerId,
                 'remember_token' => $token,
             ]);
 

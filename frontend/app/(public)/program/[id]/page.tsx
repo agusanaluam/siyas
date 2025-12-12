@@ -205,6 +205,16 @@ export default function CampaignDetailPage() {
     return days > 0 ? days : 0
   }
 
+  const maskName = (name: string) => {
+    if (!name) return 'Hamba Allah'
+    if (name.toLowerCase() === 'hamba allah') return name
+    if (name.length <= 4) return name
+    const start = name.slice(0, 2)
+    const end = name.slice(-2)
+    const middle = '*'.repeat(name.length - 4)
+    return `${start}${middle}${end}`
+  }
+
   if (loading) {
     return (
       <main className="min-h-screen bg-white">
@@ -313,7 +323,7 @@ export default function CampaignDetailPage() {
                   </div>
                   <div className="flex justify-between items-baseline mb-3">
                     <span className="text-xl font-bold text-brand-600">
-                      {formatCurrency(0)}
+                      {formatCurrency(campaign.total_collected || 0)}
                     </span>
                     <span className="text-lg font-semibold text-gray-900">
                       {formatCurrency(campaign.target_amount)}
@@ -322,7 +332,12 @@ export default function CampaignDetailPage() {
                   
                   {/* Progress Bar */}
                   <div className="w-full bg-gray-200 rounded-full h-2 mb-4">
-                    <div className="bg-brand-600 h-2 rounded-full" style={{ width: '0%' }}></div>
+                    <div 
+                      className="bg-brand-600 h-2 rounded-full" 
+                      style={{ 
+                        width: `${Math.min(((campaign.total_collected || 0) / campaign.target_amount) * 100, 100)}%` 
+                      }}
+                    ></div>
                   </div>
 
                   <div className="flex justify-between text-sm text-gray-600">
@@ -543,7 +558,7 @@ export default function CampaignDetailPage() {
                     : 'text-gray-600 hover:text-gray-900'
                 }`}
               >
-                Donatur <span className="ml-1 text-sm">0</span>
+                Donatur <span className="ml-1 text-sm">{campaign.total_donors || 0}</span>
               </button>
             </div>
 
@@ -560,8 +575,31 @@ export default function CampaignDetailPage() {
                 </div>
               )}
               {activeTab === 'donatur' && (
-                <div className="text-gray-600">
-                  <p>Belum ada donatur untuk campaign ini.</p>
+                <div className="space-y-4">
+                  {campaign.donors && campaign.donors.length > 0 ? (
+                    campaign.donors.map((donor, index) => (
+                      <div key={index} className="flex items-center justify-between border-b border-gray-100 pb-4 last:border-0 last:pb-0">
+                        <div className="flex items-center space-x-3">
+                          <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center text-gray-500">
+                            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                            </svg>
+                          </div>
+                          <div>
+                            <p className="font-medium text-gray-900">{maskName(donor.donatur_name)}</p>
+                            <p className="text-xs text-gray-500">{formatDate(donor.created_at)}</p>
+                          </div>
+                        </div>
+                        <div className="font-semibold text-brand-600">
+                          {formatCurrency(donor.amount)}
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="text-gray-600 text-center py-8">
+                      <p>Belum ada donatur untuk campaign ini.</p>
+                    </div>
+                  )}
                 </div>
               )}
             </div>

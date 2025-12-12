@@ -15,6 +15,7 @@ class Donation extends Model
 
     protected $table = 't_donation';
     protected $fillable = [
+        'user_id',
         'volunteer_id',
         'liq_number',
         'donatur_name',

@@ -2,7 +2,7 @@ export interface User {
   id: number
   name: string
   email: string
-  level: 'volunteer' | 'leader' | 'administrator' | 'root'
+  level: 'volunteer' | 'leader' | 'administrator' | 'root' | 'donatur'
   email_verified_at: string | null
   phone_number?: string
   volunteer_id?: number
@@ -31,6 +31,15 @@ export interface Campaign {
   status: number
   pic?: string
   image?: CampaignImage[]
+  total_collected?: number
+  total_donors?: number
+  donors?: Donor[]
+}
+
+export interface Donor {
+  donatur_name: string
+  amount: number
+  created_at: string
 }
 
 export interface CampaignCategory {

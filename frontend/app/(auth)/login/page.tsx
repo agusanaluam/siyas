@@ -18,6 +18,8 @@ export default function LoginPage() {
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [loading, setLoading] = useState(false)
 
+  const [loginRole, setLoginRole] = useState<'relawan' | 'donatur'>('donatur')
+
   useEffect(() => {
     fetchSettings()
   }, [fetchSettings])
@@ -95,6 +97,31 @@ export default function LoginPage() {
           <p className="text-sm text-gray-600 mb-8">
             Akses panel SIYAS menggunakan email dan kata sandi Anda.
           </p>
+
+          <div className="flex rounded-md shadow-sm mb-6" role="group">
+            <button
+              type="button"
+              onClick={() => setLoginRole('relawan')}
+              className={`flex-1 px-4 py-2 text-sm font-medium text-center border rounded-l-lg transition-colors ${
+                loginRole === 'relawan'
+                  ? 'bg-primary-600 text-white border-primary-600'
+                  : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+              }`}
+            >
+              Relawan & Staf
+            </button>
+            <button
+              type="button"
+              onClick={() => setLoginRole('donatur')}
+              className={`flex-1 px-4 py-2 text-sm font-medium text-center border rounded-r-lg transition-colors ${
+                loginRole === 'donatur'
+                  ? 'bg-primary-600 text-white border-primary-600'
+                  : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+              }`}
+            >
+              Donatur
+            </button>
+          </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Email Input */}

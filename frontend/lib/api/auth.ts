@@ -13,6 +13,7 @@ export interface RegisterData {
   password_confirmation: string
   phone_number?: string
   group_id?: number
+  role: 'relawan' | 'donatur'
 }
 
 export interface AuthResponse {

@@ -12,6 +12,8 @@ use Illuminate\Support\Facades\DB;
 use Intervention\Image\ImageManager;
 use Intervention\Image\Drivers\Gd\Driver;
 
+use App\Models\Transaction\DonationDetail;
+
 class CampaignController extends Controller
 {
     public function index(Request $request)
@@ -21,6 +23,9 @@ class CampaignController extends Controller
         $perPage = $request->input('per_page', 12);
         
         $query = Campaign::with(['category', 'image']);
+
+        // Eager load accumulation for index listing if needed, but for now user focused on detail.
+        // We can add withCount/withSum if we want efficient list loading later.
 
         if ($status > 0) {
             $query->where('status', $status);
@@ -38,6 +43,26 @@ class CampaignController extends Controller
     public function show($id)
     {
         $campaign = Campaign::with(['category', 'image'])->findOrFail($id);
+        
+        $totalCollected = DonationDetail::where('program_id', $id)
+            ->whereHas('donation') // Ensure donation exists/not deleted
+            ->sum('amount');
+            
+        $totalDonors = DonationDetail::where('program_id', $id)
+            ->whereHas('donation')
+            ->count();
+            
+        $donors = DonationDetail::where('program_id', $id)
+            ->join('t_donation', 't_donation_detail.donation_id', '=', 't_donation.id')
+            ->whereNull('t_donation.deleted_at')
+            ->orderBy('t_donation.created_at', 'desc')
+            ->take(15)
+            ->get(['t_donation.donatur_name', 't_donation_detail.amount', 't_donation.created_at']);
+            
+        $campaign->setAttribute('total_collected', $totalCollected);
+        $campaign->setAttribute('total_donors', $totalDonors);
+        $campaign->setAttribute('donors', $donors);
+        
         return response()->json($campaign);
     }
 

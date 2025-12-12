@@ -20,6 +20,7 @@ export default function RegisterPage() {
     password_confirmation: '',
     group_id: '',
     phone_number: '',
+    role: 'donatur' as 'relawan' | 'donatur',
   })
   const [groups, setGroups] = useState<Group[]>([])
   const [errors, setErrors] = useState<Record<string, string>>({})
@@ -58,7 +59,8 @@ export default function RegisterPage() {
         group_id: formData.group_id ? parseInt(formData.group_id) : undefined,
       }
       await authService.register(data)
-      router.push('/email-verification?email=' + encodeURIComponent(formData.email))
+      // router.push('/email-verification?email=' + encodeURIComponent(formData.email))
+      router.push('/login')
     } catch (error: any) {
       if (error.response?.data?.errors) {
         const apiErrors: Record<string, string> = {}
@@ -84,9 +86,36 @@ export default function RegisterPage() {
             Daftar
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600">
-            Buat akun relawan
+            Buat akun baru
           </p>
         </div>
+
+        {/* Role Selection Tabs */}
+        <div className="flex rounded-md shadow-sm" role="group">
+          <button
+            type="button"
+            onClick={() => setFormData({ ...formData, role: 'relawan' })}
+            className={`flex-1 px-4 py-2 text-sm font-medium text-center border rounded-l-lg focus:z-10 focus:ring-2 focus:ring-primary-500 transition-colors ${
+              formData.role === 'relawan'
+                ? 'bg-primary-600 text-white border-primary-600'
+                : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+            }`}
+          >
+            Relawan
+          </button>
+          <button
+            type="button"
+            onClick={() => setFormData({ ...formData, role: 'donatur' })}
+            className={`flex-1 px-4 py-2 text-sm font-medium text-center border rounded-r-lg focus:z-10 focus:ring-2 focus:ring-primary-500 transition-colors ${
+              formData.role === 'donatur'
+                ? 'bg-primary-600 text-white border-primary-600'
+                : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+            }`}
+          >
+            Donatur
+          </button>
+        </div>
+
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           <div className="space-y-4">
             <div>
@@ -108,29 +137,31 @@ export default function RegisterPage() {
               )}
             </div>
 
-            <div>
-              <label htmlFor="group_id" className="block text-sm font-medium text-gray-700">
-                Grup / Komunitas
-              </label>
-              <select
-                id="group_id"
-                name="group_id"
-                required
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
-                value={formData.group_id}
-                onChange={(e) => setFormData({ ...formData, group_id: e.target.value })}
-              >
-                <option value="">--Pilih--</option>
-                {groups.map((group) => (
-                  <option key={group.id} value={group.id}>
-                    {group.name}
-                  </option>
-                ))}
-              </select>
-              {errors.group_id && (
-                <p className="mt-1 text-sm text-red-600">{errors.group_id}</p>
-              )}
-            </div>
+            {formData.role === 'relawan' && (
+              <div>
+                <label htmlFor="group_id" className="block text-sm font-medium text-gray-700">
+                  Grup / Komunitas
+                </label>
+                <select
+                  id="group_id"
+                  name="group_id"
+                  required
+                  className="mt-1 block w-full px-3 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+                  value={formData.group_id}
+                  onChange={(e) => setFormData({ ...formData, group_id: e.target.value })}
+                >
+                  <option value="">--Pilih--</option>
+                  {groups.map((group) => (
+                    <option key={group.id} value={group.id}>
+                      {group.name}
+                    </option>
+                  ))}
+                </select>
+                {errors.group_id && (
+                  <p className="mt-1 text-sm text-red-600">{errors.group_id}</p>
+                )}
+              </div>
+            )}
 
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700">
