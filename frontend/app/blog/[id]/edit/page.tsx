@@ -8,6 +8,7 @@ import RichTextEditor from '@/components/RichTextEditor'
 import { useAuth } from '@/hooks/useAuth'
 import { blogService } from '@/lib/api/blog'
 import { BlogPost } from '@/types'
+import { getImageUrl } from '@/lib/utils'
 
 export default function EditBlogPage() {
   const router = useRouter()
@@ -70,6 +71,18 @@ export default function EditBlogPage() {
     e.preventDefault()
     setErrors({})
     setSubmitting(true)
+
+    // Manual validation for content to prevent backend "required" error
+    // Check if content is empty or just contains empty HTML tags
+    const strippedContent = formData.content.replace(/<[^>]*>/g, '').trim()
+    if (!formData.content || strippedContent.length === 0) {
+       // Allow empty content if it contains images (img tag)
+       if (!formData.content.includes('<img')) {
+          setErrors({ content: 'Konten tidak boleh kosong' })
+          setSubmitting(false)
+          return
+       }
+    }
 
     try {
       const formDataToSend = new FormData()
@@ -147,7 +160,7 @@ export default function EditBlogPage() {
               type="text"
               className="input"
               value={formData.title}
-              onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+              onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
               required
             />
             {errors.title && <p className="mt-1 text-sm text-red-600">{errors.title}</p>}
@@ -160,7 +173,7 @@ export default function EditBlogPage() {
                 <input
                   type="checkbox"
                   checked={formData.status}
-                  onChange={(e) => setFormData({ ...formData, status: e.target.checked })}
+                  onChange={(e) => setFormData(prev => ({ ...prev, status: e.target.checked }))}
                   className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
                 />
                 <span className="text-sm text-gray-700">Published</span>
@@ -173,7 +186,7 @@ export default function EditBlogPage() {
                 type="datetime-local"
                 className="input"
                 value={formData.published_at}
-                onChange={(e) => setFormData({ ...formData, published_at: e.target.value })}
+                onChange={(e) => setFormData(prev => ({ ...prev, published_at: e.target.value }))}
               />
             </div>
           </div>
@@ -184,7 +197,7 @@ export default function EditBlogPage() {
               className="input"
               rows={3}
               value={formData.excerpt}
-              onChange={(e) => setFormData({ ...formData, excerpt: e.target.value })}
+              onChange={(e) => setFormData(prev => ({ ...prev, excerpt: e.target.value }))}
             />
           </div>
 
@@ -192,7 +205,7 @@ export default function EditBlogPage() {
             <label className="label">Konten *</label>
             <RichTextEditor
               value={formData.content}
-              onChange={(value) => setFormData({ ...formData, content: value })}
+              onChange={(value) => setFormData(prev => ({ ...prev, content: value }))}
               placeholder="Tulis konten blog..."
             />
             {errors.content && <p className="mt-1 text-sm text-red-600">{errors.content}</p>}
@@ -219,7 +232,7 @@ export default function EditBlogPage() {
               <div className="mt-2">
                 <p className="text-sm text-gray-600 mb-2">Gambar saat ini:</p>
                 <img
-                  src={blog?.image_url || `http://localhost:8000/storage/blog_images/${existingImage}`}
+                  src={getImageUrl(`/storage/blog_images/${existingImage}`)}
                   alt="Current"
                   className="w-48 h-48 object-cover rounded-lg"
                 />

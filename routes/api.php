@@ -50,6 +50,14 @@ Route::get('/hero-slides', [\App\Http\Controllers\Api\LayoutController::class, '
 Route::get('/partners', [\App\Http\Controllers\Api\LayoutController::class, 'getPartners']);
 Route::post('/donations/public', [\App\Http\Controllers\Api\DonationController::class, 'storePublic']);
 
+// Public Categories and Tags
+Route::get('/campaign-categories', [\App\Http\Controllers\Api\CampaignCategoryController::class, 'index']);
+Route::get('/campaign-categories/{id}', [\App\Http\Controllers\Api\CampaignCategoryController::class, 'show']);
+Route::get('/blog-categories', [\App\Http\Controllers\Api\BlogCategoryController::class, 'index']);
+Route::get('/blog-categories/{id}', [\App\Http\Controllers\Api\BlogCategoryController::class, 'show']);
+Route::get('/blog-tags', [\App\Http\Controllers\Api\BlogTagController::class, 'index']);
+Route::get('/blog-tags/{id}', [\App\Http\Controllers\Api\BlogTagController::class, 'show']);
+
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/groups', [\App\Http\Controllers\Api\GroupController::class, 'store']);
     Route::get('/groups/{id}', [\App\Http\Controllers\Api\GroupController::class, 'show']);
@@ -72,9 +80,7 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 
     Route::prefix('campaign-categories')->group(function () {
-        Route::get('/', [\App\Http\Controllers\Api\CampaignCategoryController::class, 'index']);
         Route::post('/', [\App\Http\Controllers\Api\CampaignCategoryController::class, 'store']);
-        Route::get('/{id}', [\App\Http\Controllers\Api\CampaignCategoryController::class, 'show']);
         Route::put('/{id}', [\App\Http\Controllers\Api\CampaignCategoryController::class, 'update']);
         Route::post('/{id}', [\App\Http\Controllers\Api\CampaignCategoryController::class, 'update']);
         Route::delete('/{id}', [\App\Http\Controllers\Api\CampaignCategoryController::class, 'destroy']);
@@ -89,18 +95,14 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 
     Route::prefix('blog-tags')->group(function () {
-        Route::get('/', [\App\Http\Controllers\Api\BlogTagController::class, 'index']);
         Route::post('/', [\App\Http\Controllers\Api\BlogTagController::class, 'store']);
-        Route::get('/{id}', [\App\Http\Controllers\Api\BlogTagController::class, 'show']);
         Route::put('/{id}', [\App\Http\Controllers\Api\BlogTagController::class, 'update']);
         Route::post('/{id}', [\App\Http\Controllers\Api\BlogTagController::class, 'update']);
         Route::delete('/{id}', [\App\Http\Controllers\Api\BlogTagController::class, 'destroy']);
     });
 
     Route::prefix('blog-categories')->group(function () {
-        Route::get('/', [\App\Http\Controllers\Api\BlogCategoryController::class, 'index']);
         Route::post('/', [\App\Http\Controllers\Api\BlogCategoryController::class, 'store']);
-        Route::get('/{id}', [\App\Http\Controllers\Api\BlogCategoryController::class, 'show']);
         Route::put('/{id}', [\App\Http\Controllers\Api\BlogCategoryController::class, 'update']);
         Route::post('/{id}', [\App\Http\Controllers\Api\BlogCategoryController::class, 'update']);
         Route::delete('/{id}', [\App\Http\Controllers\Api\BlogCategoryController::class, 'destroy']);
@@ -145,7 +147,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/{id}', [\App\Http\Controllers\Api\VolunteerController::class, 'show']);
         Route::put('/{id}', [\App\Http\Controllers\Api\VolunteerController::class, 'update']);
         Route::post('/{id}', [\App\Http\Controllers\Api\VolunteerController::class, 'update']);
-    Route::delete('/{id}', [\App\Http\Controllers\Api\VolunteerController::class, 'destroy']);
+        Route::delete('/{id}', [\App\Http\Controllers\Api\VolunteerController::class, 'destroy']);
     });
 
     Route::prefix('hero-slides')->group(function () {
