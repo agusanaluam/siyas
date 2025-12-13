@@ -5,7 +5,9 @@ import { useRouter } from 'next/navigation'
 import DashboardLayout from '@/components/layout/DashboardLayout'
 import { useAuth } from '@/hooks/useAuth'
 import { apiClient } from '@/lib/api/client'
+import { getImageUrl } from '@/lib/utils'
 import { toast } from 'react-hot-toast'
+import Image from 'next/image'
 
 interface HeroSlide {
   id: number
@@ -153,11 +155,6 @@ export default function SettingsLayoutPage() {
     }
   }
 
-  const getImageUrl = (path: string) => {
-    if (path.startsWith('http')) return path
-    return `${process.env.NEXT_PUBLIC_API_URL?.replace('/api', '')}${path}`
-  }
-
   if (loading || dataLoading) {
     return (
       <DashboardLayout>
@@ -233,11 +230,12 @@ export default function SettingsLayoutPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {slides.map(slide => (
-              <div key={slide.id} className="border rounded-lg overflow-hidden relative group">
-                <img 
+              <div key={slide.id} className="border rounded-lg overflow-hidden relative group h-48">
+                <Image 
                   src={getImageUrl(slide.image)} 
                   alt={slide.title} 
-                  className="w-full h-48 object-cover"
+                  fill
+                  className="object-cover"
                 />
                 <div className="p-4">
                   <h4 className="font-bold">{slide.title}</h4>
@@ -302,12 +300,15 @@ export default function SettingsLayoutPage() {
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             {partners.map(partner => (
-              <div key={partner.id} className="border rounded-lg p-4 relative group flex flex-col items-center">
-                <img 
-                  src={getImageUrl(partner.image)} 
-                  alt={partner.name} 
-                  className="h-16 object-contain mb-2"
-                />
+              <div key={partner.id} className="border rounded-lg p-4 relative group flex flex-col items-center h-32 justify-center">
+                <div className="relative w-full h-16 mb-2">
+                  <Image 
+                    src={getImageUrl(partner.image)} 
+                    alt={partner.name} 
+                    fill
+                    className="object-contain"
+                  />
+                </div>
                 <p className="font-medium text-center">{partner.name}</p>
                 <button 
                   onClick={() => handleDeletePartner(partner.id)}

@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { BlogPost } from '@/types'
+import { getImageUrl } from '@/lib/utils'
 
 interface NewsCardProps {
   post: BlogPost
@@ -13,7 +14,7 @@ interface NewsCardProps {
 function NewsCard({ post, formatDate }: NewsCardProps) {
   const [imageLoaded, setImageLoaded] = useState(false)
   const imageUrl = post.featured_image
-    ? `${(process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api').replace('/api', '')}/storage/blog_images/${post.featured_image}`
+    ? getImageUrl(`/storage/blog_images/${post.featured_image}`)
     : null
 
   return (

@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { Campaign } from '@/types'
+import { getImageUrl } from '@/lib/utils'
 
 interface CampaignCardProps {
   campaign: Campaign
@@ -13,7 +14,7 @@ interface CampaignCardProps {
 function CampaignCard({ campaign, formatDate }: CampaignCardProps) {
   const [imageLoaded, setImageLoaded] = useState(false)
   const imageUrl = campaign.image && campaign.image.length > 0
-    ? `${process.env.NEXT_PUBLIC_API_URL?.replace('/api', '')}/storage/campaign_pictures/${campaign.image[0].picture_path}`
+    ? getImageUrl(`/storage/campaign_pictures/${campaign.image[0].picture_path}`)
     : null
 
   return (

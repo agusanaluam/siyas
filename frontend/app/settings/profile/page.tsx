@@ -5,7 +5,9 @@ import { useRouter } from 'next/navigation'
 import DashboardLayout from '@/components/layout/DashboardLayout'
 import { useAuth } from '@/hooks/useAuth'
 import { apiClient } from '@/lib/api/client'
+import { getImageUrl } from '@/lib/utils'
 import { toast } from 'react-hot-toast'
+import Image from 'next/image'
 
 interface Setting {
   id: number
@@ -397,20 +399,26 @@ export default function SettingsProfilePage() {
             />
             {setting?.photo && !photo && (
               <div className="mt-2">
-                <img
-                  src={`${process.env.NEXT_PUBLIC_API_URL?.replace('/api', '')}/storage/${setting.photo}`}
+              <div className="mt-2 relative w-48 h-48">
+                <Image
+                  src={getImageUrl(setting.photo)}
                   alt="Current photo"
-                  className="w-48 h-48 object-cover rounded-lg"
+                  fill
+                  className="object-cover rounded-lg"
                 />
+              </div>
               </div>
             )}
             {photo && (
               <div className="mt-2">
-                <img
+              <div className="mt-2 relative w-48 h-48">
+                <Image
                   src={URL.createObjectURL(photo)}
                   alt="Preview"
-                  className="w-48 h-48 object-cover rounded-lg"
+                  fill
+                  className="object-cover rounded-lg"
                 />
+              </div>
               </div>
             )}
             {errors.photo && <p className="mt-1 text-sm text-red-600">{errors.photo}</p>}

@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
+import { getImageUrl } from '@/lib/utils'
 
 const DEFAULT_SLIDES = [
   {
@@ -50,10 +52,7 @@ export default function HeroSection() {
     return () => clearInterval(timer)
   }, [slides.length])
 
-  const getImageUrl = (path: string) => {
-    if (path.startsWith('http')) return path
-    return `${process.env.NEXT_PUBLIC_API_URL?.replace('/api', '')}${path}`
-  }
+  /* Removed local getImageUrl function */
 
   const handleImageLoad = (slideId: number) => {
     setImagesLoaded(prev => ({ ...prev, [slideId]: true }))
@@ -87,27 +86,24 @@ export default function HeroSection() {
             }`}
           >
             {/* Background Image with Overlay */}
+            {/* Background Image with Overlay */}
             <div className="absolute inset-0 bg-gradient-to-br from-brand-500/60 via-brand-600/70 to-support-500/60">
+              <Image
+                src={imageUrl}
+                alt={slide.title}
+                fill
+                className={`object-cover transition-opacity duration-500 ${
+                  isImageLoaded ? 'opacity-100' : 'opacity-0'
+                }`}
+                onLoad={() => handleImageLoad(slide.id)}
+                priority={index === 0}
+              />
               {!isImageLoaded && (
-                <div className="absolute inset-0 flex items-center justify-center">
+                <div className="absolute inset-0 flex items-center justify-center z-10">
                   <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white"></div>
                 </div>
               )}
-              <div
-                className={`absolute inset-0 bg-cover bg-center transition-opacity duration-500 ${
-                  isImageLoaded ? 'opacity-100' : 'opacity-0'
-                }`}
-                style={{ backgroundImage: `url(${imageUrl})` }}
-              >
-                <img
-                  src={imageUrl}
-                  alt=""
-                  className="hidden"
-                  onLoad={() => handleImageLoad(slide.id)}
-                  onError={() => handleImageLoad(slide.id)}
-                />
-              </div>
-              <div className="absolute inset-0 bg-black/35" />
+              <div className="absolute inset-0 bg-black/35 z-20" />
             </div>
 
             {/* Content */}
