@@ -25,11 +25,11 @@ class BlogPostController extends Controller
             $query->where('created_by', $user->id);
         }
         
-        // Jika guest (tidak login), mungkin kita mau filter hanya yang published? 
+        // Jika guest (tidak login), mungkin kita mau filter hanya yang published?
         // Tapi request user sekarang "return sesuai role".
-        // Asumsi: jika guest, behavior eksisting (return all) atau return all? 
+        // Asumsi: jika guest, behavior eksisting (return all) atau return all?
         // User bilang "jika role root atau administrator munculkan semua blog", imply "selain itu dibatasi".
-        // Tapi untuk public viewing (guest), biasanya butuh semua tapi yang 'active'. 
+        // Tapi untuk public viewing (guest), biasanya butuh semua tapi yang 'active'.
         // Saat ini logic saya: Guest ($user null) -> skip if -> return all. 
         // Volunteer ($user exist) -> masuk if -> return own.
         // Admin ($user exist) -> skip if -> return all.
@@ -88,10 +88,16 @@ class BlogPostController extends Controller
                 $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
                 $path = $file->storeAs('blog_images', $filename, 'public');
 
-                $manager = new ImageManager(new Driver());
-                $image = $manager->read(storage_path('app/public/' . $path));
-                $image->scaleDown(width: 1200);
-                $image->save(storage_path('app/public/' . $path), quality: 85);
+                if (extension_loaded('gd')) {
+                    try {
+                        $manager = new ImageManager(new Driver());
+                        $image = $manager->read(storage_path('app/public/' . $path));
+                        $image->scaleDown(width: 1200);
+                        $image->save(storage_path('app/public/' . $path), quality: 85);
+                    } catch (\Exception $e) {
+                        // Ignore
+                    }
+                }
 
                 $blogData['featured_image'] = $filename;
             }
@@ -157,10 +163,16 @@ class BlogPostController extends Controller
                 $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
                 $path = $file->storeAs('blog_images', $filename, 'public');
 
-                $manager = new ImageManager(new Driver());
-                $image = $manager->read(storage_path('app/public/' . $path));
-                $image->scaleDown(width: 1200);
-                $image->save(storage_path('app/public/' . $path), quality: 85);
+                if (extension_loaded('gd')) {
+                    try {
+                        $manager = new ImageManager(new Driver());
+                        $image = $manager->read(storage_path('app/public/' . $path));
+                        $image->scaleDown(width: 1200);
+                        $image->save(storage_path('app/public/' . $path), quality: 85);
+                    } catch (\Exception $e) {
+                         // Ignore
+                    }
+                }
 
                 $blogData['featured_image'] = $filename;
             }

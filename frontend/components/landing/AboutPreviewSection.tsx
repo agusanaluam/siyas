@@ -2,11 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-
-interface Setting {
-  name: string
-  description: string
-}
+import { Setting, settingService } from '@/lib/api/settings'
 
 export default function AboutPreviewSection() {
   const [setting, setSetting] = useState<Setting | null>(null)
@@ -19,9 +15,7 @@ export default function AboutPreviewSection() {
 
   const fetchSettings = async () => {
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'
-      const response = await fetch(`${apiUrl}/settings/profile`)
-      const data = await response.json()
+      const data = await settingService.getProfile()
       setSetting(data)
     } catch (error) {
       console.error('Error fetching settings:', error)
@@ -30,29 +24,43 @@ export default function AboutPreviewSection() {
     }
   }
 
+  // Construct image URL
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'
+  const baseUrl = apiUrl.replace('/api', '')
+  const imageUrl = setting?.about_photo ? `${baseUrl}/storage/${setting.about_photo}` : null
+
   return (
     <section className="py-16 bg-white" id="about">
       <div className="container mx-auto px-4">
         <div className="flex flex-col md:flex-row items-center gap-12">
           {/* Image Side */}
           <div className="w-full md:w-1/2">
-            <div className="relative rounded-2xl overflow-hidden shadow-xl">
+            <div className="relative rounded-2xl overflow-hidden shadow-xl aspect-video bg-gray-100">
               {!imageLoaded && (
-                <div className="w-full h-[200px] bg-gray-300 animate-pulse flex items-center justify-center">
+                <div className="absolute inset-0 flex items-center justify-center bg-gray-200 animate-pulse z-10">
                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-400"></div>
                 </div>
               )}
-              <img
-                src="https://images.unsplash.com/photo-1542810634-71277d95dcbb?q=80&w=1600&auto=format&fit=crop"
-                alt="Tentang Kami"
-                className={`w-full h-[200px] object-cover grayscale hover:grayscale-0 transition-all duration-500 ${
-                  imageLoaded ? 'opacity-100' : 'opacity-0 absolute'
-                }`}
-                onLoad={() => setImageLoaded(true)}
-                onError={() => setImageLoaded(true)}
-              />
-              {/* Overlay Logo/Icon if needed */}
-              <div className="absolute inset-0 bg-black/10"></div>
+              {imageUrl ? (
+                 // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={imageUrl}
+                  alt="Tentang Kami"
+                  className={`w-full h-full object-cover transition-opacity duration-500 ${
+                    imageLoaded ? 'opacity-100' : 'opacity-0'
+                  }`}
+                  onLoad={() => setImageLoaded(true)}
+                  onError={() => setImageLoaded(true)} // Hide spinner on error too
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center bg-gray-200 text-gray-400">
+                    <svg className="w-16 h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                </div>
+              )}
+              {/* Overlay if needed */}
+              <div className="absolute inset-0 bg-black/5 pointer-events-none"></div>
             </div>
           </div>
 
@@ -73,12 +81,13 @@ export default function AboutPreviewSection() {
                 <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
                   Sekilas Tentang {setting?.name || 'Yayasan'}
                 </h2>
-                <p className="text-gray-600 text-lg leading-relaxed mb-8">
+                <div className="text-gray-600 text-lg leading-relaxed mb-8 prose">
+                   {/* Handle specific shortening of about_content or description if needed, or just display description which is short */}
                   {setting?.description || ''}
-                </p>
+                </div>
                 <Link
                   href="/about"
-                  className="inline-block bg-accent-500 text-white px-8 py-3 rounded-lg font-medium hover:bg-accent-600 transition-colors shadow-lg shadow-accent-200"
+                  className="inline-block bg-primary-600 text-white px-8 py-3 rounded-lg font-medium hover:bg-primary-700 transition-colors shadow-lg shadow-primary-200"
                 >
                   Tentang Kami
                 </Link>

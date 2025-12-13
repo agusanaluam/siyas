@@ -98,15 +98,22 @@ class CampaignController extends Controller
             ]);
 
             if ($request->hasFile('campaign_picture')) {
-                $manager = new ImageManager(new Driver());
+                $useGd = extension_loaded('gd');
+                $manager = $useGd ? new ImageManager(new Driver()) : null;
                 
                 foreach ($request->file('campaign_picture') as $file) {
                     $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
                     $path = $file->storeAs('campaign_pictures', $filename, 'public');
 
-                    $image = $manager->read(storage_path('app/public/' . $path));
-                    $image->scaleDown(width: 1200);
-                    $image->save(storage_path('app/public/' . $path), quality: 85);
+                    if ($manager) {
+                        try {
+                            $image = $manager->read(storage_path('app/public/' . $path));
+                            $image->scaleDown(width: 1200);
+                            $image->save(storage_path('app/public/' . $path), quality: 85);
+                        } catch (\Exception $e) {
+                            // Ignore image processing errors to prevent failure
+                        }
+                    }
 
                     CampaignImage::create([
                         'program_id' => $campaign->id,
@@ -169,15 +176,22 @@ class CampaignController extends Controller
             ]);
 
             if ($request->hasFile('campaign_picture')) {
-                $manager = new ImageManager(new Driver());
+                $useGd = extension_loaded('gd');
+                $manager = $useGd ? new ImageManager(new Driver()) : null;
                 
                 foreach ($request->file('campaign_picture') as $file) {
                     $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
                     $path = $file->storeAs('campaign_pictures', $filename, 'public');
 
-                    $image = $manager->read(storage_path('app/public/' . $path));
-                    $image->scaleDown(width: 1200);
-                    $image->save(storage_path('app/public/' . $path), quality: 85);
+                    if ($manager) {
+                        try {
+                            $image = $manager->read(storage_path('app/public/' . $path));
+                            $image->scaleDown(width: 1200);
+                            $image->save(storage_path('app/public/' . $path), quality: 85);
+                        } catch (\Exception $e) {
+                             // Ignore
+                        }
+                    }
 
                     CampaignImage::create([
                         'program_id' => $campaign->id,

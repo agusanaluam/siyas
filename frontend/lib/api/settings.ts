@@ -7,11 +7,18 @@ export interface Setting {
   email: string
   phone: string
   address: string
+  about_photo?: string
+  about_content?: string
 }
 
 export const settingService = {
   async getProfile(): Promise<Setting> {
     const response = await apiClient.get<Setting>('/settings/profile')
+    return response.data
+  },
+  
+  async getAbout(): Promise<{ about_content: string; about_photo: string; about_service: string[] }> {
+    const response = await apiClient.get('/settings/about')
     return response.data
   },
 }
