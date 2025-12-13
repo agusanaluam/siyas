@@ -6,6 +6,7 @@ export interface Setting {
   photo: string
   email: string
   phone: string
+  phone_number?: string
   address: string
   about_photo?: string
   about_content?: string
