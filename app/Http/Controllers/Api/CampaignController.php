@@ -110,7 +110,7 @@ class CampaignController extends Controller
                             $image = $manager->read(storage_path('app/public/' . $path));
                             $image->scaleDown(width: 1200);
                             $image->save(storage_path('app/public/' . $path), quality: 85);
-                        } catch (\Exception $e) {
+                        } catch (\Throwable $e) {
                             // Ignore image processing errors to prevent failure
                         }
                     }
@@ -188,7 +188,7 @@ class CampaignController extends Controller
                             $image = $manager->read(storage_path('app/public/' . $path));
                             $image->scaleDown(width: 1200);
                             $image->save(storage_path('app/public/' . $path), quality: 85);
-                        } catch (\Exception $e) {
+                        } catch (\Throwable $e) {
                              // Ignore
                         }
                     }

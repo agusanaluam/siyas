@@ -94,8 +94,8 @@ class BlogPostController extends Controller
                         $image = $manager->read(storage_path('app/public/' . $path));
                         $image->scaleDown(width: 1200);
                         $image->save(storage_path('app/public/' . $path), quality: 85);
-                    } catch (\Exception $e) {
-                        // Ignore
+                    } catch (\Throwable $e) {
+                        // Ignore all errors including undefined function errors
                     }
                 }
 
@@ -169,7 +169,7 @@ class BlogPostController extends Controller
                         $image = $manager->read(storage_path('app/public/' . $path));
                         $image->scaleDown(width: 1200);
                         $image->save(storage_path('app/public/' . $path), quality: 85);
-                    } catch (\Exception $e) {
+                    } catch (\Throwable $e) {
                          // Ignore
                     }
                 }
