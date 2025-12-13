@@ -17,7 +17,7 @@ export default function BlogListPage() {
   const router = useRouter()
   const { user, loading, isAuthenticated } = useAuth()
   const [blogs, setBlogs] = useState<BlogPost[]>([])
-  const [dataLoading, setDataLoading] = useState(true)
+  const [dataLoading, setDataLoading] = useState(false)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
@@ -30,7 +30,7 @@ export default function BlogListPage() {
   }, [loading, isAuthenticated, router])
 
   useEffect(() => {
-    if (isAuthenticated && (user?.level === 'administrator' || user?.level === 'root')) {
+    if (isAuthenticated && (['administrator', 'root', 'leader', 'volunteer'].includes(user?.level || ''))) {
       fetchBlogs()
       fetchCategories()
     }
@@ -114,7 +114,7 @@ export default function BlogListPage() {
     return null
   }
 
-  if (user?.level !== 'administrator' && user?.level !== 'root') {
+  if (!['administrator', 'root', 'leader', 'volunteer'].includes(user?.level || '')) {
     return (
       <DashboardLayout>
         <div className="text-center py-12">

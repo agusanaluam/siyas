@@ -15,9 +15,32 @@ class BlogPostController extends Controller
 {
     public function index()
     {
-        $blogs = BlogPost::with(['creator', 'category'])
-            ->orderBy('created_at', 'desc')
-            ->get();
+        $user = auth('sanctum')->user();
+        
+        $query = BlogPost::with(['creator', 'category'])
+            ->orderBy('created_at', 'desc');
+
+        // Jika user login tapi bukan administrator/root, filter by created_by
+        if ($user && !in_array($user->level, ['administrator', 'root'])) {
+            $query->where('created_by', $user->id);
+        }
+        
+        // Jika guest (tidak login), mungkin kita mau filter hanya yang published? 
+        // Tapi request user sekarang "return sesuai role".
+        // Asumsi: jika guest, behavior eksisting (return all) atau return all? 
+        // User bilang "jika role root atau administrator munculkan semua blog", imply "selain itu dibatasi".
+        // Tapi untuk public viewing (guest), biasanya butuh semua tapi yang 'active'. 
+        // Saat ini logic saya: Guest ($user null) -> skip if -> return all. 
+        // Volunteer ($user exist) -> masuk if -> return own.
+        // Admin ($user exist) -> skip if -> return all.
+        
+        // Tambahan constraint untuk guest? (Optional: $query->where('status', true))
+        // Mengikuti instruksi user mentah-mentah: "hanya perlu meminculkan blog yang dibuat oleh user yang login"
+        // Ini berisiko menyembunyikan blog orang lain dari guest.
+        // Namun konteksnya adalah "Admin/Manage" page.
+        // Mari kita stick to the "User Login" logic.
+        
+        $blogs = $query->get();
         
         return response()->json($blogs);
     }

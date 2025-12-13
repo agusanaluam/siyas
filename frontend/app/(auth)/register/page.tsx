@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { authService, ApiError } from '@/lib/api/auth'
 import { apiClient } from '@/lib/api/client'
+import Cookies from 'js-cookie'
 
 interface Group {
   id: number
@@ -59,6 +60,8 @@ export default function RegisterPage() {
         group_id: formData.group_id ? parseInt(formData.group_id) : undefined,
       }
       await authService.register(data)
+      // Remove auth_token to prevent auto-login since we are redirecting to login page
+      Cookies.remove('auth_token')
       // router.push('/email-verification?email=' + encodeURIComponent(formData.email))
       router.push('/login')
     } catch (error: any) {
