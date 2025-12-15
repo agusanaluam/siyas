@@ -8,6 +8,7 @@ import LandingFooter from '@/components/landing/LandingFooter'
 import Image from 'next/image'
 import Link from 'next/link'
 import { BlogPost } from '@/types'
+import { getImageUrl } from '@/lib/utils'
 
 export default function BeritaDetailPage() {
   const params = useParams()
@@ -75,11 +76,10 @@ export default function BeritaDetailPage() {
     })
   }
 
-  const getImageUrl = (post: BlogPost) => {
-    if (post.featured_image) {
-      return `${process.env.NEXT_PUBLIC_API_URL?.replace('/api', '')}/storage/blog_images/${post.featured_image}`
-    }
-    return null
+  const getPostImageUrl = (post: BlogPost) => {
+    if (!post.featured_image) return null
+    if (post.featured_image.startsWith('http')) return post.featured_image
+    return getImageUrl(`/storage/blog_images/${post.featured_image}`)
   }
 
   const getCategoryName = (post: BlogPost) => {
@@ -117,7 +117,7 @@ export default function BeritaDetailPage() {
     return null
   }
 
-  const imageUrl = getImageUrl(blog)
+  const imageUrl = getPostImageUrl(blog)
 
   return (
     <main className="min-h-screen bg-white">
@@ -217,7 +217,7 @@ export default function BeritaDetailPage() {
                   <h2 className="text-2xl font-bold text-gray-900 mb-6">Berita Terkait</h2>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {relatedPosts.map((post) => {
-                      const postImageUrl = getImageUrl(post)
+                      const postImageUrl = getPostImageUrl(post)
                       return (
                         <Link
                           key={post.id}
@@ -265,7 +265,7 @@ export default function BeritaDetailPage() {
                   </h2>
                   <div className="space-y-4">
                     {popularPosts.map((post) => {
-                      const postImageUrl = getImageUrl(post)
+                      const postImageUrl = getPostImageUrl(post)
                       return (
                         <Link
                           key={post.id}

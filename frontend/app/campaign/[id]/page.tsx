@@ -3,7 +3,9 @@
 import { useEffect, useState } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import Link from 'next/link'
+import Image from 'next/image'
 import DashboardLayout from '@/components/layout/DashboardLayout'
+import { getImageUrl } from '@/lib/utils'
 import { useAuth } from '@/hooks/useAuth'
 import { campaignService } from '@/lib/api/campaign'
 import { Campaign } from '@/types'
@@ -74,11 +76,7 @@ export default function CampaignDetailsPage() {
     }
   }
 
-  const getPictureUrl = (path: string) => {
-    if (path.startsWith('http') || path.startsWith('https')) return path
-    // Fallback for any lingering local images (technically legacy code, but keeps display working)
-    return `${process.env.NEXT_PUBLIC_API_URL?.replace('/api', '')}/storage/campaign_pictures/${path}`
-  }
+
 
   if (loading || dataLoading) {
     return (
@@ -194,11 +192,13 @@ export default function CampaignDetailsPage() {
             {campaign.image && campaign.image.length > 0 ? (
               <div className="space-y-4">
                 {campaign.image.map((image: any, index: number) => (
-                  <div key={index}>
-                    <img
-                      src={getPictureUrl(image.picture_path)}
+                  <div key={index} className="relative w-full h-48">
+                    <Image
+                      src={getImageUrl(image.picture_path.startsWith('http') ? image.picture_path : `/storage/campaign_pictures/${image.picture_path}`)}
                       alt={`Campaign image ${index + 1}`}
-                      className="w-full h-48 object-cover rounded-lg"
+                      className="rounded-lg object-cover"
+                      fill
+                      sizes="(max-width: 1024px) 100vw, 400px"
                     />
                   </div>
                 ))}

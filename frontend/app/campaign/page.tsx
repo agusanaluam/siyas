@@ -3,8 +3,10 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import Image from 'next/image'
 import { toast } from 'react-hot-toast'
 import DashboardLayout from '@/components/layout/DashboardLayout'
+import { getImageUrl } from '@/lib/utils'
 import { useAuth } from '@/hooks/useAuth'
 import { campaignService } from '@/lib/api/campaign'
 import { useCampaigns } from '@/hooks/useCampaign'
@@ -203,19 +205,22 @@ export default function CampaignListPage() {
                 campaigns.map((campaign) => {
                   const progress = getProgress(campaign)
                   const statusInfo = getStatusLabel(campaign.status)
-                  const imageUrl = campaign.image && campaign.image.length > 0
-                    ? `http://localhost:8000/storage/campaign_pictures/${campaign.image[0].picture_path}`
+                  const imagePath = campaign.image && campaign.image.length > 0 ? campaign.image[0].picture_path : null
+                  const imageUrl = imagePath 
+                    ? (imagePath.startsWith('http') ? imagePath : getImageUrl(`/storage/campaign_pictures/${imagePath}`))
                     : '/placeholder-image.jpg'
 
                   return (
                     <tr key={campaign.id} className="hover:bg-gray-50">
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">
-                          <div className="flex-shrink-0 h-10 w-10">
-                            <img
-                              className="h-10 w-10 rounded-full object-cover"
+                          <div className="flex-shrink-0 h-10 w-10 relative">
+                            <Image
+                              className="rounded-full object-cover"
                               src={imageUrl}
                               alt={campaign.name}
+                              fill
+                              sizes="40px"
                             />
                           </div>
                           <div className="ml-4">

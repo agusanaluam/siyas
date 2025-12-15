@@ -1,10 +1,12 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import Image from 'next/image'
 import { toast } from 'react-hot-toast'
 import DashboardLayout from '@/components/layout/DashboardLayout'
+import { getImageUrl } from '@/lib/utils'
 import { useAuth } from '@/hooks/useAuth'
 import { volunteerService, Volunteer } from '@/lib/api/volunteer'
 
@@ -21,13 +23,7 @@ export default function VolunteerListPage() {
     }
   }, [loading, isAuthenticated, router])
 
-  useEffect(() => {
-    if (isAuthenticated && user?.level !== 'volunteer') {
-      fetchVolunteers()
-    }
-  }, [isAuthenticated, user, statusFilter])
-
-  const fetchVolunteers = async () => {
+  const fetchVolunteers = useCallback(async () => {
     try {
       setDataLoading(true)
       const data = await volunteerService.getAll(statusFilter === 'all' ? undefined : statusFilter)
@@ -37,7 +33,13 @@ export default function VolunteerListPage() {
     } finally {
       setDataLoading(false)
     }
-  }
+  }, [statusFilter])
+
+  useEffect(() => {
+    if (isAuthenticated && user?.level !== 'volunteer') {
+      fetchVolunteers()
+    }
+  }, [isAuthenticated, user, fetchVolunteers])
 
   const handleDelete = async (id: number) => {
     if (!confirm('Apakah Anda yakin ingin menghapus volunteer ini?')) {
@@ -174,18 +176,20 @@ export default function VolunteerListPage() {
               ) : (
                 volunteers.map((volunteer) => {
                   const imageUrl = volunteer.profile_picture
-                    ? `http://localhost:8000/storage/${volunteer.profile_picture}`
-                    : 'http://localhost:8000/storage/profile_pictures/user-01.jpg'
+                    ? (volunteer.profile_picture.startsWith('http') ? volunteer.profile_picture : getImageUrl(`/storage/${volunteer.profile_picture}`))
+                    : getImageUrl('/storage/profile_pictures/user-01.jpg')
 
                   return (
                     <tr key={volunteer.id} className="hover:bg-gray-50">
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">
-                          <div className="flex-shrink-0 h-10 w-10">
-                            <img
-                              className="h-10 w-10 rounded-full object-cover"
+                          <div className="flex-shrink-0 h-10 w-10 relative">
+                            <Image
+                              className="rounded-full object-cover"
                               src={imageUrl}
                               alt={volunteer.name}
+                              fill
+                              sizes="40px"
                             />
                           </div>
                         </div>

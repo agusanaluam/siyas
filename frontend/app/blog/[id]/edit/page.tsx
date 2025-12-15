@@ -1,8 +1,9 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import Link from 'next/link'
+import Image from 'next/image'
 import DashboardLayout from '@/components/layout/DashboardLayout'
 import RichTextEditor from '@/components/RichTextEditor'
 import { useAuth } from '@/hooks/useAuth'
@@ -34,13 +35,7 @@ export default function EditBlogPage() {
     }
   }, [loading, isAuthenticated, router])
 
-  useEffect(() => {
-    if (isAuthenticated && params.id) {
-      fetchBlog()
-    }
-  }, [isAuthenticated, params.id])
-
-  const fetchBlog = async () => {
+  const fetchBlog = useCallback(async () => {
     try {
       setDataLoading(true)
       const data = await blogService.getById(Number(params.id))
@@ -65,23 +60,24 @@ export default function EditBlogPage() {
     } finally {
       setDataLoading(false)
     }
-  }
+  }, [params.id, router])
+
+  useEffect(() => {
+    if (isAuthenticated && params.id) {
+      fetchBlog()
+    }
+  }, [isAuthenticated, params.id, fetchBlog])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setErrors({})
     setSubmitting(true)
 
-    // Manual validation for content to prevent backend "required" error
-    // Check if content is empty or just contains empty HTML tags
-    const strippedContent = formData.content.replace(/<[^>]*>/g, '').trim()
-    if (!formData.content || strippedContent.length === 0) {
-       // Allow empty content if it contains images (img tag)
-       if (!formData.content.includes('<img')) {
-          setErrors({ content: 'Konten tidak boleh kosong' })
-          setSubmitting(false)
-          return
-       }
+    // Simple validation for content
+    if (!formData.content || formData.content.trim() === '' || formData.content === '<p><br></p>') {
+      setErrors({ content: 'Konten tidak boleh kosong' })
+      setSubmitting(false)
+      return
     }
 
     try {
@@ -231,11 +227,15 @@ export default function EditBlogPage() {
             {existingImage && !featuredImage && (
               <div className="mt-2">
                 <p className="text-sm text-gray-600 mb-2">Gambar saat ini:</p>
-                <img
-                  src={getImageUrl(existingImage.startsWith('http') || existingImage.startsWith('https') ? existingImage : `/storage/blog_images/${existingImage}`)}
-                  alt="Current"
-                  className="w-full h-48 object-cover rounded-lg"
-                />
+                <div className="relative w-full h-48">
+                  <Image
+                    src={getImageUrl(existingImage.startsWith('http') || existingImage.startsWith('https') ? existingImage : `/storage/blog_images/${existingImage}`)}
+                    alt="Current"
+                    className="rounded-lg object-cover"
+                    fill
+                    sizes="(max-width: 768px) 100vw, 400px"
+                  />
+                </div>
               </div>
             )}
           </div>

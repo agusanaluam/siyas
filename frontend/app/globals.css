@@ -56,3 +56,16 @@
 .rich-text-editor .ql-editor.ql-blank::before {
     @apply text-gray-400 italic;
 }
+
+/* Quill Alignment Classes */
+.ql-align-center {
+    text-align: center;
+}
+
+.ql-align-justify {
+    text-align: justify;
+}
+
+.ql-align-right {
+    text-align: right;
+}

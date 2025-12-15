@@ -1,8 +1,10 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import Image from 'next/image'
 import LandingHeader from '@/components/landing/LandingHeader'
 import LandingFooter from '@/components/landing/LandingFooter'
+import { getImageUrl } from '@/lib/utils'
 
 interface Setting {
   phone_number: string
@@ -48,10 +50,7 @@ export default function ContactPage() {
     }
   }
 
-  const getImageUrl = (path: string) => {
-    if (path.startsWith('http')) return path
-    return `${process.env.NEXT_PUBLIC_API_URL?.replace('/api', '')}${path}`
-  }
+
 
   const getMapEmbedUrl = (url: string | null | undefined): string => {
     if (!url) {
@@ -179,31 +178,46 @@ export default function ContactPage() {
             <div className="flex flex-wrap justify-center items-center gap-8 md:gap-16">
               {partners.length > 0 ? (
                 partners.map(partner => (
-                  <img 
-                    key={partner.id}
-                    src={getImageUrl(partner.image)} 
-                    alt={partner.name} 
-                    className="h-12 md:h-16 object-contain" 
-                    title={partner.name}
-                  />
+                  <div key={partner.id} className="relative h-12 md:h-16 w-32 md:w-40">
+                    <Image 
+                      src={getImageUrl(partner.image)} 
+                      alt={partner.name} 
+                      className="object-contain" 
+                      fill
+                      sizes="(max-width: 768px) 128px, 160px"
+                      title={partner.name}
+                    />
+                  </div>
                 ))
               ) : (
                 <>
-                  <img 
-                    src={`${process.env.NEXT_PUBLIC_API_URL?.replace('/api', '')}/storage/partners/bni.png`} 
-                    alt="BNI" 
-                    className="h-12 md:h-16 object-contain" 
-                  />
-                  <img 
-                    src={`${process.env.NEXT_PUBLIC_API_URL?.replace('/api', '')}/storage/partners/bsi.png`} 
-                    alt="BSI" 
-                    className="h-12 md:h-16 object-contain" 
-                  />
-                  <img 
-                    src={`${process.env.NEXT_PUBLIC_API_URL?.replace('/api', '')}/storage/partners/its.png`} 
-                    alt="IT's" 
-                    className="h-12 md:h-16 object-contain" 
-                  />
+                  <div className="relative h-12 md:h-16 w-32 md:w-40">
+                    <Image 
+                      src={getImageUrl('/storage/partners/bni.png')} 
+                      alt="BNI" 
+                      className="object-contain" 
+                      fill
+                      sizes="(max-width: 768px) 128px, 160px"
+                    />
+                  </div>
+                  <div className="relative h-12 md:h-16 w-32 md:w-40">
+                    <Image 
+                      src={getImageUrl('/storage/partners/bsi.png')} 
+                      alt="BSI" 
+                      className="object-contain" 
+                      fill
+                      sizes="(max-width: 768px) 128px, 160px"
+                    />
+                  </div>
+                  <div className="relative h-12 md:h-16 w-32 md:w-40">
+                    <Image 
+                      src={getImageUrl('/storage/partners/its.png')} 
+                      alt="IT's" 
+                      className="object-contain" 
+                      fill
+                      sizes="(max-width: 768px) 128px, 160px"
+                    />
+                  </div>
                 </>
               )}
             </div>

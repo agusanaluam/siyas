@@ -4,7 +4,9 @@ import { useEffect, useState } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { toast } from 'react-hot-toast'
 import Link from 'next/link'
+import Image from 'next/image'
 import DashboardLayout from '@/components/layout/DashboardLayout'
+import { getImageUrl } from '@/lib/utils'
 import { useAuth } from '@/hooks/useAuth'
 import { donationService } from '@/lib/api/donation'
 import { Donation } from '@/types'
@@ -226,11 +228,15 @@ export default function DonationDetailsPage() {
           {donation.via_transfer && donation.reference_picture && (
             <div className="bg-white rounded-lg shadow p-6">
               <h2 className="text-xl font-semibold text-gray-900 mb-4">Bukti Transfer</h2>
-              <img
-                src={`http://localhost:8000/storage/${donation.reference_picture}`}
-                alt="Bukti Transfer"
-                className="w-full rounded-lg"
-              />
+              <div className="relative w-full h-96">
+                <Image
+                  src={getImageUrl(`/storage/${donation.reference_picture}`)}
+                  alt="Bukti Transfer"
+                  className="rounded-lg object-contain"
+                  fill
+                  sizes="(max-width: 1024px) 100vw, 400px"
+                />
+              </div>
             </div>
           )}
         </div>

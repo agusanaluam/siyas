@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { Campaign } from '@/types'
 import { getImageUrl } from '@/lib/utils'
 
@@ -14,7 +15,9 @@ interface CampaignCardProps {
 function CampaignCard({ campaign, formatDate }: CampaignCardProps) {
   const [imageLoaded, setImageLoaded] = useState(false)
   const imagePath = campaign.image && campaign.image.length > 0 ? campaign.image[0].picture_path : null
-  const imageUrl = imagePath ? getImageUrl(imagePath) : null
+  const imageUrl = imagePath 
+    ? (imagePath.startsWith('http') ? imagePath : getImageUrl(`/storage/campaign_pictures/${imagePath}`))
+    : null
 
   return (
     <div className="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow overflow-hidden border border-gray-100">
@@ -26,12 +29,14 @@ function CampaignCard({ campaign, formatDate }: CampaignCardProps) {
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-400"></div>
               </div>
             )}
-            <img
+            <Image
               src={imageUrl}
               alt={campaign.name}
-              className={`w-full h-full object-cover transition-opacity duration-300 ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
-              onLoad={() => setImageLoaded(true)}
+              className={`object-cover transition-opacity duration-300 ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
+              onLoadingComplete={() => setImageLoaded(true)}
               onError={() => setImageLoaded(true)}
+              fill
+              sizes="(max-width: 768px) 100vw, 400px"
             />
           </>
         ) : (

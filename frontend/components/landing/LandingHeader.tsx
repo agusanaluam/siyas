@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { getImageUrl } from '@/lib/utils'
+import Image from 'next/image'
 
 interface Setting {
   name: string
@@ -107,9 +109,7 @@ export default function LandingHeader({ forceScrolledStyle = false }: LandingHea
     }
   }
 
-  const logoUrl = setting?.photo
-    ? `${process.env.NEXT_PUBLIC_API_URL?.replace('/api', '')}/storage/${setting.photo}`
-    : null
+  const logoUrl = getImageUrl(setting?.photo)
 
   // Dynamic classes based on scroll state
   const navLinkClass = isScrolled
@@ -139,10 +139,12 @@ export default function LandingHeader({ forceScrolledStyle = false }: LandingHea
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2">
             {logoUrl ? (
-              <img
+              <Image
                 src={logoUrl}
                 alt={setting?.name || 'Logo'}
-                className="h-10 md:h-12 object-contain"
+                className="h-10 md:h-12 w-auto object-contain"
+                width={150}
+                height={50}
               />
             ) : (
               <div className={`text-2xl font-bold ${logoTextClass}`}>

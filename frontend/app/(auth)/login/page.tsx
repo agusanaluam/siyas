@@ -3,8 +3,10 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import Image from 'next/image'
 import { useAuth } from '@/hooks/useAuth'
 import { useSettings } from '@/hooks/useSettings'
+import { getImageUrl } from '@/lib/utils'
 import { ApiError } from '@/lib/api/auth'
 
 export default function LoginPage() {
@@ -46,7 +48,7 @@ export default function LoginPage() {
   }
 
   const logoUrl = setting?.photo
-    ? `${process.env.NEXT_PUBLIC_API_URL?.replace('/api', '')}/storage/${setting.photo}`
+    ? getImageUrl(`/storage/${setting.photo}`)
     : null
 
   return (
@@ -72,11 +74,15 @@ export default function LoginPage() {
       <div className="mb-8 relative z-10 text-center">
         <div className="flex flex-col items-center justify-center gap-4">
           {logoUrl ? (
-            <img 
-              src={logoUrl} 
-              alt={setting?.name || 'Logo'} 
-              className="h-20 object-contain"
-            />
+            <div className="relative w-20 h-20">
+              <Image 
+                src={logoUrl} 
+                alt={setting?.name || 'Logo'} 
+                className="object-contain"
+                fill
+                sizes="80px"
+              />
+            </div>
           ) : (
             <div className="w-20 h-20 bg-primary-600 rounded-xl flex items-center justify-center shadow-lg">
               <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">

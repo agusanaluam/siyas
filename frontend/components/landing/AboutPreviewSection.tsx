@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 
 import { Setting, settingService } from '@/lib/api/settings'
 import { getImageUrl } from '@/lib/utils'
@@ -43,15 +44,15 @@ export default function AboutPreviewSection() {
                 </div>
               )}
               {imageUrl ? (
-                 // eslint-disable-next-line @next/next/no-img-element
-                <img
+                <Image
                   src={imageUrl}
                   alt="Tentang Kami"
-                  className={`w-full h-full object-cover transition-opacity duration-500 ${
+                  className={`object-cover transition-opacity duration-500 ${
                     imageLoaded ? 'opacity-100' : 'opacity-0'
                   }`}
-                  onLoad={() => setImageLoaded(true)}
-                  onError={() => setImageLoaded(true)} // Hide spinner on error too
+                  onLoadingComplete={() => setImageLoaded(true)}
+                  fill
+                  sizes="(max-width: 768px) 100vw, 600px"
                 />
               ) : (
                 <div className="w-full h-full flex items-center justify-center bg-gray-200 text-gray-400">

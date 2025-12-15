@@ -1,6 +1,8 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import Image from 'next/image'
+import { getImageUrl } from '@/lib/utils'
 
 
 interface Setting {
@@ -53,10 +55,7 @@ export default function ContactSection() {
     }
   }
 
-  const getImageUrl = (path: string) => {
-    if (path.startsWith('http')) return path
-    return `${process.env.NEXT_PUBLIC_API_URL?.replace('/api', '')}${path}`
-  }
+
 
   const getMapEmbedUrl = (url: string | null | undefined): string | null => {
     if (!url) return null
@@ -181,10 +180,12 @@ export default function ContactSection() {
               {partners.length > 0 ? (
                 partners.map(partner => (
                   <div key={partner.id} className="relative h-12 md:h-16 w-32 md:w-40">
-                    <img
+                    <Image
                       src={getImageUrl(partner.image)}
                       alt={partner.name}
-                      className="w-full h-full object-contain"
+                      className="object-contain"
+                      fill
+                      sizes="(max-width: 768px) 128px, 160px"
                     />
                   </div>
                 ))
@@ -192,10 +193,12 @@ export default function ContactSection() {
                 <>
                   {['bni.png', 'bsi.png', 'its.png'].map((file) => (
                     <div key={file} className="relative h-12 md:h-16 w-32 md:w-40">
-                      <img
-                        src={`${process.env.NEXT_PUBLIC_API_URL?.replace('/api', '')}/storage/partners/${file}`}
+                      <Image
+                        src={getImageUrl(`/storage/partners/${file}`)}
                         alt={file.split('.')[0]}
-                        className="w-full h-full object-contain"
+                        className="object-contain"
+                        fill
+                        sizes="(max-width: 768px) 128px, 160px"
                       />
                     </div>
                   ))}

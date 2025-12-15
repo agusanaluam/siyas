@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react'
 import { toast } from 'react-hot-toast'
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
+import Image from 'next/image'
+import { getImageUrl } from '@/lib/utils'
 import LandingHeader from '@/components/landing/LandingHeader'
 import LandingFooter from '@/components/landing/LandingFooter'
 import FloatingWhatsApp from '@/components/FloatingWhatsApp'
@@ -173,25 +175,7 @@ export default function CampaignDetailPage() {
   }
 
 
-  const getPictureUrl = (path: string) => {
-    // If stricly R2, just return the path (assuming it is a full URL)
-    // or use the utility logic if imported.
-    // Since I cannot import easily without adding lines at top, I will rewrite this helper
-    // to match the "remove legacy" requirement.
-    if (path.startsWith('http') || path.startsWith('https')) return path
-    // If not a URL, checking strict "remove legacy" means either it's broken or we assume it's just a path that SHOULD use base URL + path without /storage if we changed structure, 
-    // BUT legacy images ARE at /storage/...
-    // If the USER says "remove legacy image", they might mean "remove the code that tries to handle local files specially".
-    // I will simplify this to:
-    return `${process.env.NEXT_PUBLIC_API_URL?.replace('/api', '')}/storage/campaign_pictures/${path}`
-  }
 
-  const getImageUrl = (campaign: Campaign) => {
-    if (campaign.image && campaign.image.length > 0) {
-       return getPictureUrl(campaign.image[0].picture_path)
-    }
-    return ''
-  }
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('id-ID', {
@@ -276,10 +260,12 @@ export default function CampaignDetailPage() {
             <div className="lg:col-span-2">
               <div className="relative rounded-xl overflow-hidden shadow-lg mb-6">
                 {campaign.image && campaign.image.length > 0 ? (
-                  <img
-                    src={getPictureUrl(campaign.image[selectedImageIndex].picture_path)}
+                  <Image
+                    src={getImageUrl(campaign.image[selectedImageIndex].picture_path)}
                     alt={campaign.name}
-                    className="w-full max-h-[400px] object-cover"
+                    className="object-cover"
+                    fill
+                    sizes="(max-width: 1024px) 100vw, 800px"
                   />
                 ) : (
                   <div className="w-full h-96 bg-gray-200 flex items-center justify-center">
@@ -301,10 +287,12 @@ export default function CampaignDetailPage() {
                       }`}
                       onClick={() => setSelectedImageIndex(index)}
                     >
-                      <img
-                        src={getPictureUrl(img.picture_path)}
+                      <Image
+                        src={getImageUrl(img.picture_path)}
                         alt={`${campaign.name} ${index + 1}`}
-                        className="w-full h-24 object-cover hover:opacity-80 transition-opacity"
+                        className="object-cover hover:opacity-80 transition-opacity"
+                        fill
+                        sizes="(max-width: 768px) 25vw, 150px"
                       />
                     </div>
                   ))}
@@ -641,20 +629,22 @@ export default function CampaignDetailPage() {
                 href={`/program/${relatedCampaign.id}`}
                 className="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow overflow-hidden border border-gray-100 group"
               >
-                <div className="relative h-48 bg-gray-200">
-                  {getImageUrl(relatedCampaign) ? (
-                    <img
-                      src={getImageUrl(relatedCampaign)}
-                      alt={relatedCampaign.name}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                    />
-                  ) : (
-                    <div className="flex items-center justify-center h-full text-gray-400">
-                      <svg className="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                      </svg>
-                    </div>
-                  )}
+                  <div className="relative h-48 bg-gray-200">
+                    {relatedCampaign.image && relatedCampaign.image.length > 0 ? (
+                      <Image
+                        src={getImageUrl(relatedCampaign.image[0].picture_path)}
+                        alt={relatedCampaign.name}
+                        className="object-cover group-hover:scale-105 transition-transform duration-300"
+                        fill
+                        sizes="(max-width: 768px) 100vw, 33vw"
+                      />
+                    ) : (
+                      <div className="flex items-center justify-center h-full text-gray-400">
+                        <svg className="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                      </div>
+                    )}
                   <div className="absolute top-4 right-4 bg-[rgb(246,90,141)] text-white px-3 py-1 rounded-full text-sm font-medium">
                     {relatedCampaign.category?.name || 'Infak'}
                   </div>

@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { getImageUrl } from '@/lib/utils'
 import Image from 'next/image'
 import LandingHeader from '@/components/landing/LandingHeader'
 import LandingFooter from '@/components/landing/LandingFooter'
@@ -49,11 +50,7 @@ export default function AboutPage() {
     }
   }
 
-  const getImageUrl = (path: string) => {
-    if (!path) return ''
-    if (path.startsWith('http')) return path
-    return `${process.env.NEXT_PUBLIC_API_URL?.replace('/api', '')}/storage/${path}`
-  }
+
 
   return (
     <main className="min-h-screen bg-gradient-to-b from-brand-50 via-white to-support-50">
@@ -79,19 +76,17 @@ export default function AboutPage() {
                 <Image
                   src={getImageUrl(aboutSetting.about_photo)}
                   alt={setting?.name || 'Foto about'}
-                  fill
                   className="object-cover"
-                  sizes="(max-width: 768px) 100vw, 720px"
-                  priority
+                  fill
+                  sizes="(max-width: 768px) 100vw, 768px"
                 />
               ) : setting?.photo ? (
                 <Image
                   src={getImageUrl(setting.photo)}
                   alt={setting.name || 'Foto yayasan'}
-                  fill
                   className="object-cover"
-                  sizes="(max-width: 768px) 100vw, 720px"
-                  priority
+                  fill
+                  sizes="(max-width: 768px) 100vw, 768px"
                 />
               ) : (
                 <div className="w-full h-full bg-gray-200 flex items-center justify-center">

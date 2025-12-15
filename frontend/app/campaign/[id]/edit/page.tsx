@@ -1,9 +1,11 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import Link from 'next/link'
+import Image from 'next/image'
 import DashboardLayout from '@/components/layout/DashboardLayout'
+import { getImageUrl } from '@/lib/utils'
 import { useAuth } from '@/hooks/useAuth'
 import { campaignService, campaignCategoryService } from '@/lib/api/campaign'
 import { Campaign, CampaignCategory } from '@/types'
@@ -37,13 +39,7 @@ export default function EditCampaignPage() {
     }
   }, [loading, isAuthenticated, router])
 
-  useEffect(() => {
-    if (isAuthenticated && params.id) {
-      fetchData()
-    }
-  }, [isAuthenticated, params.id])
-
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     try {
       setDataLoading(true)
       const [campaignData, categoriesData] = await Promise.all([
@@ -75,7 +71,13 @@ export default function EditCampaignPage() {
     } finally {
       setDataLoading(false)
     }
-  }
+  }, [params.id, router])
+
+  useEffect(() => {
+    if (isAuthenticated && params.id) {
+      fetchData()
+    }
+  }, [isAuthenticated, params.id, fetchData])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -318,11 +320,13 @@ export default function EditCampaignPage() {
                 <p className="text-sm font-medium text-gray-700 mb-2">Gambar yang sudah ada:</p>
                 <div className="grid grid-cols-4 gap-4">
                   {existingImages.map((img, index) => (
-                    <div key={index} className="relative">
-                      <img
-                        src={img.startsWith('http') ? img : `${process.env.NEXT_PUBLIC_API_URL?.replace('/api', '')}/storage/campaign_pictures/${img}`}
+                    <div key={index} className="relative h-32">
+                      <Image
+                        src={img.startsWith('http') ? img : getImageUrl(`/storage/campaign_pictures/${img}`)}
                         alt={`Existing ${index + 1}`}
-                        className="w-full h-32 object-cover rounded-lg"
+                        className="rounded-lg object-cover"
+                        fill
+                        sizes="(max-width: 768px) 50vw, 25vw"
                       />
                     </div>
                   ))}

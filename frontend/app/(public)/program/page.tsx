@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
+import { getImageUrl } from '@/lib/utils'
 import LandingHeader from '@/components/landing/LandingHeader'
 import LandingFooter from '@/components/landing/LandingFooter'
 import { Campaign } from '@/types'
@@ -43,14 +45,7 @@ export default function ProgramPage() {
     setShowCategoryDropdown(false)
   }
 
-  const getImageUrl = (campaign: Campaign) => {
-    if (campaign.image && campaign.image.length > 0) {
-      const imagePath = campaign.image[0].picture_path
-      if (imagePath.startsWith('http')) return imagePath
-      return `${process.env.NEXT_PUBLIC_API_URL?.replace('/api', '')}/storage/campaign_pictures/${imagePath}`
-    }
-    return ''
-  }
+
 
   const renderPagination = () => {
     const pages = []
@@ -156,11 +151,13 @@ export default function ProgramPage() {
                     className="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow overflow-hidden border border-gray-100 group"
                   >
                     <div className="relative h-56 bg-gray-200">
-                      {getImageUrl(campaign) ? (
-                        <img
-                          src={getImageUrl(campaign)}
+                      {campaign.image && campaign.image.length > 0 ? (
+                        <Image
+                          src={getImageUrl(campaign.image[0].picture_path)}
                           alt={campaign.name}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                          className="object-cover group-hover:scale-105 transition-transform duration-300"
+                          fill
+                          sizes="(max-width: 768px) 100vw, 400px"
                         />
                       ) : (
                         <div className="flex items-center justify-center h-full text-gray-400">

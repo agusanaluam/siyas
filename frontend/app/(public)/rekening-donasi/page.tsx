@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import Image from 'next/image'
 import LandingHeader from '@/components/landing/LandingHeader'
 import LandingFooter from '@/components/landing/LandingFooter'
 
@@ -56,11 +57,13 @@ export default function RekeningDonasiPage() {
           <div className="flex flex-col md:flex-row items-center gap-12">
             {/* Image Side */}
             <div className="w-full md:w-1/2">
-              <div className="relative rounded-2xl overflow-hidden shadow-xl">
-                <img
+              <div className="relative rounded-2xl overflow-hidden shadow-xl h-[400px]">
+                <Image
                   src="https://images.unsplash.com/photo-1542810634-71277d95dcbb?q=80&w=1600&auto=format&fit=crop"
                   alt="Rekening Donasi"
-                  className="w-full h-[400px] object-cover grayscale hover:grayscale-0 transition-all duration-500"
+                  className="object-cover grayscale hover:grayscale-0 transition-all duration-500"
+                  fill
+                  sizes="(max-width: 768px) 100vw, 800px"
                 />
                 <div className="absolute inset-0 bg-black/10"></div>
               </div>

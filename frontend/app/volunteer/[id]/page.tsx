@@ -3,7 +3,9 @@
 import { useEffect, useState } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import Link from 'next/link'
+import Image from 'next/image'
 import DashboardLayout from '@/components/layout/DashboardLayout'
+import { getImageUrl } from '@/lib/utils'
 import { useAuth } from '@/hooks/useAuth'
 import { volunteerService, Volunteer } from '@/lib/api/volunteer'
 
@@ -64,9 +66,11 @@ export default function VolunteerDetailsPage() {
     return null
   }
 
-  const imageUrl = volunteer.profile_picture
-    ? `http://localhost:8000/storage/${volunteer.profile_picture}`
-    : 'http://localhost:8000/storage/profile_pictures/user-01.jpg'
+  const imageUrl = getImageUrl(
+    volunteer.profile_picture
+      ? `/storage/${volunteer.profile_picture}`
+      : '/storage/profile_pictures/user-01.jpg'
+  )
 
   return (
     <DashboardLayout>
@@ -171,11 +175,15 @@ export default function VolunteerDetailsPage() {
         <div>
           <div className="bg-white rounded-lg shadow p-6">
             <h2 className="text-xl font-semibold text-gray-900 mb-4">Foto Profil</h2>
-            <img
-              src={imageUrl}
-              alt={volunteer.name}
-              className="w-full rounded-lg"
-            />
+            <div className="relative w-full h-64">
+              <Image
+                src={imageUrl}
+                alt={volunteer.name}
+                className="rounded-lg object-cover"
+                fill
+                sizes="(max-width: 1024px) 100vw, 400px"
+              />
+            </div>
           </div>
         </div>
       </div>

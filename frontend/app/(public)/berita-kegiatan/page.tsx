@@ -7,6 +7,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { BlogPost } from '@/types'
 import { useBlogs } from '@/hooks/useBlog'
+import { getImageUrl } from '@/lib/utils'
 
 export default function BeritaKegiatanPage() {
   const { blogs: posts, loading, fetchBlogs } = useBlogs()
@@ -23,11 +24,10 @@ export default function BeritaKegiatanPage() {
     })
   }
 
-  const getImageUrl = (post: BlogPost) => {
-    if (post.featured_image) {
-      return `${process.env.NEXT_PUBLIC_API_URL?.replace('/api', '')}/storage/blog_images/${post.featured_image}`
-    }
-    return null
+  const getPostImageUrl = (post: BlogPost) => {
+    if (!post.featured_image) return null
+    if (post.featured_image.startsWith('http')) return post.featured_image
+    return getImageUrl(`/storage/blog_images/${post.featured_image}`)
   }
 
   const getCategoryName = (post: BlogPost) => {
@@ -69,9 +69,9 @@ export default function BeritaKegiatanPage() {
                   className="lg:col-span-2 group"
                 >
                   <div className="relative h-[500px] rounded-2xl overflow-hidden shadow-lg">
-                    {getImageUrl(mainHeadNews) ? (
+                    {getPostImageUrl(mainHeadNews) ? (
                       <Image
-                        src={getImageUrl(mainHeadNews)!}
+                        src={getPostImageUrl(mainHeadNews)!}
                         alt={mainHeadNews.title}
                         fill
                         className="object-cover group-hover:scale-105 transition-transform duration-500"
@@ -112,9 +112,9 @@ export default function BeritaKegiatanPage() {
                     className="group"
                   >
                     <div className="relative h-[240px] lg:h-full rounded-xl overflow-hidden shadow-md">
-                      {getImageUrl(post) ? (
+                      {getPostImageUrl(post) ? (
                         <Image
-                          src={getImageUrl(post)!}
+                          src={getPostImageUrl(post)!}
                           alt={post.title}
                           fill
                           className="object-cover group-hover:scale-105 transition-transform duration-500"
@@ -158,7 +158,7 @@ export default function BeritaKegiatanPage() {
                 <h2 className="text-2xl font-bold text-gray-900 mb-6">Explore more</h2>
                 <div className="space-y-8">
                   {listNews.map((post) => {
-                    const imageUrl = getImageUrl(post)
+                    const imageUrl = getPostImageUrl(post)
                     return (
                       <Link
                         key={post.id}
@@ -214,7 +214,7 @@ export default function BeritaKegiatanPage() {
                 <h2 className="text-2xl font-bold text-gray-900 mb-6">In case you missed it</h2>
                 <div className="space-y-6">
                   {posts.slice(0, 3).map((post) => {
-                    const imageUrl = getImageUrl(post)
+                    const imageUrl = getPostImageUrl(post)
                     return (
                       <Link
                         key={post.id}

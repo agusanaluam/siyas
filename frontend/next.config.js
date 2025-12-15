@@ -13,9 +13,9 @@ const nextConfig = {
       { protocol: 'https', hostname: 'localhost', port: '8000', pathname: '/storage/**' },
       { protocol: 'http', hostname: '127.0.0.1', port: '8000', pathname: '/storage/**' },
       { protocol: 'https', hostname: '127.0.0.1', port: '8000', pathname: '/storage/**' },
-      // CDN/Prod wildcard storage (biarkan fleksibel untuk host API)
-      { protocol: 'https', hostname: '**', pathname: '/storage/**' },
-      { protocol: 'http', hostname: '**', pathname: '/storage/**' },
+      // CDN/Prod wildcard (ALLOW ALL for R2 and others)
+      { protocol: 'https', hostname: '**' },
+      { protocol: 'http', hostname: '**' },
     ],
   },
 }

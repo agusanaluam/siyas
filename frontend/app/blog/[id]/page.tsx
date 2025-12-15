@@ -3,7 +3,9 @@
 import { useEffect, useState } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import Link from 'next/link'
+import Image from 'next/image'
 import DashboardLayout from '@/components/layout/DashboardLayout'
+import { getImageUrl } from '@/lib/utils'
 import { useAuth } from '@/hooks/useAuth'
 import { blogService } from '@/lib/api/blog'
 import { BlogPost } from '@/types'
@@ -158,11 +160,15 @@ export default function BlogDetailsPage() {
           {blog.featured_image && (
             <div className="mt-6 bg-white rounded-lg shadow p-6">
               <h2 className="text-xl font-semibold text-gray-900 mb-4">Gambar Utama</h2>
-              <img
-                src={blog.image_url || `http://localhost:8000/storage/blog_images/${blog.featured_image}`}
-                alt={blog.title}
-                className="w-full rounded-lg"
-              />
+              <div className="relative w-full h-64">
+                <Image
+                  src={getImageUrl(blog.image_url || `/storage/blog_images/${blog.featured_image}`)}
+                  alt={blog.title}
+                  className="rounded-lg object-cover"
+                  fill
+                  sizes="(max-width: 1024px) 100vw, 400px"
+                />
+              </div>
             </div>
           )}
         </div>
