@@ -22,7 +22,8 @@ export const blogService = {
   },
 
   async update(id: number, data: FormData): Promise<BlogPost> {
-    const response = await apiClient.put<BlogPost>(`/blogs/${id}`, data, {
+    // Use POST with _method override for FormData compatibility
+    const response = await apiClient.post<BlogPost>(`/blogs/${id}`, data, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
