@@ -5,6 +5,11 @@ import Providers from '@/components/Providers'
 export const metadata: Metadata = {
   title: 'SIYAS - YCAB Volunteer Dashboard',
   description: 'Sistem Informasi Yayasan Cahaya Ayah Bunda',
+  icons: {
+    icon: '/favicon.ico',
+    shortcut: '/favicon.ico',
+    apple: '/favicon.ico',
+  },
 }
 
 export default function RootLayout({
