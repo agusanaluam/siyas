@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import Image from 'next/image'
+
 import { getImageUrl } from '@/lib/utils'
 
 const DEFAULT_SLIDES = [
@@ -88,15 +88,13 @@ export default function HeroSection() {
             {/* Background Image with Overlay */}
             {/* Background Image with Overlay */}
             <div className="absolute inset-0 bg-gradient-to-br from-brand-500/60 via-brand-600/70 to-support-500/60">
-              <Image
+              <img
                 src={imageUrl}
                 alt={slide.title}
-                fill
-                className={`object-cover transition-opacity duration-500 ${
+                className={`w-full h-full object-cover transition-opacity duration-500 ${
                   isImageLoaded ? 'opacity-100' : 'opacity-0'
                 }`}
                 onLoad={() => handleImageLoad(slide.id)}
-                priority={index === 0}
               />
               {!isImageLoaded && (
                 <div className="absolute inset-0 flex items-center justify-center z-10">

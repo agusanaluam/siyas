@@ -74,6 +74,12 @@ export default function CampaignDetailsPage() {
     }
   }
 
+  const getPictureUrl = (path: string) => {
+    if (path.startsWith('http') || path.startsWith('https')) return path
+    // Fallback for any lingering local images (technically legacy code, but keeps display working)
+    return `${process.env.NEXT_PUBLIC_API_URL?.replace('/api', '')}/storage/campaign_pictures/${path}`
+  }
+
   if (loading || dataLoading) {
     return (
       <DashboardLayout>
@@ -190,7 +196,7 @@ export default function CampaignDetailsPage() {
                 {campaign.image.map((image: any, index: number) => (
                   <div key={index}>
                     <img
-                      src={`http://localhost:8000/storage/campaign_pictures/${image.picture_path}`}
+                      src={getPictureUrl(image.picture_path)}
                       alt={`Campaign image ${index + 1}`}
                       className="w-full h-48 object-cover rounded-lg"
                     />

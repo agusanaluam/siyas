@@ -7,9 +7,18 @@ use Illuminate\Http\Request;
 use App\Models\Setting;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use App\Services\ImageUploadService;
 
 class SettingController extends Controller
 {
+
+    protected $imageService;
+
+    public function __construct(ImageUploadService $imageService)
+    {
+        $this->imageService = $imageService;
+    }
+
     public function about()
     {
         $setting = Setting::getSettings();
@@ -64,14 +73,13 @@ class SettingController extends Controller
             $setting->tiktok = $request->tiktok;
 
             if ($request->hasFile('photo')) {
-                if ($setting->photo && Storage::exists('public/' . $setting->photo)) {
-                    Storage::delete('public/' . $setting->photo);
+                // Delete old image
+                if ($setting->photo) {
+                    $this->imageService->deleteImage($setting->photo);
                 }
                 
-                $extension = $request->file('photo')->getClientOriginalExtension();
-                $filenameSimpan = Str::random(16) . '_' . time() . '.' . $extension;
-                $request->file('photo')->storeAs('public/settings', $filenameSimpan);
-                $setting->photo = 'settings/' . $filenameSimpan;
+                $url = $this->imageService->uploadImage($request->file('photo'), 'settings');
+                $setting->photo = $url;
             }
 
             $setting->save();
@@ -108,14 +116,13 @@ class SettingController extends Controller
             $setting->about_service = $request->about_service ? array_values(array_filter($request->about_service)) : null;
 
             if ($request->hasFile('about_photo')) {
-                if ($setting->about_photo && Storage::exists('public/' . $setting->about_photo)) {
-                    Storage::delete('public/' . $setting->about_photo);
+                // Delete old image
+                if ($setting->about_photo) {
+                    $this->imageService->deleteImage($setting->about_photo);
                 }
 
-                $extension = $request->file('about_photo')->getClientOriginalExtension();
-                $filenameSimpan = Str::random(16) . '_' . time() . '.' . $extension;
-                $request->file('about_photo')->storeAs('public/settings', $filenameSimpan);
-                $setting->about_photo = 'settings/' . $filenameSimpan;
+                $url = $this->imageService->uploadImage($request->file('about_photo'), 'settings');
+                $setting->about_photo = $url;
             }
 
             $setting->save();

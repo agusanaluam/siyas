@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import Image from 'next/image'
+
 import { Setting, settingService } from '@/lib/api/settings'
 import { getImageUrl } from '@/lib/utils'
 
@@ -27,7 +27,8 @@ export default function AboutPreviewSection() {
   }
 
   // Construct image URL
-  const imageUrl = setting?.about_photo ? getImageUrl(`/storage/${setting.about_photo}`) : null
+  const aboutPhoto = setting?.about_photo
+  const imageUrl = aboutPhoto ? getImageUrl(aboutPhoto) : null
 
   return (
     <section className="py-16 bg-white" id="about">
@@ -43,11 +44,10 @@ export default function AboutPreviewSection() {
               )}
               {imageUrl ? (
                  // eslint-disable-next-line @next/next/no-img-element
-                <Image
+                <img
                   src={imageUrl}
                   alt="Tentang Kami"
-                  fill
-                  className={`object-cover transition-opacity duration-500 ${
+                  className={`w-full h-full object-cover transition-opacity duration-500 ${
                     imageLoaded ? 'opacity-100' : 'opacity-0'
                   }`}
                   onLoad={() => setImageLoaded(true)}

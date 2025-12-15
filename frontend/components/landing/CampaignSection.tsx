@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import Image from 'next/image'
+
 import Link from 'next/link'
 import { Campaign } from '@/types'
 import { getImageUrl } from '@/lib/utils'
@@ -13,9 +13,8 @@ interface CampaignCardProps {
 
 function CampaignCard({ campaign, formatDate }: CampaignCardProps) {
   const [imageLoaded, setImageLoaded] = useState(false)
-  const imageUrl = campaign.image && campaign.image.length > 0
-    ? getImageUrl(`/storage/campaign_pictures/${campaign.image[0].picture_path}`)
-    : null
+  const imagePath = campaign.image && campaign.image.length > 0 ? campaign.image[0].picture_path : null
+  const imageUrl = imagePath ? getImageUrl(imagePath) : null
 
   return (
     <div className="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow overflow-hidden border border-gray-100">
@@ -27,12 +26,10 @@ function CampaignCard({ campaign, formatDate }: CampaignCardProps) {
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-400"></div>
               </div>
             )}
-            <Image
+            <img
               src={imageUrl}
               alt={campaign.name}
-              fill
-              className={`object-cover transition-opacity duration-300 ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
-              sizes="(max-width: 768px) 100vw, 33vw"
+              className={`w-full h-full object-cover transition-opacity duration-300 ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
               onLoad={() => setImageLoaded(true)}
               onError={() => setImageLoaded(true)}
             />

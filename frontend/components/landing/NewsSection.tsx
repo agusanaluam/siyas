@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import Image from 'next/image'
+
 import Link from 'next/link'
 import { BlogPost } from '@/types'
 import { getImageUrl } from '@/lib/utils'
@@ -13,9 +13,8 @@ interface NewsCardProps {
 
 function NewsCard({ post, formatDate }: NewsCardProps) {
   const [imageLoaded, setImageLoaded] = useState(false)
-  const imageUrl = post.featured_image
-    ? getImageUrl(`/storage/blog_images/${post.featured_image}`)
-    : null
+  const imagePath = post.featured_image
+  const imageUrl = imagePath ? getImageUrl(imagePath) : null
 
   return (
     <div className="group">
@@ -27,14 +26,12 @@ function NewsCard({ post, formatDate }: NewsCardProps) {
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-400"></div>
               </div>
             )}
-            <Image
+            <img
               src={imageUrl}
               alt={post.title}
-              fill
-              className={`object-cover transform group-hover:scale-110 transition-transform duration-500 transition-opacity duration-300 ${
+              className={`w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500 transition-opacity duration-300 ${
                 imageLoaded ? 'opacity-100' : 'opacity-0'
               }`}
-              sizes="(max-width: 768px) 100vw, 33vw"
               onLoad={() => setImageLoaded(true)}
               onError={() => setImageLoaded(true)}
             />

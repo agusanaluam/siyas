@@ -8,11 +8,18 @@ use Illuminate\Support\Facades\Storage;
 use App\Models\Master\BlogPost;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
-use Intervention\Image\ImageManager;
-use Intervention\Image\Drivers\Gd\Driver;
+use App\Services\ImageUploadService;
 
 class BlogPostController extends Controller
 {
+
+    protected $imageService;
+
+    public function __construct(ImageUploadService $imageService)
+    {
+        $this->imageService = $imageService;
+    }
+
     public function index()
     {
         $user = auth('sanctum')->user();
@@ -24,21 +31,6 @@ class BlogPostController extends Controller
         if ($user && !in_array($user->level, ['administrator', 'root'])) {
             $query->where('created_by', $user->id);
         }
-        
-        // Jika guest (tidak login), mungkin kita mau filter hanya yang published?
-        // Tapi request user sekarang "return sesuai role".
-        // Asumsi: jika guest, behavior eksisting (return all) atau return all?
-        // User bilang "jika role root atau administrator munculkan semua blog", imply "selain itu dibatasi".
-        // Tapi untuk public viewing (guest), biasanya butuh semua tapi yang 'active'.
-        // Saat ini logic saya: Guest ($user null) -> skip if -> return all. 
-        // Volunteer ($user exist) -> masuk if -> return own.
-        // Admin ($user exist) -> skip if -> return all.
-        
-        // Tambahan constraint untuk guest? (Optional: $query->where('status', true))
-        // Mengikuti instruksi user mentah-mentah: "hanya perlu meminculkan blog yang dibuat oleh user yang login"
-        // Ini berisiko menyembunyikan blog orang lain dari guest.
-        // Namun konteksnya adalah "Admin/Manage" page.
-        // Mari kita stick to the "User Login" logic.
         
         $blogs = $query->get();
         
@@ -84,22 +76,8 @@ class BlogPostController extends Controller
             ];
 
             if ($request->hasFile('featured_image')) {
-                $file = $request->file('featured_image');
-                $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
-                $path = $file->storeAs('blog_images', $filename, 'public');
-
-                if (extension_loaded('gd')) {
-                    try {
-                        $manager = new ImageManager(new Driver());
-                        $image = $manager->read(storage_path('app/public/' . $path));
-                        $image->scaleDown(width: 1200);
-                        $image->save(storage_path('app/public/' . $path), quality: 85);
-                    } catch (\Throwable $e) {
-                        // Ignore all errors including undefined function errors
-                    }
-                }
-
-                $blogData['featured_image'] = $filename;
+                $url = $this->imageService->uploadImage($request->file('featured_image'), 'blog_images');
+                $blogData['featured_image'] = $url;
             }
 
             $blog = BlogPost::create($blogData);
@@ -155,26 +133,9 @@ class BlogPostController extends Controller
             ];
 
             if ($request->hasFile('featured_image')) {
-                if ($blog->featured_image && Storage::exists("public/blog_images/" . $blog->featured_image)) {
-                    Storage::disk('public')->delete('blog_images/' . $blog->featured_image);
-                }
-
-                $file = $request->file('featured_image');
-                $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
-                $path = $file->storeAs('blog_images', $filename, 'public');
-
-                if (extension_loaded('gd')) {
-                    try {
-                        $manager = new ImageManager(new Driver());
-                        $image = $manager->read(storage_path('app/public/' . $path));
-                        $image->scaleDown(width: 1200);
-                        $image->save(storage_path('app/public/' . $path), quality: 85);
-                    } catch (\Throwable $e) {
-                         // Ignore
-                    }
-                }
-
-                $blogData['featured_image'] = $filename;
+                $this->imageService->deleteImage($blog->featured_image);
+                $url = $this->imageService->uploadImage($request->file('featured_image'), 'blog_images');
+                $blogData['featured_image'] = $url;
             }
 
             $blog->update($blogData);
@@ -199,8 +160,8 @@ class BlogPostController extends Controller
         try {
             $blog = BlogPost::findOrFail($id);
             
-            if ($blog->featured_image && Storage::exists("public/blog_images/" . $blog->featured_image)) {
-                Storage::disk('public')->delete('blog_images/' . $blog->featured_image);
+            if ($blog->featured_image) {
+                $this->imageService->deleteImage($blog->featured_image);
             }
             
             $blog->delete();
@@ -223,11 +184,7 @@ class BlogPostController extends Controller
         ]);
 
         try {
-            $file = $request->file('image');
-            $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
-            $path = $file->storeAs('blog_images', $filename, 'public');
-
-            $url = asset('storage/' . $path);
+            $url = $this->imageService->uploadImage($request->file('image'), 'blog_images');
 
             return response()->json([
                 'success' => true,

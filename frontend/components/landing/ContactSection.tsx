@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import Image from 'next/image'
+
 
 interface Setting {
   phone_number: string
@@ -181,12 +181,10 @@ export default function ContactSection() {
               {partners.length > 0 ? (
                 partners.map(partner => (
                   <div key={partner.id} className="relative h-12 md:h-16 w-32 md:w-40">
-                    <Image
+                    <img
                       src={getImageUrl(partner.image)}
                       alt={partner.name}
-                      fill
-                      className="object-contain"
-                      sizes="(max-width: 768px) 128px, 160px"
+                      className="w-full h-full object-contain"
                     />
                   </div>
                 ))
@@ -194,12 +192,10 @@ export default function ContactSection() {
                 <>
                   {['bni.png', 'bsi.png', 'its.png'].map((file) => (
                     <div key={file} className="relative h-12 md:h-16 w-32 md:w-40">
-                      <Image
+                      <img
                         src={`${process.env.NEXT_PUBLIC_API_URL?.replace('/api', '')}/storage/partners/${file}`}
                         alt={file.split('.')[0]}
-                        fill
-                        className="object-contain"
-                        sizes="(max-width: 768px) 128px, 160px"
+                        className="w-full h-full object-contain"
                       />
                     </div>
                   ))}

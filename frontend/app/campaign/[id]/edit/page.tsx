@@ -320,7 +320,7 @@ export default function EditCampaignPage() {
                   {existingImages.map((img, index) => (
                     <div key={index} className="relative">
                       <img
-                        src={`http://localhost:8000/storage/campaign_pictures/${img}`}
+                        src={img.startsWith('http') ? img : `${process.env.NEXT_PUBLIC_API_URL?.replace('/api', '')}/storage/campaign_pictures/${img}`}
                         alt={`Existing ${index + 1}`}
                         className="w-full h-32 object-cover rounded-lg"
                       />

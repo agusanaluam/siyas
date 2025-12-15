@@ -232,9 +232,9 @@ export default function EditBlogPage() {
               <div className="mt-2">
                 <p className="text-sm text-gray-600 mb-2">Gambar saat ini:</p>
                 <img
-                  src={getImageUrl(`/storage/blog_images/${existingImage}`)}
+                  src={getImageUrl(existingImage.startsWith('http') || existingImage.startsWith('https') ? existingImage : `/storage/blog_images/${existingImage}`)}
                   alt="Current"
-                  className="w-48 h-48 object-cover rounded-lg"
+                  className="w-full h-48 object-cover rounded-lg"
                 />
               </div>
             )}

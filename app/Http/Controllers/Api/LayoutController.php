@@ -10,6 +10,13 @@ use Illuminate\Support\Facades\Storage;
 
 class LayoutController extends Controller
 {
+    protected $imageService;
+
+    public function __construct(\App\Services\ImageUploadService $imageService)
+    {
+        $this->imageService = $imageService;
+    }
+
     // Hero Slides
     public function getHeroSlides()
     {
@@ -24,8 +31,7 @@ class LayoutController extends Controller
             'description' => 'nullable|string',
         ]);
 
-        $path = $request->file('image')->store('public/hero-slides');
-        $url = Storage::url($path);
+        $url = $this->imageService->uploadImage($request->file('image'), 'hero-slides');
 
         $slide = HeroSlide::create([
             'title' => $request->title,
@@ -48,15 +54,13 @@ class LayoutController extends Controller
         ]);
 
         if ($request->hasFile('image')) {
-            // Delete old image if exists
-            // Storage::url returns /storage/..., we need public/...
-            $oldPath = str_replace('/storage/', 'public/', $slide->image);
-            if (Storage::exists($oldPath)) {
-                Storage::delete($oldPath);
+            // Delete old image
+            if ($slide->image) {
+                $this->imageService->deleteImage($slide->image);
             }
 
-            $path = $request->file('image')->store('public/hero-slides');
-            $slide->image = Storage::url($path);
+            $url = $this->imageService->uploadImage($request->file('image'), 'hero-slides');
+            $slide->image = $url;
         }
 
         $slide->update([
@@ -71,9 +75,8 @@ class LayoutController extends Controller
     {
         $slide = HeroSlide::findOrFail($id);
         
-        $oldPath = str_replace('/storage/', 'public/', $slide->image);
-        if (Storage::exists($oldPath)) {
-            Storage::delete($oldPath);
+        if ($slide->image) {
+            $this->imageService->deleteImage($slide->image);
         }
 
         $slide->delete();
@@ -93,8 +96,7 @@ class LayoutController extends Controller
             'name' => 'required|string',
         ]);
 
-        $path = $request->file('image')->store('public/partners');
-        $url = Storage::url($path);
+        $url = $this->imageService->uploadImage($request->file('image'), 'partners');
 
         $partner = Partner::create([
             'name' => $request->name,
@@ -109,9 +111,8 @@ class LayoutController extends Controller
     {
         $partner = Partner::findOrFail($id);
         
-        $oldPath = str_replace('/storage/', 'public/', $partner->image);
-        if (Storage::exists($oldPath)) {
-            Storage::delete($oldPath);
+        if ($partner->image) {
+            $this->imageService->deleteImage($partner->image);
         }
 
         $partner->delete();

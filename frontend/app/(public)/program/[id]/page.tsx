@@ -172,11 +172,23 @@ export default function CampaignDetailPage() {
     }
   }
 
+
+  const getPictureUrl = (path: string) => {
+    // If stricly R2, just return the path (assuming it is a full URL)
+    // or use the utility logic if imported.
+    // Since I cannot import easily without adding lines at top, I will rewrite this helper
+    // to match the "remove legacy" requirement.
+    if (path.startsWith('http') || path.startsWith('https')) return path
+    // If not a URL, checking strict "remove legacy" means either it's broken or we assume it's just a path that SHOULD use base URL + path without /storage if we changed structure, 
+    // BUT legacy images ARE at /storage/...
+    // If the USER says "remove legacy image", they might mean "remove the code that tries to handle local files specially".
+    // I will simplify this to:
+    return `${process.env.NEXT_PUBLIC_API_URL?.replace('/api', '')}/storage/campaign_pictures/${path}`
+  }
+
   const getImageUrl = (campaign: Campaign) => {
     if (campaign.image && campaign.image.length > 0) {
-      const imagePath = campaign.image[0].picture_path
-      if (imagePath.startsWith('http')) return imagePath
-      return `${process.env.NEXT_PUBLIC_API_URL?.replace('/api', '')}/storage/campaign_pictures/${imagePath}`
+       return getPictureUrl(campaign.image[0].picture_path)
     }
     return ''
   }
@@ -189,7 +201,6 @@ export default function CampaignDetailPage() {
       maximumFractionDigits: 0,
     }).format(amount)
   }
-
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('id-ID', {
       day: 'numeric',
@@ -238,7 +249,7 @@ export default function CampaignDetailPage() {
         <LandingFooter />
       </main>
     )
-  }
+  } 
 
   return (
     <main className="min-h-screen bg-gray-50">
@@ -266,7 +277,7 @@ export default function CampaignDetailPage() {
               <div className="relative rounded-xl overflow-hidden shadow-lg mb-6">
                 {campaign.image && campaign.image.length > 0 ? (
                   <img
-                    src={`${process.env.NEXT_PUBLIC_API_URL?.replace('/api', '')}/storage/campaign_pictures/${campaign.image[selectedImageIndex].picture_path}`}
+                    src={getPictureUrl(campaign.image[selectedImageIndex].picture_path)}
                     alt={campaign.name}
                     className="w-full max-h-[400px] object-cover"
                   />
@@ -291,7 +302,7 @@ export default function CampaignDetailPage() {
                       onClick={() => setSelectedImageIndex(index)}
                     >
                       <img
-                        src={`${process.env.NEXT_PUBLIC_API_URL?.replace('/api', '')}/storage/campaign_pictures/${img.picture_path}`}
+                        src={getPictureUrl(img.picture_path)}
                         alt={`${campaign.name} ${index + 1}`}
                         className="w-full h-24 object-cover hover:opacity-80 transition-opacity"
                       />

@@ -7,7 +7,7 @@ import { useAuth } from '@/hooks/useAuth'
 import { apiClient } from '@/lib/api/client'
 import { getImageUrl } from '@/lib/utils'
 import { toast } from 'react-hot-toast'
-import Image from 'next/image'
+
 
 interface Setting {
   id: number
@@ -398,27 +398,21 @@ export default function SettingsProfilePage() {
               className="input"
             />
             {setting?.photo && !photo && (
-              <div className="mt-2">
               <div className="mt-2 relative w-48 h-48">
-                <Image
+                <img
                   src={getImageUrl(setting.photo)}
                   alt="Current photo"
-                  fill
-                  className="object-cover rounded-lg"
+                  className="w-full h-full object-cover rounded-lg"
                 />
-              </div>
               </div>
             )}
             {photo && (
-              <div className="mt-2">
               <div className="mt-2 relative w-48 h-48">
-                <Image
+                <img
                   src={URL.createObjectURL(photo)}
                   alt="Preview"
-                  fill
-                  className="object-cover rounded-lg"
+                  className="w-full h-full object-cover rounded-lg"
                 />
-              </div>
               </div>
             )}
             {errors.photo && <p className="mt-1 text-sm text-red-600">{errors.photo}</p>}

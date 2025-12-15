@@ -7,7 +7,7 @@ import { useAuth } from '@/hooks/useAuth'
 import { apiClient } from '@/lib/api/client'
 import { getImageUrl } from '@/lib/utils'
 import { toast } from 'react-hot-toast'
-import Image from 'next/image'
+
 
 interface HeroSlide {
   id: number
@@ -206,6 +206,24 @@ export default function SettingsLayoutPage() {
                   className="input"
                   onChange={e => setSlideImage(e.target.files?.[0] || null)}
                 />
+                {editingSlide?.image && !slideImage && (
+                  <div className="mt-2 relative h-40 w-full">
+                    <img
+                      src={getImageUrl(editingSlide.image)}
+                      alt="Current slide"
+                      className="w-full h-full object-cover rounded-lg"
+                    />
+                  </div>
+                )}
+                {slideImage && (
+                  <div className="mt-2 relative h-40 w-full">
+                    <img
+                      src={URL.createObjectURL(slideImage)}
+                      alt="Preview"
+                      className="w-full h-full object-cover rounded-lg"
+                    />
+                  </div>
+                )}
               </div>
             </div>
             <div className="mt-4 flex gap-2">
@@ -231,11 +249,10 @@ export default function SettingsLayoutPage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {slides.map(slide => (
               <div key={slide.id} className="border rounded-lg overflow-hidden relative group h-48">
-                <Image 
+                <img 
                   src={getImageUrl(slide.image)} 
                   alt={slide.title} 
-                  fill
-                  className="object-cover"
+                  className="w-full h-full object-cover"
                 />
                 <div className="p-4">
                   <h4 className="font-bold">{slide.title}</h4>
@@ -287,8 +304,17 @@ export default function SettingsLayoutPage() {
                   accept="image/*"
                   className="input"
                   onChange={e => setPartnerImage(e.target.files?.[0] || null)}
-                  required
+                  required={!partnerForm.name} // Adjust requirement logic if needed, but original was 'required' attribute on input
                 />
+                {partnerImage && (
+                  <div className="mt-2 relative h-20 w-auto">
+                    <img
+                      src={URL.createObjectURL(partnerImage)}
+                      alt="Preview"
+                      className="h-full object-contain rounded"
+                    />
+                  </div>
+                )}
               </div>
             </div>
             <div className="mt-4">
@@ -302,11 +328,10 @@ export default function SettingsLayoutPage() {
             {partners.map(partner => (
               <div key={partner.id} className="border rounded-lg p-4 relative group flex flex-col items-center h-32 justify-center">
                 <div className="relative w-full h-16 mb-2">
-                  <Image 
+                  <img 
                     src={getImageUrl(partner.image)} 
                     alt={partner.name} 
-                    fill
-                    className="object-contain"
+                    className="w-full h-full object-contain"
                   />
                 </div>
                 <p className="font-medium text-center">{partner.name}</p>

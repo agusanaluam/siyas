@@ -9,13 +9,18 @@ use App\Models\Master\Campaign;
 use App\Models\Master\CampaignCategory;
 use App\Models\Master\CampaignImage;
 use Illuminate\Support\Facades\DB;
-use Intervention\Image\ImageManager;
-use Intervention\Image\Drivers\Gd\Driver;
-
 use App\Models\Transaction\DonationDetail;
 
 class CampaignController extends Controller
 {
+
+    protected $imageService;
+
+    public function __construct(ImageUploadService $imageService)
+    {
+        $this->imageService = $imageService;
+    }
+
     public function index(Request $request)
     {
         $status = $request->input('status', 0);
@@ -98,26 +103,12 @@ class CampaignController extends Controller
             ]);
 
             if ($request->hasFile('campaign_picture')) {
-                $useGd = extension_loaded('gd');
-                $manager = $useGd ? new ImageManager(new Driver()) : null;
-                
                 foreach ($request->file('campaign_picture') as $file) {
-                    $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
-                    $path = $file->storeAs('campaign_pictures', $filename, 'public');
-
-                    if ($manager) {
-                        try {
-                            $image = $manager->read(storage_path('app/public/' . $path));
-                            $image->scaleDown(width: 1200);
-                            $image->save(storage_path('app/public/' . $path), quality: 85);
-                        } catch (\Throwable $e) {
-                            // Ignore image processing errors to prevent failure
-                        }
-                    }
+                    $url = $this->imageService->uploadImage($file, 'campaign_pictures');
 
                     CampaignImage::create([
                         'program_id' => $campaign->id,
-                        'picture_path' => $filename,
+                        'picture_path' => $url,
                     ]);
                 }
             }
@@ -176,26 +167,12 @@ class CampaignController extends Controller
             ]);
 
             if ($request->hasFile('campaign_picture')) {
-                $useGd = extension_loaded('gd');
-                $manager = $useGd ? new ImageManager(new Driver()) : null;
-                
                 foreach ($request->file('campaign_picture') as $file) {
-                    $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
-                    $path = $file->storeAs('campaign_pictures', $filename, 'public');
-
-                    if ($manager) {
-                        try {
-                            $image = $manager->read(storage_path('app/public/' . $path));
-                            $image->scaleDown(width: 1200);
-                            $image->save(storage_path('app/public/' . $path), quality: 85);
-                        } catch (\Throwable $e) {
-                             // Ignore
-                        }
-                    }
+                    $url = $this->imageService->uploadImage($file, 'campaign_pictures');
 
                     CampaignImage::create([
                         'program_id' => $campaign->id,
-                        'picture_path' => $filename,
+                        'picture_path' => $url,
                     ]);
                 }
             }
@@ -221,9 +198,9 @@ class CampaignController extends Controller
             $campaign = Campaign::with('image')->findOrFail($id);
             
             foreach ($campaign->image as $image) {
-                if (Storage::exists("public/campaign_pictures/" . $image->picture_path)) {
-                    Storage::disk('public')->delete('campaign_pictures/' . $image->picture_path);
-                }
+                // Try deleting from R2 (service)
+                $this->imageService->deleteImage($image->picture_path);
+
                 $image->delete();
             }
             
@@ -270,4 +247,5 @@ class CampaignController extends Controller
         return response()->json($campaigns);
     }
 }
+
 
