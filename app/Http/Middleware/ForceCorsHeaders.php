@@ -33,12 +33,16 @@ class ForceCorsHeaders
         ]);
 
         $origin = $request->header('Origin');
-        $allowedOrigins = [
+
+        // Baca allowed origins dari env, dengan fallback ke localhost untuk development
+        $envOrigins = array_filter(explode(',', env('ALLOWED_ORIGINS', '')));
+        $allowedOrigins = !empty($envOrigins) ? $envOrigins : [
             'http://localhost:3000',
             'http://127.0.0.1:3000',
             'http://localhost:3001',
             'http://127.0.0.1:3001',
         ];
+
 
         // Handle preflight OPTIONS request
         if ($request->getMethod() === 'OPTIONS') {
@@ -59,9 +63,19 @@ class ForceCorsHeaders
         try {
             $response = $next($request);
         } catch (\Exception $e) {
+            // Log error untuk debugging
+            Log::error('API Error: ' . $e->getMessage(), [
+                'path' => $path,
+                'method' => $request->method(),
+                'exception' => $e,
+                'trace' => $e->getTraceAsString(),
+            ]);
+
             // Even for exceptions, we need to add CORS headers
+            $errorMessage = config('app.debug') ? $e->getMessage() : 'Terjadi kesalahan pada server';
+
             $response = response()->json([
-                'message' => $e->getMessage()
+                'message' => $errorMessage,
             ], 500)
                 ->header('Access-Control-Allow-Origin', $allowedOrigin)
                 ->header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH, HEAD')
@@ -119,6 +133,11 @@ class ForceCorsHeaders
      */
     private function getAllowedOrigin(?string $origin, array $allowedOrigins): string
     {
+        // Jika tidak ada allowed origins, return origin atau *
+        if (empty($allowedOrigins)) {
+            return $origin ?: '*';
+        }
+
         // Default to first allowed origin
         $allowedOrigin = $allowedOrigins[0];
 
@@ -127,9 +146,20 @@ class ForceCorsHeaders
             if (in_array($origin, $allowedOrigins)) {
                 $allowedOrigin = $origin;
             }
-            // Check if origin matches pattern (localhost or 127.0.0.1 with port 3000-3001)
+            // Check if origin matches pattern untuk localhost
             elseif (preg_match('/^http:\/\/(localhost|127\.0\.0\.1):(3000|3001)$/', $origin)) {
                 $allowedOrigin = $origin;
+            }
+            // Untuk production, jika origin tidak match tapi ada di allowed list, gunakan origin
+            elseif (config('app.env') === 'production' && !empty($allowedOrigins)) {
+                // Cek apakah ada pattern match dengan domain production
+                foreach ($allowedOrigins as $allowed) {
+                    // Support wildcard atau exact match
+                    if ($origin === $allowed || (strpos($allowed, '*') !== false && fnmatch($allowed, $origin))) {
+                        $allowedOrigin = $origin;
+                        break;
+                    }
+                }
             }
         }
 

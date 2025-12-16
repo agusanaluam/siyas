@@ -21,19 +21,63 @@ class SettingController extends Controller
 
     public function about()
     {
-        $setting = Setting::getSettings();
+        try {
+            $setting = Setting::getSettings();
 
-        return response()->json([
-            'about_content' => $setting->about_content,
-            'about_photo' => $setting->about_photo,
-            'about_service' => $setting->about_service,
-        ]);
+            return response()->json([
+                'about_content' => $setting->about_content ?? '',
+                'about_photo' => $setting->about_photo ?? null,
+                'about_service' => $setting->about_service ?? [],
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Error fetching settings about: ' . $e->getMessage(), [
+                'exception' => $e,
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            return response()->json([
+                'message' => 'Gagal mengambil data about',
+                'error' => config('app.debug') ? $e->getMessage() : 'Terjadi kesalahan pada server',
+            ], 500);
+        }
     }
 
     public function profile()
     {
-        $setting = Setting::getSettings();
-        return response()->json($setting);
+        try {
+            $setting = Setting::getSettings();
+
+            // Pastikan selalu return data yang valid, bahkan jika setting kosong
+            $data = [
+                'id' => $setting->id ?? null,
+                'name' => $setting->name ?? '',
+                'address' => $setting->address ?? '',
+                'phone_number' => $setting->phone_number ?? '',
+                'email' => $setting->email ?? '',
+                'description' => $setting->description ?? '',
+                'gmaps' => $setting->gmaps ?? '',
+                'facebook' => $setting->facebook ?? '',
+                'instagram' => $setting->instagram ?? '',
+                'twitter' => $setting->twitter ?? '',
+                'youtube' => $setting->youtube ?? '',
+                'tiktok' => $setting->tiktok ?? '',
+                'photo' => $setting->photo ?? null,
+                'created_at' => $setting->created_at ?? null,
+                'updated_at' => $setting->updated_at ?? null,
+            ];
+
+            return response()->json($data);
+        } catch (\Exception $e) {
+            \Log::error('Error fetching settings profile: ' . $e->getMessage(), [
+                'exception' => $e,
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            return response()->json([
+                'message' => 'Gagal mengambil data profile',
+                'error' => config('app.debug') ? $e->getMessage() : 'Terjadi kesalahan pada server',
+            ], 500);
+        }
     }
 
     public function updateProfile(Request $request)
@@ -77,7 +121,7 @@ class SettingController extends Controller
                 if ($setting->photo) {
                     $this->imageService->deleteImage($setting->photo);
                 }
-                
+
                 $url = $this->imageService->uploadImage($request->file('photo'), 'settings');
                 $setting->photo = $url;
             }
