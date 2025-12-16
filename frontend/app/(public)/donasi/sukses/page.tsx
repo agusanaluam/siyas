@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
@@ -9,7 +9,7 @@ import LandingFooter from '@/components/landing/LandingFooter'
 import FloatingWhatsApp from '@/components/FloatingWhatsApp'
 import { Donation } from '@/types'
 
-export default function DonationSuccessPage() {
+function DonationSuccessContent() {
   const searchParams = useSearchParams()
   const router = useRouter()
   const [donation, setDonation] = useState<Donation | null>(null)
@@ -225,5 +225,21 @@ export default function DonationSuccessPage() {
       <LandingFooter />
       <FloatingWhatsApp />
     </main>
+  )
+}
+
+export default function DonationSuccessPage() {
+  return (
+    <Suspense fallback={
+      <main className="min-h-screen bg-gray-50">
+        <LandingHeader forceScrolledStyle={true} />
+        <div className="flex justify-center items-center py-32">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-600"></div>
+        </div>
+        <LandingFooter />
+      </main>
+    }>
+      <DonationSuccessContent />
+    </Suspense>
   )
 }

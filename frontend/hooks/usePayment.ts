@@ -27,14 +27,14 @@ export function useGetSnapToken() {
       const data: CheckoutResponse = await response.json()
 
       if (!response.ok) {
-        const errorMessage = data.message || 'Gagal generate snap token'
+        const errorMessage = data.message || data.error || 'Gagal generate snap token'
         setError(errorMessage)
         toast.error(errorMessage)
         return null
       }
 
       if (!data.token) {
-        const errorMessage = 'Token tidak ditemukan dalam response'
+        const errorMessage = data.message || 'Token tidak ditemukan dalam response'
         setError(errorMessage)
         toast.error(errorMessage)
         return null

@@ -17,8 +17,10 @@ export interface CheckoutRequest {
 }
 
 export interface CheckoutResponse {
-  token: string
+  token?: string
   redirect_url?: string
+  message?: string
+  error?: string
 }
 
 export interface TransactionResult {
