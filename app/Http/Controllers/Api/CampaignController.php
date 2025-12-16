@@ -50,17 +50,34 @@ class CampaignController extends Controller
     {
         $campaign = Campaign::with(['category', 'image'])->findOrFail($id);
 
+        // Hanya hitung donasi yang sudah sukses (paid atau Completed)
         $totalCollected = DonationDetail::where('program_id', $id)
-            ->whereHas('donation') // Ensure donation exists/not deleted
+            ->whereHas('donation', function($query) {
+                $query->where(function($q) {
+                    $q->where('payment_status', 'paid')
+                      ->orWhere('status', 'Completed');
+                });
+            })
             ->sum('amount');
 
+        // Hanya hitung jumlah donatur yang sudah sukses
         $totalDonors = DonationDetail::where('program_id', $id)
-            ->whereHas('donation')
+            ->whereHas('donation', function($query) {
+                $query->where(function($q) {
+                    $q->where('payment_status', 'paid')
+                      ->orWhere('status', 'Completed');
+                });
+            })
             ->count();
 
+        // Hanya tampilkan donatur yang sudah sukses
         $donors = DonationDetail::where('program_id', $id)
             ->join('t_donation', 't_donation_detail.donation_id', '=', 't_donation.id')
             ->whereNull('t_donation.deleted_at')
+            ->where(function($query) {
+                $query->where('t_donation.payment_status', 'paid')
+                      ->orWhere('t_donation.status', 'Completed');
+            })
             ->orderBy('t_donation.created_at', 'desc')
             ->take(15)
             ->get(['t_donation.donatur_name', 't_donation_detail.amount', 't_donation.created_at']);
@@ -122,9 +139,15 @@ class CampaignController extends Controller
             ], 201);
         } catch (\Exception $e) {
             DB::rollBack();
+            Log::error('Campaign Store Error', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            $isProduction = config('app.env') === 'production';
             return response()->json([
                 'message' => 'Gagal membuat campaign',
-                'error' => $e->getMessage(),
+                'error' => $isProduction ? null : $e->getMessage(),
             ], 500);
         }
     }
@@ -186,9 +209,15 @@ class CampaignController extends Controller
             ]);
         } catch (\Exception $e) {
             DB::rollBack();
+            Log::error('Campaign Update Error', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            $isProduction = config('app.env') === 'production';
             return response()->json([
                 'message' => 'Gagal mengupdate campaign',
-                'error' => $e->getMessage(),
+                'error' => $isProduction ? null : $e->getMessage(),
             ], 500);
         }
     }
@@ -211,9 +240,15 @@ class CampaignController extends Controller
                 'message' => 'Campaign berhasil dihapus',
             ]);
         } catch (\Exception $e) {
+            Log::error('Campaign Delete Error', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            $isProduction = config('app.env') === 'production';
             return response()->json([
                 'message' => 'Gagal menghapus campaign',
-                'error' => $e->getMessage(),
+                'error' => $isProduction ? null : $e->getMessage(),
             ], 500);
         }
     }

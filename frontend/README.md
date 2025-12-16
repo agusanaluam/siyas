@@ -33,6 +33,8 @@ npm install
 2. Buat file `.env.local`:
 ```
 NEXT_PUBLIC_API_URL=http://localhost:8000/api
+NEXT_PUBLIC_MIDTRANS_CLIENT_KEY=your_midtrans_client_key_here
+NEXT_PUBLIC_MIDTRANS_IS_PRODUCTION=false
 ```
 
 3. Jalankan development server:

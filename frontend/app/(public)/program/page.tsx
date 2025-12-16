@@ -10,14 +10,14 @@ import { Campaign } from '@/types'
 import { useCampaigns } from '@/hooks/useCampaign'
 
 export default function ProgramPage() {
-  const { 
-    data, 
-    categories, 
-    loading, 
-    fetchCampaigns, 
-    fetchCategories 
+  const {
+    data,
+    categories,
+    loading,
+    fetchCampaigns,
+    fetchCategories
   } = useCampaigns()
-  
+
   const [selectedCategory, setSelectedCategory] = useState<number | null>(null)
   const [showCategoryDropdown, setShowCategoryDropdown] = useState(false)
   const [currentPage, setCurrentPage] = useState(1)
@@ -79,7 +79,7 @@ export default function ProgramPage() {
   return (
     <main className="min-h-screen bg-gradient-to-b from-brand-50 via-white to-support-50">
       <LandingHeader forceScrolledStyle={true} />
-      
+
       {/* Hero Section */}
       <section className="pt-32 pb-12 bg-white">
         <div className="container mx-auto px-4 md:px-[150px]">
@@ -93,20 +93,20 @@ export default function ProgramPage() {
               </p>
             </div>
             <div className="hidden md:block relative">
-              <button 
+              <button
                 onClick={() => setShowCategoryDropdown(!showCategoryDropdown)}
                 className="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors flex items-center space-x-2"
               >
                 <span>
-                  {selectedCategory 
-                    ? categories.find(c => c.id === selectedCategory)?.name 
+                  {selectedCategory
+                    ? categories.find(c => c.id === selectedCategory)?.name
                     : 'Pilih kategori'}
                 </span>
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                 </svg>
               </button>
-              
+
               {/* Dropdown Menu */}
               {showCategoryDropdown && (
                 <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 z-10">
@@ -145,15 +145,19 @@ export default function ProgramPage() {
             <>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
                 {campaigns.map((campaign) => (
-                  <Link 
-                    key={campaign.id} 
+                  <Link
+                    key={campaign.id}
                     href={`/program/${campaign.id}`}
                     className="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow overflow-hidden border border-gray-100 group"
                   >
                     <div className="relative h-56 bg-gray-200">
                       {campaign.image && campaign.image.length > 0 ? (
                         <Image
-                          src={getImageUrl(campaign.image[0].picture_path)}
+                          src={
+                            campaign.image[0].picture_path?.startsWith('http')
+                              ? campaign.image[0].picture_path
+                              : getImageUrl(`/storage/campaign_pictures/${campaign.image[0].picture_path}`)
+                          }
                           alt={campaign.name}
                           className="object-cover group-hover:scale-105 transition-transform duration-300"
                           fill
@@ -170,7 +174,7 @@ export default function ProgramPage() {
                         {campaign.category?.name || 'Infak'}
                       </div>
                     </div>
-                    
+
                     <div className="p-5">
                       <h3 className="text-lg font-bold text-gray-900 mb-2 line-clamp-2 group-hover:text-brand-600 transition-colors">
                         {campaign.name}
@@ -195,9 +199,9 @@ export default function ProgramPage() {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                     </svg>
                   </button>
-                  
+
                   {renderPagination()}
-                  
+
                   <button
                     onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
                     disabled={currentPage === totalPages}

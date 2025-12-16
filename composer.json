@@ -12,6 +12,7 @@
         "laravel/sanctum": "^4.2",
         "laravel/tinker": "^2.9",
         "league/flysystem-aws-s3-v3": "^3.30",
+        "midtrans/midtrans-php": "^2.6",
         "orangehill/iseed": "^3.0",
         "yajra/laravel-datatables": "^11.0"
     },

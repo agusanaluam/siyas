@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { toast } from 'react-hot-toast'
-import { useParams } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
 import { getImageUrl } from '@/lib/utils'
@@ -11,11 +11,15 @@ import LandingFooter from '@/components/landing/LandingFooter'
 import FloatingWhatsApp from '@/components/FloatingWhatsApp'
 import { Campaign } from '@/types'
 import { useAuth } from '@/hooks/useAuth'
+import { useGetSnapToken } from '@/hooks/usePayment'
+import { CheckoutRequest } from '@/types/payment'
 import Cookies from 'js-cookie'
 
 export default function CampaignDetailPage() {
   const params = useParams()
+  const router = useRouter()
   const { user } = useAuth()
+  const { getToken, loading: loadingToken } = useGetSnapToken()
   const [campaign, setCampaign] = useState<Campaign | null>(null)
   const [relatedCampaigns, setRelatedCampaigns] = useState<Campaign[]>([])
   const [loading, setLoading] = useState(true)
@@ -33,9 +37,6 @@ export default function CampaignDetailPage() {
   const [isAnonymous, setIsAnonymous] = useState(false)
   const [isContactable, setIsContactable] = useState(false)
   const [prayer, setPrayer] = useState('')
-  const [paymentUrl, setPaymentUrl] = useState<string | null>(null)
-  const [showPaymentModal, setShowPaymentModal] = useState(false)
-  const [donationLiqNumber, setDonationLiqNumber] = useState<string | null>(null)
 
   useEffect(() => {
     fetchFoundationProfile()
@@ -126,9 +127,10 @@ export default function CampaignDetailPage() {
     try {
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'
 
-      const payload = {
+      // Step 1: Buat donation record
+      const donationPayload = {
         campaign_id: campaign?.id,
-        amount: parseInt(donationAmount.replace(/\./g, '')),
+        amount: rawAmount,
         donatur_name: donorName,
         donatur_phone: donorPhone,
         donatur_email: donorEmail,
@@ -146,44 +148,84 @@ export default function CampaignDetailPage() {
         headers['Authorization'] = `Bearer ${token}`
       }
 
-      const response = await fetch(`${apiUrl}/donations/public`, {
+      const donationResponse = await fetch(`${apiUrl}/donations/public`, {
         method: 'POST',
         headers,
-        body: JSON.stringify(payload),
+        body: JSON.stringify(donationPayload),
       })
 
-      const result = await response.json()
+      const donationResult = await donationResponse.json()
 
-      if (response.ok) {
-        toast.success('Berhasil berdonasi, terimakasih atas donasinya')
-
-        // Simpan liq_number untuk redirect ke halaman sukses
-        if (result.data?.liq_number) {
-          setDonationLiqNumber(result.data.liq_number)
-        }
-
-        // Jika ada payment_url, tampilkan modal payment
-        if (result.data?.payment_url) {
-          setPaymentUrl(result.data.payment_url)
-          setShowPaymentModal(true)
-        } else if (result.data?.liq_number) {
-          // Jika tidak ada payment_url, langsung redirect ke halaman sukses
-          window.location.href = `/donasi/sukses?order_id=${result.data.liq_number}`
-        }
-
-        setIsDonationExpanded(false)
-        setDonationAmount('')
-        setPrayer('')
-        // We will need `user` to decide if we clear other fields.
-        // For now clear them if no token found arguably, or just clear all.
-        if (!token) {
-            setDonorName('')
-            setDonorEmail('')
-            setDonorPhone('')
-        }
-      } else {
-        toast.error(result.message || 'Gagal melakukan donasi')
+      if (!donationResponse.ok) {
+        toast.error(donationResult.message || 'Gagal melakukan donasi')
+        return
       }
+
+      const donation = donationResult.data
+      if (!donation?.liq_number) {
+        toast.error('Gagal mendapatkan nomor transaksi')
+        return
+      }
+
+      // Step 2: Generate Snap token
+      const checkoutPayload: CheckoutRequest = {
+        order_id: donation.liq_number,
+        amount: rawAmount,
+        email: donorEmail || '',
+        name: donorName,
+        phone: donorPhone,
+        items: [
+          {
+            id: `campaign-${campaign?.id}`,
+            name: campaign?.name || 'Donasi',
+            price: rawAmount,
+            quantity: 1,
+          },
+        ],
+        description: prayer || undefined,
+        callback_url: `${window.location.origin}/donasi/sukses`,
+      }
+
+      const snapToken = await getToken(checkoutPayload)
+
+      if (!snapToken) {
+        toast.error('Gagal generate token pembayaran')
+        return
+      }
+
+      // Step 3: Trigger Snap popup
+      if (typeof window !== 'undefined' && window.snap) {
+        window.snap.pay(snapToken, {
+          onSuccess: (result) => {
+            toast.success('Pembayaran berhasil!')
+            // Reset form dan tutup form hanya saat sukses
+            setIsDonationExpanded(false)
+            setDonationAmount('')
+            setPrayer('')
+            if (!token) {
+              setDonorName('')
+              setDonorEmail('')
+              setDonorPhone('')
+            }
+            router.push(`/donasi/sukses?order_id=${donation.liq_number}`)
+          },
+          onPending: (result) => {
+            toast('Menunggu konfirmasi pembayaran...', { icon: '⏳' })
+            // Tidak redirect, tetap di halaman campaign, form tetap terbuka
+          },
+          onError: (result) => {
+            toast.error('Pembayaran gagal, silakan coba lagi')
+            // Tidak redirect, tetap di halaman campaign, form tetap terbuka
+          },
+          onClose: () => {
+            toast('Pembayaran dibatalkan', { icon: 'ℹ️' })
+            // Tidak redirect, tetap di halaman campaign, form tetap terbuka
+          },
+        })
+      } else {
+        toast.error('Snap.js belum dimuat, silakan refresh halaman')
+      }
+
     } catch (error) {
       console.error('Error submitting donation:', error)
       toast.error('Terjadi kesalahan saat memproses donasi')
@@ -279,7 +321,11 @@ export default function CampaignDetailPage() {
               <div className="relative rounded-xl overflow-hidden shadow-lg mb-6">
                 {campaign.image && campaign.image.length > 0 ? (
                   <Image
-                    src={getImageUrl(campaign.image[selectedImageIndex].picture_path)}
+                    src={
+                      campaign.image[selectedImageIndex].picture_path?.startsWith('http')
+                        ? campaign.image[selectedImageIndex].picture_path
+                        : getImageUrl(`/storage/campaign_pictures/${campaign.image[selectedImageIndex].picture_path}`)
+                    }
                     alt={campaign.name}
                     className="object-cover"
                     fill
@@ -306,7 +352,11 @@ export default function CampaignDetailPage() {
                       onClick={() => setSelectedImageIndex(index)}
                     >
                       <Image
-                        src={getImageUrl(img.picture_path)}
+                        src={
+                          img.picture_path?.startsWith('http')
+                            ? img.picture_path
+                            : getImageUrl(`/storage/campaign_pictures/${img.picture_path}`)
+                        }
                         alt={`${campaign.name} ${index + 1}`}
                         className="object-cover hover:opacity-80 transition-opacity"
                         fill
@@ -492,7 +542,17 @@ export default function CampaignDetailPage() {
                           className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-all outline-none"
                           placeholder="Nomer Telepon"
                           value={donorPhone}
-                          onChange={(e) => setDonorPhone(e.target.value)}
+                          onChange={(e) => {
+                            let value = e.target.value.replace(/\D/g, '') // Hanya angka
+                            // Pastikan selalu diawali dengan 0
+                            if (value === '') {
+                              setDonorPhone('')
+                            } else if (!value.startsWith('0')) {
+                              setDonorPhone('0' + value)
+                            } else {
+                              setDonorPhone(value)
+                            }
+                          }}
                         />
                       </div>
 
@@ -528,10 +588,10 @@ export default function CampaignDetailPage() {
 
                       <button
                         onClick={handleDonationSubmit}
-                        disabled={submitting}
+                        disabled={submitting || loadingToken}
                         className="w-full bg-[rgb(246,90,141)] text-white py-3 rounded-lg font-semibold hover:bg-accent-600 transition-colors mt-4 disabled:opacity-50 disabled:cursor-not-allowed"
                       >
-                        {submitting ? 'Memproses...' : 'Donasi Sekarang'}
+                        {submitting || loadingToken ? 'Memproses...' : 'Donasi Sekarang'}
                       </button>
                     </div>
                   </div>
@@ -682,50 +742,6 @@ export default function CampaignDetailPage() {
       <LandingFooter />
 
       <FloatingWhatsApp />
-
-      {/* Payment Modal */}
-      {showPaymentModal && paymentUrl && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
-          <div className="relative w-full max-w-4xl bg-white rounded-lg shadow-xl overflow-hidden">
-            {/* Header */}
-            <div className="flex items-center justify-between p-4 border-b border-gray-200">
-              <h3 className="text-lg font-semibold text-gray-900">Pembayaran Donasi</h3>
-              <button
-                onClick={() => {
-                  setShowPaymentModal(false)
-                  setPaymentUrl(null)
-                  // Redirect ke halaman sukses setelah modal ditutup
-                  if (donationLiqNumber) {
-                    window.location.href = `/donasi/sukses?order_id=${donationLiqNumber}`
-                  }
-                }}
-                className="text-gray-400 hover:text-gray-600 transition-colors"
-              >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
-
-            {/* Iframe */}
-            <div className="relative w-full" style={{ height: '80vh' }}>
-              <iframe
-                src={paymentUrl}
-                className="w-full h-full border-0"
-                title="Payment Gateway"
-                allow="payment"
-              />
-            </div>
-
-            {/* Footer */}
-            <div className="p-4 border-t border-gray-200 bg-gray-50">
-              <p className="text-sm text-gray-600 text-center">
-                Setelah pembayaran selesai, halaman ini akan otomatis tertutup
-              </p>
-            </div>
-          </div>
-        </div>
-      )}
     </main>
   )
 }

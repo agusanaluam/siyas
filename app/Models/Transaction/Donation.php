@@ -30,6 +30,7 @@ class Donation extends Model
         'payment_url',
         'payment_status',
         'midtrans_transaction_id',
+        'snap_token',
         'approve_lead',
         'status',
     ];

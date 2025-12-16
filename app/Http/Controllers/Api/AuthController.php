@@ -108,9 +108,15 @@ class AuthController extends Controller
             ], 201);
         } catch (\Exception $e) {
             DB::rollBack();
+            \Illuminate\Support\Facades\Log::error('Registration Error', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            $isProduction = config('app.env') === 'production';
             return response()->json([
                 'message' => 'Terjadi kesalahan saat registrasi.',
-                'error' => $e->getMessage(),
+                'error' => $isProduction ? null : $e->getMessage(),
             ], 500);
         }
     }

@@ -16,12 +16,13 @@ use App\Http\Controllers\Api\DashboardController;
 */
 
 Route::prefix('auth')->group(function () {
-    Route::post('/login', [AuthController::class, 'login']);
-    Route::post('/register', [AuthController::class, 'register']);
-    Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
-    Route::post('/reset-password', [AuthController::class, 'resetPassword']);
-    Route::get('/verify-email', [AuthController::class, 'verifyEmail']);
-    Route::post('/resend-verification', [AuthController::class, 'resendVerification']);
+    // Rate limiting lebih ketat untuk endpoint autentikasi
+    Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:5,1');
+    Route::post('/register', [AuthController::class, 'register'])->middleware('throttle:3,1');
+    Route::post('/forgot-password', [AuthController::class, 'forgotPassword'])->middleware('throttle:3,1');
+    Route::post('/reset-password', [AuthController::class, 'resetPassword'])->middleware('throttle:3,1');
+    Route::get('/verify-email', [AuthController::class, 'verifyEmail'])->middleware('throttle:10,1');
+    Route::post('/resend-verification', [AuthController::class, 'resendVerification'])->middleware('throttle:3,1');
 
     Route::middleware('auth:sanctum')->group(function () {
         Route::post('/logout', [AuthController::class, 'logout']);
@@ -50,6 +51,9 @@ Route::get('/hero-slides', [\App\Http\Controllers\Api\LayoutController::class, '
 Route::get('/partners', [\App\Http\Controllers\Api\LayoutController::class, 'getPartners']);
 Route::post('/donations/public', [\App\Http\Controllers\Api\DonationController::class, 'storePublic']);
 Route::get('/donations/public/{liqNumber}', [\App\Http\Controllers\Api\DonationController::class, 'showByLiqNumber']);
+
+// Payment Routes - Rate limiting untuk prevent abuse
+Route::post('/checkout', [\App\Http\Controllers\Api\PaymentController::class, 'generateSnapToken'])->middleware('throttle:10,1');
 
 // Webhook Routes (no auth required, but signature verification required)
 Route::post('/donations/webhook', [\App\Http\Controllers\Api\WebhookController::class, 'handleDonationWebhook'])

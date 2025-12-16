@@ -9,8 +9,6 @@ use App\Models\Master\Campaign;
 use App\Models\Transaction\Donation;
 use App\Models\Transaction\DonationDetail;
 use App\Models\Master\Volunteer;
-use App\Models\Setting;
-use App\Services\MidtransService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Log;
@@ -130,9 +128,15 @@ class DonationController extends Controller
             ], 201);
         } catch (\Exception $e) {
             DB::rollBack();
+            Log::error('Donation Store Error', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            $isProduction = config('app.env') === 'production';
             return response()->json([
                 'message' => 'Gagal membuat donation',
-                'error' => $e->getMessage(),
+                'error' => $isProduction ? null : $e->getMessage(),
             ], 500);
         }
     }
@@ -165,6 +169,7 @@ class DonationController extends Controller
                 'trans_date' => now(),
                 'via_transfer' => true,
                 'status' => 'Pending',
+                'payment_status' => 'pending', // Status awal pembayaran adalah pending
                 'volunteer_id' => null,
                 'user_id' => $user ? $user->id : null,
             ]);
@@ -175,46 +180,9 @@ class DonationController extends Controller
                 'amount' => $request->amount,
             ]);
 
-            // Ambil campaign data untuk Midtrans
-            $campaign = Campaign::find($request->campaign_id);
-
-            // Ambil email dari Settings jika donatur_email null
-            $email = $request->donatur_email;
-            if (empty($email)) {
-                $setting = Setting::first();
-                $email = $setting->email ?? null;
-            }
-
-            // Buat payment link di Midtrans
-            $midtransService = new MidtransService();
-            $paymentResponse = $midtransService->createPaymentLink(
-                $donation->liq_number,
-                $request->amount,
-                $request->campaign_id,
-                $campaign->name ?? 'Donasi',
-                [
-                    'first_name' => $donation->donatur_name,
-                    'email' => $email,
-                    'phone' => $request->donatur_phone,
-                    'notes' => $request->description,
-                ]
-            );
-
-            // Update donation dengan payment_url jika berhasil
-            if ($paymentResponse && isset($paymentResponse['payment_url'])) {
-                $donation->payment_url = $paymentResponse['payment_url'];
-                $donation->save();
-            } else {
-                // Log jika gagal membuat payment link, tapi donation tetap tersimpan
-                Log::warning('Failed to create Midtrans payment link', [
-                    'donation_id' => $donation->id,
-                    'liq_number' => $donation->liq_number,
-                ]);
-            }
-
             DB::commit();
 
-            // Reload donation dengan payment_url
+            // Reload donation dengan relations
             $donation->refresh();
 
             return response()->json([
@@ -228,9 +196,11 @@ class DonationController extends Controller
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
             ]);
+
+            $isProduction = config('app.env') === 'production';
             return response()->json([
                 'message' => 'Failed to create donation',
-                'error' => $e->getMessage()
+                'error' => $isProduction ? null : $e->getMessage()
             ], 500);
         }
     }
@@ -309,9 +279,15 @@ class DonationController extends Controller
             ]);
         } catch (\Exception $e) {
             DB::rollBack();
+            Log::error('Donation Update Error', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            $isProduction = config('app.env') === 'production';
             return response()->json([
                 'message' => 'Gagal mengupdate donation',
-                'error' => $e->getMessage(),
+                'error' => $isProduction ? null : $e->getMessage(),
             ], 500);
         }
     }
@@ -328,9 +304,15 @@ class DonationController extends Controller
                 'data' => $donation,
             ]);
         } catch (\Exception $e) {
+            Log::error('Donation Approve Error', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            $isProduction = config('app.env') === 'production';
             return response()->json([
                 'message' => 'Gagal menyetujui donation',
-                'error' => $e->getMessage(),
+                'error' => $isProduction ? null : $e->getMessage(),
             ], 500);
         }
     }
@@ -351,9 +333,15 @@ class DonationController extends Controller
                 'message' => 'Donation berhasil dihapus',
             ]);
         } catch (\Exception $e) {
+            Log::error('Donation Delete Error', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            $isProduction = config('app.env') === 'production';
             return response()->json([
                 'message' => 'Gagal menghapus donation',
-                'error' => $e->getMessage(),
+                'error' => $isProduction ? null : $e->getMessage(),
             ], 500);
         }
     }
@@ -380,6 +368,14 @@ class DonationController extends Controller
 
     public function getTransfer()
     {
+        // Hanya administrator yang bisa melihat semua transfer
+        $user = auth()->user();
+        if (!in_array($user->level, ['administrator', 'root'])) {
+            return response()->json([
+                'message' => 'Unauthorized. Hanya administrator yang dapat mengakses endpoint ini.'
+            ], 403);
+        }
+
         $donations = Donation::with('detail.campaign.image')
             ->where('via_transfer', true)
             ->orderBy('created_at', 'desc')

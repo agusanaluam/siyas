@@ -32,14 +32,19 @@ return Application::configure(basePath: dirname(__DIR__))
             // Only handle API routes
             if (str_starts_with($path, 'api/')) {
                 $origin = $request->header('Origin');
-                $allowedOrigins = [
-                    'http://localhost:3000',
-                    'http://127.0.0.1:3000',
-                    'http://localhost:3001',
-                    'http://127.0.0.1:3001',
-                ];
+                $allowedOrigins = array_filter(explode(',', env('CORS_ALLOWED_ORIGINS', 'http://localhost:3000,http://127.0.0.1:3000')));
 
-                $allowedOrigin = in_array($origin, $allowedOrigins) ? $origin : $allowedOrigins[0];
+                // Tambahkan localhost untuk development
+                if (config('app.env') !== 'production') {
+                    $allowedOrigins = array_merge($allowedOrigins, [
+                        'http://localhost:3000',
+                        'http://127.0.0.1:3000',
+                        'http://localhost:3001',
+                        'http://127.0.0.1:3001',
+                    ]);
+                }
+
+                $allowedOrigin = in_array($origin, $allowedOrigins) ? $origin : ($allowedOrigins[0] ?? '*');
 
                 // Determine status code
                 $statusCode = 500;
@@ -53,10 +58,22 @@ return Application::configure(basePath: dirname(__DIR__))
                     $statusCode = $e->getCode();
                 }
 
+                // Jangan expose error message detail di production
+                $isProduction = config('app.env') === 'production';
+                $errorMessage = $statusCode === 404
+                    ? 'Resource not found'
+                    : ($isProduction ? 'Terjadi kesalahan pada server' : $e->getMessage());
+
                 $response = response()->json([
-                    'message' => $statusCode === 404 ? 'Resource not found' : $e->getMessage(),
-                    'error' => $e->getMessage(),
+                    'message' => $errorMessage,
                 ], $statusCode);
+
+                // Log error detail untuk debugging (tidak di-expose ke client)
+                if (!$isProduction) {
+                    $response->setData(array_merge($response->getData(true), [
+                        'error' => $e->getMessage(),
+                    ]));
+                }
 
                 // Add CORS headers using header() method
                 $response->headers->set('Access-Control-Allow-Origin', $allowedOrigin, false);
