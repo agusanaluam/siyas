@@ -43,11 +43,15 @@ RUN composer install --no-interaction --prefer-dist --optimize-autoloader
 # Create storage symlink
 RUN php artisan storage:link
 
+# Copy entrypoint script
+COPY docker-entrypoint.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+
 # Set permissions
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 
 # Expose port
 EXPOSE 80
 
-# Start Apache
-CMD ["apache2-foreground"]
+# Start Apache dengan entrypoint
+CMD ["/bin/bash", "/usr/local/bin/docker-entrypoint.sh"]

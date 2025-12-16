@@ -66,6 +66,8 @@ export default function CampaignDetailPage() {
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'
       const response = await fetch(`${apiUrl}/campaigns/${id}`)
       const data = await response.json()
+      console.log('Campaign data:', data)
+      console.log('Campaign images:', data.image)
       setCampaign(data)
     } catch (error) {
       console.error('Error fetching campaign:', error)
@@ -318,11 +320,11 @@ export default function CampaignDetailPage() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Left Column - Image */}
             <div className="lg:col-span-2">
-              <div className="relative rounded-xl overflow-hidden shadow-lg mb-6">
-                {campaign.image && campaign.image.length > 0 ? (
+              <div className="relative w-full h-96 md:h-[500px] rounded-xl overflow-hidden shadow-lg mb-6 bg-gray-200">
+                {campaign.image && campaign.image.length > 0 && campaign.image[selectedImageIndex]?.picture_path ? (
                   <Image
                     src={
-                      campaign.image[selectedImageIndex].picture_path?.startsWith('http')
+                      campaign.image[selectedImageIndex].picture_path.startsWith('http')
                         ? campaign.image[selectedImageIndex].picture_path
                         : getImageUrl(`/storage/campaign_pictures/${campaign.image[selectedImageIndex].picture_path}`)
                     }
@@ -330,9 +332,10 @@ export default function CampaignDetailPage() {
                     className="object-cover"
                     fill
                     sizes="(max-width: 1024px) 100vw, 800px"
+                    priority
                   />
                 ) : (
-                  <div className="w-full h-96 bg-gray-200 flex items-center justify-center">
+                  <div className="w-full h-full flex items-center justify-center">
                     <svg className="w-24 h-24 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                     </svg>
@@ -346,22 +349,30 @@ export default function CampaignDetailPage() {
                   {campaign.image.map((img, index) => (
                     <div
                       key={index}
-                      className={`relative rounded-lg overflow-hidden shadow cursor-pointer transition-all ${
+                      className={`relative h-24 rounded-lg overflow-hidden shadow cursor-pointer transition-all bg-gray-200 ${
                         selectedImageIndex === index ? 'ring-2 ring-brand-600' : ''
                       }`}
                       onClick={() => setSelectedImageIndex(index)}
                     >
-                      <Image
-                        src={
-                          img.picture_path?.startsWith('http')
-                            ? img.picture_path
-                            : getImageUrl(`/storage/campaign_pictures/${img.picture_path}`)
-                        }
-                        alt={`${campaign.name} ${index + 1}`}
-                        className="object-cover hover:opacity-80 transition-opacity"
-                        fill
-                        sizes="(max-width: 768px) 25vw, 150px"
-                      />
+                      {img.picture_path ? (
+                        <Image
+                          src={
+                            img.picture_path.startsWith('http')
+                              ? img.picture_path
+                              : getImageUrl(`/storage/campaign_pictures/${img.picture_path}`)
+                          }
+                          alt={`${campaign.name} ${index + 1}`}
+                          className="object-cover hover:opacity-80 transition-opacity"
+                          fill
+                          sizes="(max-width: 768px) 25vw, 150px"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center">
+                          <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                          </svg>
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>
