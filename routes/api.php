@@ -22,7 +22,7 @@ Route::prefix('auth')->group(function () {
     Route::post('/reset-password', [AuthController::class, 'resetPassword']);
     Route::get('/verify-email', [AuthController::class, 'verifyEmail']);
     Route::post('/resend-verification', [AuthController::class, 'resendVerification']);
-    
+
     Route::middleware('auth:sanctum')->group(function () {
         Route::post('/logout', [AuthController::class, 'logout']);
         Route::get('/user', [AuthController::class, 'user']);
@@ -49,6 +49,11 @@ Route::get('/blogs/{id}', [\App\Http\Controllers\Api\BlogPostController::class, 
 Route::get('/hero-slides', [\App\Http\Controllers\Api\LayoutController::class, 'getHeroSlides']);
 Route::get('/partners', [\App\Http\Controllers\Api\LayoutController::class, 'getPartners']);
 Route::post('/donations/public', [\App\Http\Controllers\Api\DonationController::class, 'storePublic']);
+Route::get('/donations/public/{liqNumber}', [\App\Http\Controllers\Api\DonationController::class, 'showByLiqNumber']);
+
+// Webhook Routes (no auth required, but signature verification required)
+Route::post('/donations/webhook', [\App\Http\Controllers\Api\WebhookController::class, 'handleDonationWebhook'])
+    ->middleware(\App\Http\Middleware\VerifyMidtransSignature::class);
 
 // Public Categories and Tags
 Route::get('/campaign-categories', [\App\Http\Controllers\Api\CampaignCategoryController::class, 'index']);

@@ -9,8 +9,11 @@ use App\Models\Master\Campaign;
 use App\Models\Transaction\Donation;
 use App\Models\Transaction\DonationDetail;
 use App\Models\Master\Volunteer;
+use App\Models\Setting;
+use App\Services\MidtransService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Log;
 
 class DonationController extends Controller
 {
@@ -46,6 +49,24 @@ class DonationController extends Controller
     {
         $donation = Donation::with('detail.campaign.image', 'volunteer')
             ->findOrFail($id);
+        return response()->json($donation);
+    }
+
+    /**
+     * Get donation by liq_number (public endpoint for success page)
+     */
+    public function showByLiqNumber($liqNumber)
+    {
+        $donation = Donation::with('detail.campaign.image')
+            ->where('liq_number', $liqNumber)
+            ->first();
+
+        if (!$donation) {
+            return response()->json([
+                'message' => 'Donation not found'
+            ], 404);
+        }
+
         return response()->json($donation);
     }
 
@@ -133,7 +154,7 @@ class DonationController extends Controller
         try {
             // Check for authenticated user via sanctum
             $user = auth('sanctum')->user();
-            
+
             $donation = Donation::create([
                 'liq_number' => 'WEB' . date('ymdHis'), // 3 + 12 = 15 chars
                 'donatur_name' => $request->is_anonymous ? 'Hamba Allah' : $request->donatur_name,
@@ -154,7 +175,47 @@ class DonationController extends Controller
                 'amount' => $request->amount,
             ]);
 
+            // Ambil campaign data untuk Midtrans
+            $campaign = Campaign::find($request->campaign_id);
+
+            // Ambil email dari Settings jika donatur_email null
+            $email = $request->donatur_email;
+            if (empty($email)) {
+                $setting = Setting::first();
+                $email = $setting->email ?? null;
+            }
+
+            // Buat payment link di Midtrans
+            $midtransService = new MidtransService();
+            $paymentResponse = $midtransService->createPaymentLink(
+                $donation->liq_number,
+                $request->amount,
+                $request->campaign_id,
+                $campaign->name ?? 'Donasi',
+                [
+                    'first_name' => $donation->donatur_name,
+                    'email' => $email,
+                    'phone' => $request->donatur_phone,
+                    'notes' => $request->description,
+                ]
+            );
+
+            // Update donation dengan payment_url jika berhasil
+            if ($paymentResponse && isset($paymentResponse['payment_url'])) {
+                $donation->payment_url = $paymentResponse['payment_url'];
+                $donation->save();
+            } else {
+                // Log jika gagal membuat payment link, tapi donation tetap tersimpan
+                Log::warning('Failed to create Midtrans payment link', [
+                    'donation_id' => $donation->id,
+                    'liq_number' => $donation->liq_number,
+                ]);
+            }
+
             DB::commit();
+
+            // Reload donation dengan payment_url
+            $donation->refresh();
 
             return response()->json([
                 'message' => 'Donation created successfully',
@@ -163,6 +224,10 @@ class DonationController extends Controller
 
         } catch (\Exception $e) {
             DB::rollBack();
+            Log::error('Error creating donation', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
             return response()->json([
                 'message' => 'Failed to create donation',
                 'error' => $e->getMessage()
@@ -274,11 +339,11 @@ class DonationController extends Controller
     {
         try {
             $donation = Donation::findOrFail($id);
-            
+
             if ($donation->reference_picture && Storage::exists('public/' . $donation->reference_picture)) {
                 Storage::delete('public/' . $donation->reference_picture);
             }
-            
+
             $donation->detail()->delete();
             $donation->delete();
 
@@ -296,12 +361,12 @@ class DonationController extends Controller
     public function getHistory()
     {
         $user = auth()->user();
-        
+
         $donations = Donation::with('detail.campaign.image')
             ->where(function ($query) use ($user) {
                 // Show personal donations (logged in user made them)
                 $query->where('user_id', $user->id);
-                
+
                 // If volunteer, also show donations they managed/collected
                 if ($user->volunteer_id) {
                     $query->orWhere('volunteer_id', $user->volunteer_id);

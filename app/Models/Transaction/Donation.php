@@ -27,6 +27,9 @@ class Donation extends Model
         'via_transfer',
         'reference_code',
         'reference_picture',
+        'payment_url',
+        'payment_status',
+        'midtrans_transaction_id',
         'approve_lead',
         'status',
     ];

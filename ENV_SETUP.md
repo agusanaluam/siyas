@@ -16,6 +16,10 @@ Buka file `.env` di root project dan tambahkan atau pastikan ada konfigurasi ber
 # Laravel Sanctum Configuration
 SANCTUM_STATEFUL_DOMAINS=localhost:3000,127.0.0.1:3000
 SESSION_DOMAIN=localhost
+
+# Midtrans Payment Gateway Configuration
+MIDTRANS_SERVER_KEY=your_server_key_here
+MIDTRANS_IS_PRODUCTION=false
 ```
 
 ## Cara Menambahkan
@@ -25,7 +29,13 @@ SESSION_DOMAIN=localhost
    ```
    SANCTUM_STATEFUL_DOMAINS=localhost:3000,127.0.0.1:3000
    SESSION_DOMAIN=localhost
+   MIDTRANS_SERVER_KEY=your_server_key_here
+   MIDTRANS_IS_PRODUCTION=false
    ```
+   
+   **Catatan untuk Midtrans:**
+   - `MIDTRANS_SERVER_KEY`: Server Key dari dashboard Midtrans (sandbox atau production)
+   - `MIDTRANS_IS_PRODUCTION`: Set `true` untuk production, `false` untuk sandbox/testing
 3. Simpan file
 4. Restart server Laravel jika sedang berjalan
 

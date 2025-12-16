@@ -27,7 +27,7 @@ class CampaignController extends Controller
         $status = $request->input('status', 0);
         $categoryId = $request->input('category_id');
         $perPage = $request->input('per_page', 12);
-        
+
         $query = Campaign::with(['category', 'image']);
 
         // Eager load accumulation for index listing if needed, but for now user focused on detail.
@@ -43,32 +43,32 @@ class CampaignController extends Controller
 
         $campaigns = $query->orderBy('created_at', 'desc')->paginate($perPage);
 
-        return response()->json($campaigns);
+        return $this->corsResponse(response()->json($campaigns));
     }
 
     public function show($id)
     {
         $campaign = Campaign::with(['category', 'image'])->findOrFail($id);
-        
+
         $totalCollected = DonationDetail::where('program_id', $id)
             ->whereHas('donation') // Ensure donation exists/not deleted
             ->sum('amount');
-            
+
         $totalDonors = DonationDetail::where('program_id', $id)
             ->whereHas('donation')
             ->count();
-            
+
         $donors = DonationDetail::where('program_id', $id)
             ->join('t_donation', 't_donation_detail.donation_id', '=', 't_donation.id')
             ->whereNull('t_donation.deleted_at')
             ->orderBy('t_donation.created_at', 'desc')
             ->take(15)
             ->get(['t_donation.donatur_name', 't_donation_detail.amount', 't_donation.created_at']);
-            
+
         $campaign->setAttribute('total_collected', $totalCollected);
         $campaign->setAttribute('total_donors', $totalDonors);
         $campaign->setAttribute('donors', $donors);
-        
+
         return response()->json($campaign);
     }
 
@@ -153,7 +153,7 @@ class CampaignController extends Controller
 
         try {
             $campaign = Campaign::findOrFail($id);
-            
+
             $campaign->update([
                 'name' => $request->name,
                 'category_id' => $request->category_id,
@@ -197,14 +197,14 @@ class CampaignController extends Controller
     {
         try {
             $campaign = Campaign::with('image')->findOrFail($id);
-            
+
             foreach ($campaign->image as $image) {
                 // Try deleting from R2 (service)
                 $this->imageService->deleteImage($image->picture_path);
 
                 $image->delete();
             }
-            
+
             $campaign->delete();
 
             return response()->json([
@@ -224,7 +224,7 @@ class CampaignController extends Controller
             ->where('status', 1)
             ->orderBy('created_at', 'desc')
             ->get();
-        
+
         return response()->json($campaigns);
     }
 
@@ -234,7 +234,7 @@ class CampaignController extends Controller
             ->where('status', 2)
             ->orderBy('created_at', 'desc')
             ->get();
-        
+
         return response()->json($campaigns);
     }
 
@@ -244,7 +244,7 @@ class CampaignController extends Controller
             ->where('status', 3)
             ->orderBy('created_at', 'desc')
             ->get();
-        
+
         return response()->json($campaigns);
     }
 }

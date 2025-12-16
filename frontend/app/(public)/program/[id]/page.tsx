@@ -33,6 +33,9 @@ export default function CampaignDetailPage() {
   const [isAnonymous, setIsAnonymous] = useState(false)
   const [isContactable, setIsContactable] = useState(false)
   const [prayer, setPrayer] = useState('')
+  const [paymentUrl, setPaymentUrl] = useState<string | null>(null)
+  const [showPaymentModal, setShowPaymentModal] = useState(false)
+  const [donationLiqNumber, setDonationLiqNumber] = useState<string | null>(null)
 
   useEffect(() => {
     fetchFoundationProfile()
@@ -72,7 +75,7 @@ export default function CampaignDetailPage() {
 
   useEffect(() => {
     // If user is available (meaning logged in), pre-fill the form
-    // But we need to check how useAuth exposes 'user'. For now, assuming standard variable, 
+    // But we need to check how useAuth exposes 'user'. For now, assuming standard variable,
     // but the file imports suggest useAuth isn't imported yet.
     // Let's import UseAuth and use it.
     // Wait, the previous tool failure was likely due to missing import or incorrect context usage.
@@ -122,14 +125,14 @@ export default function CampaignDetailPage() {
 
     try {
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'
-      
+
       const payload = {
         campaign_id: campaign?.id,
         amount: parseInt(donationAmount.replace(/\./g, '')),
         donatur_name: donorName,
         donatur_phone: donorPhone,
         donatur_email: donorEmail,
-        description: prayer, 
+        description: prayer,
         is_anonymous: isAnonymous,
       }
 
@@ -137,7 +140,7 @@ export default function CampaignDetailPage() {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
       }
-      
+
       const token = Cookies.get('auth_token')
       if (token) {
         headers['Authorization'] = `Bearer ${token}`
@@ -153,6 +156,21 @@ export default function CampaignDetailPage() {
 
       if (response.ok) {
         toast.success('Berhasil berdonasi, terimakasih atas donasinya')
+
+        // Simpan liq_number untuk redirect ke halaman sukses
+        if (result.data?.liq_number) {
+          setDonationLiqNumber(result.data.liq_number)
+        }
+
+        // Jika ada payment_url, tampilkan modal payment
+        if (result.data?.payment_url) {
+          setPaymentUrl(result.data.payment_url)
+          setShowPaymentModal(true)
+        } else if (result.data?.liq_number) {
+          // Jika tidak ada payment_url, langsung redirect ke halaman sukses
+          window.location.href = `/donasi/sukses?order_id=${result.data.liq_number}`
+        }
+
         setIsDonationExpanded(false)
         setDonationAmount('')
         setPrayer('')
@@ -233,12 +251,12 @@ export default function CampaignDetailPage() {
         <LandingFooter />
       </main>
     )
-  } 
+  }
 
   return (
     <main className="min-h-screen bg-gray-50">
       <LandingHeader forceScrolledStyle={true} />
-      
+
       {/* Breadcrumb */}
       <section className="pt-24 pb-6 bg-white">
         <div className="container mx-auto px-4 md:px-[150px]">
@@ -280,8 +298,8 @@ export default function CampaignDetailPage() {
               {campaign.image && campaign.image.length > 1 && (
                 <div className="grid grid-cols-4 gap-4 mb-8">
                   {campaign.image.map((img, index) => (
-                    <div 
-                      key={index} 
+                    <div
+                      key={index}
                       className={`relative rounded-lg overflow-hidden shadow cursor-pointer transition-all ${
                         selectedImageIndex === index ? 'ring-2 ring-brand-600' : ''
                       }`}
@@ -312,7 +330,7 @@ export default function CampaignDetailPage() {
                     <span className="px-3 py-1 bg-brand-100 text-brand-600 rounded-full font-medium">
                       {campaign.category?.name || 'Infak'}
                     </span>
-                   
+
                   </div>
                 </div>
 
@@ -329,13 +347,13 @@ export default function CampaignDetailPage() {
                       {formatCurrency(campaign.target_amount)}
                     </span>
                   </div>
-                  
+
                   {/* Progress Bar */}
                   <div className="w-full bg-gray-200 rounded-full h-2 mb-4">
-                    <div 
-                      className="bg-brand-600 h-2 rounded-full" 
-                      style={{ 
-                        width: `${Math.min(((campaign.total_collected || 0) / campaign.target_amount) * 100, 100)}%` 
+                    <div
+                      className="bg-brand-600 h-2 rounded-full"
+                      style={{
+                        width: `${Math.min(((campaign.total_collected || 0) / campaign.target_amount) * 100, 100)}%`
                       }}
                     ></div>
                   </div>
@@ -368,7 +386,7 @@ export default function CampaignDetailPage() {
                 </div>
 
                 {!isDonationExpanded ? (
-                  <button 
+                  <button
                     onClick={() => setIsDonationExpanded(true)}
                     className="w-full bg-[rgb(246,90,141)] text-white py-3 rounded-lg font-semibold hover:bg-accent-600 transition-colors"
                   >
@@ -378,7 +396,7 @@ export default function CampaignDetailPage() {
                   <div className="bg-white mt-2">
                     <div className="flex justify-between items-center mb-4">
                       <h3 className="font-bold text-lg">Pembayaran</h3>
-                      <button 
+                      <button
                         onClick={() => setIsDonationExpanded(false)}
                         className="text-gray-400 hover:text-gray-600"
                       >
@@ -508,7 +526,7 @@ export default function CampaignDetailPage() {
                         </div>
                       </div>
 
-                      <button 
+                      <button
                         onClick={handleDonationSubmit}
                         disabled={submitting}
                         className="w-full bg-[rgb(246,90,141)] text-white py-3 rounded-lg font-semibold hover:bg-accent-600 transition-colors mt-4 disabled:opacity-50 disabled:cursor-not-allowed"
@@ -649,7 +667,7 @@ export default function CampaignDetailPage() {
                     {relatedCampaign.category?.name || 'Infak'}
                   </div>
                 </div>
-                
+
                 <div className="p-5">
                   <h3 className="text-lg font-bold text-gray-900 mb-2 line-clamp-2 group-hover:text-brand-600 transition-colors">
                     {relatedCampaign.name}
@@ -664,6 +682,50 @@ export default function CampaignDetailPage() {
       <LandingFooter />
 
       <FloatingWhatsApp />
+
+      {/* Payment Modal */}
+      {showPaymentModal && paymentUrl && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
+          <div className="relative w-full max-w-4xl bg-white rounded-lg shadow-xl overflow-hidden">
+            {/* Header */}
+            <div className="flex items-center justify-between p-4 border-b border-gray-200">
+              <h3 className="text-lg font-semibold text-gray-900">Pembayaran Donasi</h3>
+              <button
+                onClick={() => {
+                  setShowPaymentModal(false)
+                  setPaymentUrl(null)
+                  // Redirect ke halaman sukses setelah modal ditutup
+                  if (donationLiqNumber) {
+                    window.location.href = `/donasi/sukses?order_id=${donationLiqNumber}`
+                  }
+                }}
+                className="text-gray-400 hover:text-gray-600 transition-colors"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            {/* Iframe */}
+            <div className="relative w-full" style={{ height: '80vh' }}>
+              <iframe
+                src={paymentUrl}
+                className="w-full h-full border-0"
+                title="Payment Gateway"
+                allow="payment"
+              />
+            </div>
+
+            {/* Footer */}
+            <div className="p-4 border-t border-gray-200 bg-gray-50">
+              <p className="text-sm text-gray-600 text-center">
+                Setelah pembayaran selesai, halaman ini akan otomatis tertutup
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   )
 }

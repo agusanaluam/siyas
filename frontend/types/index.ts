@@ -65,6 +65,9 @@ export interface Donation {
   via_transfer: boolean
   reference_code?: string
   reference_picture?: string
+  payment_url?: string
+  payment_status?: 'paid' | 'pending' | 'failed'
+  midtrans_transaction_id?: string
   description?: string
   status: string
   volunteer_id: number

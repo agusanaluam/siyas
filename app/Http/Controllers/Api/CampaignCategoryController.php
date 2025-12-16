@@ -11,7 +11,7 @@ class CampaignCategoryController extends Controller
     public function index()
     {
         $categories = CampaignCategory::orderBy('name', 'asc')->get();
-        return response()->json($categories);
+        return $this->corsResponse(response()->json($categories));
     }
 
     public function store(Request $request)

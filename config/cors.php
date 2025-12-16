@@ -19,13 +19,12 @@ return [
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => array_unique(array_merge(
-        array_map('trim', explode(',', env('ALLOWED_ORIGINS', ''))),
-        [
-            'http://localhost:3000',
-            'http://127.0.0.1:3000',
-        ]
-    )),
+    'allowed_origins' => [
+        'http://localhost:3000',
+        'http://127.0.0.1:3000',
+        'http://localhost:3001',
+        'http://127.0.0.1:3001',
+    ],
 
     'allowed_origins_patterns' => [
         'http://localhost:*',
@@ -34,9 +33,17 @@ return [
 
     'allowed_headers' => ['*'],
 
-    'exposed_headers' => [],
+    'exposed_headers' => [
+        'Content-Type',
+        'Authorization',
+        'X-Requested-With',
+        'Accept',
+        'Origin',
+        'Access-Control-Allow-Origin',
+        'Access-Control-Allow-Credentials',
+    ],
 
-    'max_age' => 0,
+    'max_age' => 86400,
 
     'supports_credentials' => true,
 
