@@ -86,7 +86,7 @@ class CampaignController extends Controller
         $campaign->setAttribute('total_donors', $totalDonors);
         $campaign->setAttribute('donors', $donors);
 
-        return response()->json($campaign);
+        return $this->corsResponse(response()->json($campaign));
     }
 
     public function store(Request $request)

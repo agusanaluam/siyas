@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Location\Provinsi;
-use App\Models\Location\Kotakab;
+use App\Models\Location\Kota;
 use App\Models\Location\Kecamatan;
 use App\Models\Location\Desa;
 
@@ -18,7 +18,7 @@ class LocationController extends Controller
 
     public function getKotaByProvinsi($provinsiId)
     {
-        $kota = Kotakab::where('provinsi_code', $provinsiId)
+        $kota = Kota::where('code', 'like', $provinsiId . '%')
             ->orderBy('name', 'asc')
             ->get(['code', 'name']);
         return response()->json($kota);
@@ -26,7 +26,7 @@ class LocationController extends Controller
 
     public function getKecamatanByKota($kotaId)
     {
-        $kecamatan = Kecamatan::where('kotakab_code', $kotaId)
+        $kecamatan = Kecamatan::where('code', 'like', $kotaId . '%')
             ->orderBy('name', 'asc')
             ->get(['code', 'name']);
         return response()->json($kecamatan);
@@ -34,7 +34,7 @@ class LocationController extends Controller
 
     public function getDesabyKecamatan($kecamatanId)
     {
-        $desa = Desa::where('kecamatan_code', $kecamatanId)
+        $desa = Desa::where('code', 'like', $kecamatanId . '%')
             ->orderBy('name', 'asc')
             ->get(['code', 'name']);
         return response()->json($desa);

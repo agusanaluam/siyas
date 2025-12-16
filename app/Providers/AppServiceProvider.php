@@ -27,6 +27,7 @@ class AppServiceProvider extends ServiceProvider
 
         // Macro untuk menambahkan CORS headers otomatis ke semua JSON response
         Response::macro('jsonWithCors', function ($data, $status = 200, array $headers = [], $options = 0) {
+            $status = (int) $status; // Ensure status is always integer
             $response = response()->json($data, $status, $headers, $options);
 
             $origin = request()->header('Origin');

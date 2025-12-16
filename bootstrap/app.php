@@ -46,16 +46,37 @@ return Application::configure(basePath: dirname(__DIR__))
 
                 $allowedOrigin = in_array($origin, $allowedOrigins) ? $origin : ($allowedOrigins[0] ?? '*');
 
-                // Determine status code
+                // Determine status code - ensure it's always an integer
                 $statusCode = 500;
+
                 if ($e instanceof \Symfony\Component\HttpKernel\Exception\NotFoundHttpException) {
                     $statusCode = 404;
                 } elseif ($e instanceof \Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException) {
                     $statusCode = 405;
+                } elseif ($e instanceof \Illuminate\Database\Eloquent\ModelNotFoundException) {
+                    $statusCode = 404;
+                } elseif ($e instanceof \Illuminate\Validation\ValidationException) {
+                    $statusCode = 422;
+                } elseif ($e instanceof \Illuminate\Auth\AuthenticationException) {
+                    $statusCode = 401;
                 } elseif (method_exists($e, 'getStatusCode')) {
                     $statusCode = $e->getStatusCode();
-                } elseif ($e->getCode() >= 400 && $e->getCode() < 600) {
-                    $statusCode = $e->getCode();
+                    // Ensure getStatusCode() returns integer
+                    if (!is_int($statusCode)) {
+                        $statusCode = (int) $statusCode;
+                    }
+                } else {
+                    // Try to get code from exception
+                    $code = $e->getCode();
+                    if (is_numeric($code) && $code >= 400 && $code < 600) {
+                        $statusCode = (int) $code;
+                    }
+                }
+
+                // Final validation: ensure status code is always an integer and valid HTTP status code
+                $statusCode = (int) $statusCode;
+                if ($statusCode < 100 || $statusCode >= 600) {
+                    $statusCode = 500;
                 }
 
                 // Jangan expose error message detail di production

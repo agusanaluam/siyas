@@ -35,6 +35,11 @@ class BlogPost extends Model
     public function getImageUrlAttribute()
     {
         if ($this->featured_image) {
+            // Jika featured_image sudah berupa URL lengkap (dari ImageUploadService/R2), kembalikan langsung
+            if (filter_var($this->featured_image, FILTER_VALIDATE_URL)) {
+                return $this->featured_image;
+            }
+            // Jika berupa path relatif, gunakan asset()
             return asset('storage/blog_images/' . $this->featured_image);
         }
         return null;

@@ -93,8 +93,8 @@ export default function BlogListPage() {
 
   const filteredBlogs = blogs.filter((blog) => {
     const matchesSearch = blog.title.toLowerCase().includes(searchQuery.toLowerCase())
-    const matchesStatus = statusFilter === 'all' || 
-      (statusFilter === 'active' && blog.status) || 
+    const matchesStatus = statusFilter === 'all' ||
+      (statusFilter === 'active' && blog.status) ||
       (statusFilter === 'inactive' && !blog.status)
     return matchesSearch && matchesStatus
   })
@@ -136,7 +136,7 @@ export default function BlogListPage() {
           </div>
           <div className="flex items-center space-x-2">
             {/* Action Buttons */}
-            
+
             <button
               onClick={() => setIsModalOpen(true)}
               className="btn btn-primary flex items-center space-x-2"
@@ -201,10 +201,25 @@ export default function BlogListPage() {
               {/* Blog Image */}
                 <div className="relative h-48 bg-gray-200">
                   {(() => {
-                    const rawPath = blog.image_url || blog.featured_image
-                    const imageUrl = rawPath 
-                      ? (rawPath.startsWith('http') ? rawPath : getImageUrl(rawPath.includes('/') ? rawPath : `/storage/blog_images/${rawPath}`))
-                      : null
+                    // Prioritaskan image_url (dari accessor), lalu featured_image
+                    const imagePath = blog.image_url || blog.featured_image
+
+                    let imageUrl: string | null = null
+
+                    if (imagePath) {
+                      // Jika sudah URL lengkap (http/https), gunakan langsung
+                      if (imagePath.startsWith('http://') || imagePath.startsWith('https://')) {
+                        imageUrl = imagePath
+                      }
+                      // Jika path sudah dimulai dengan /storage/, gunakan getImageUrl
+                      else if (imagePath.startsWith('/storage/')) {
+                        imageUrl = getImageUrl(imagePath)
+                      }
+                      // Jika path relatif tanpa prefix, tambahkan /storage/blog_images/
+                      else {
+                        imageUrl = getImageUrl(`/storage/blog_images/${imagePath}`)
+                      }
+                    }
 
                     return imageUrl ? (
                       <Image
@@ -213,9 +228,16 @@ export default function BlogListPage() {
                         className="object-cover"
                         fill
                         sizes="(max-width: 768px) 100vw, 400px"
+                        unoptimized={imageUrl.startsWith('http') && !imageUrl.includes(process.env.NEXT_PUBLIC_API_URL || '')}
+                        onError={(e) => {
+                          console.error('Error loading blog image:', imageUrl, blog)
+                          // Fallback ke placeholder jika gambar gagal dimuat
+                          const target = e.target as HTMLImageElement
+                          target.style.display = 'none'
+                        }}
                       />
                     ) : (
-                      <div className="w-full h-full flex items-center justify-center">
+                      <div className="w-full h-full flex items-center justify-center bg-gray-200">
                         <svg className="h-16 w-16 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                         </svg>

@@ -239,13 +239,12 @@ export default function UserProfilePage() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <label className="label">NIK *</label>
+            <label className="label">NIK</label>
             <input
               type="text"
               className="input"
               value={formData.nik}
               onChange={(e) => setFormData({ ...formData, nik: e.target.value })}
-              required
             />
             {errors.nik && <p className="mt-1 text-sm text-red-600">{errors.nik}</p>}
           </div>

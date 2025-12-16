@@ -62,6 +62,7 @@ class SettingController extends Controller
                 'youtube' => $setting->youtube ?? '',
                 'tiktok' => $setting->tiktok ?? '',
                 'photo' => $setting->photo ?? null,
+                'about_photo' => $setting->about_photo ?? null,
                 'created_at' => $setting->created_at ?? null,
                 'updated_at' => $setting->updated_at ?? null,
             ];

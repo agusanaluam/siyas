@@ -17,7 +17,7 @@ class UserController extends Controller
     public function profile()
     {
         $user = User::with(['profile'])->findOrFail(Auth::id());
-        
+
         $profile = Volunteer::leftJoin('dt_desakel as dd', "m_volunteer.address_code", '=', 'dd.code')
             ->leftJoin('dt_kecamatan as dk', DB::raw('SUBSTR(m_volunteer.address_code,1,8)'), '=', 'dk.code')
             ->leftJoin('dt_kotakab as dkk', DB::raw('SUBSTR(m_volunteer.address_code,1,5)'), '=', 'dkk.code')
@@ -38,7 +38,7 @@ class UserController extends Controller
     public function updateProfile(Request $request)
     {
         $request->validate([
-            'nik' => 'required|string|max:255',
+            'nik' => 'nullable|string|max:255',
             'name' => 'required|string|max:255',
             'phone_number' => 'required|string|max:15',
             'profile_picture' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
@@ -52,7 +52,7 @@ class UserController extends Controller
             $user = User::findOrFail(Auth::id());
             $profile = Volunteer::findOrFail($user->volunteer_id);
 
-            $profile->nik = $request->nik;
+            $profile->nik = $request->nik ?: null;
             $profile->name = $request->name;
             $user->name = $request->name;
             $profile->sex = $request->sex;
@@ -66,7 +66,7 @@ class UserController extends Controller
                 if ($profile->profile_picture) {
                     Storage::delete('public/' . $profile->profile_picture);
                 }
-                
+
                 $extension = $request->file('profile_picture')->getClientOriginalExtension();
                 $filenameSimpan = Str::random(16) . '_' . time() . '.' . $extension;
                 $request->file('profile_picture')->storeAs('public/profile_pictures', $filenameSimpan);

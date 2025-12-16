@@ -20,6 +20,13 @@ export default function AboutPreviewSection() {
     try {
       const data = await settingService.getProfile()
       setSetting(data)
+      // Debug: log untuk melihat apakah about_photo ada
+      if (data?.about_photo) {
+        console.log('About photo found:', data.about_photo)
+        console.log('Image URL:', getImageUrl(data.about_photo))
+      } else {
+        console.log('About photo not found in settings')
+      }
     } catch (error) {
       console.error('Error fetching settings:', error)
     } finally {
@@ -50,9 +57,14 @@ export default function AboutPreviewSection() {
                   className={`object-cover transition-opacity duration-500 ${
                     imageLoaded ? 'opacity-100' : 'opacity-0'
                   }`}
-                  onLoadingComplete={() => setImageLoaded(true)}
+                  onLoad={() => setImageLoaded(true)}
+                  onError={() => {
+                    console.error('Error loading about photo:', imageUrl)
+                    setImageLoaded(true) // Set loaded to hide loading spinner even on error
+                  }}
                   fill
                   sizes="(max-width: 768px) 100vw, 600px"
+                  unoptimized={imageUrl.startsWith('http') && !imageUrl.includes(process.env.NEXT_PUBLIC_API_URL || '')}
                 />
               ) : (
                 <div className="w-full h-full flex items-center justify-center bg-gray-200 text-gray-400">
