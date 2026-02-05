@@ -1,0 +1,356 @@
+{
+  "name": "Invoice & Zakat - WAHA Native Nodes",
+  "nodes": [
+    {
+      "parameters": {
+        "events": ["message"],
+        "webhookUrl": "={{ $env.N8N_WEBHOOK_BASE_URL }}/webhook/waha-native"
+      },
+      "id": "waha-trigger",
+      "name": "WAHA Trigger",
+      "type": "n8n-nodes-waha.wahaWebhook",
+      "typeVersion": 1,
+      "position": [240, 300],
+      "credentials": {
+        "wahaApi": {
+          "id": "YOUR_WAHA_CREDENTIAL_ID",
+          "name": "WAHA API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// Parse incoming WAHA message\nconst body = $input.item.json;\nconst message = body.payload?.body || body.body || '';\nconst from = body.payload?.from || body.from || '';\nconst chatId = body.payload?.chatId || body.chatId || from;\nconst messageType = body.payload?.type || body.type || 'chat';\nconst hasMedia = body.payload?.hasMedia || body.hasMedia || false;\nconst mediaUrl = body.payload?.media?.url || body.mediaUrl || '';\n\n// Detect command type\nlet commandType = 'unknown';\nlet extractedData = {};\n\nconst lowerMessage = message.toLowerCase().trim();\n\n// Check for help command\nif (lowerMessage === 'help' || lowerMessage === 'bantuan' || lowerMessage === '/help') {\n  commandType = 'help';\n}\n// Check for zakat mal calculation\nelse if (lowerMessage.includes('hitung zakat mal') || lowerMessage.includes('zakat penghasilan') || lowerMessage.includes('zakat harta')) {\n  commandType = 'zakat_mal';\n  const amountMatch = message.match(/(\\d+[.,]?\\d*)/g);\n  if (amountMatch) {\n    let amount = amountMatch[0].replace(/\\./g, '').replace(',', '.');\n    extractedData.penghasilan = parseFloat(amount);\n  }\n}\n// Check for zakat fitrah calculation\nelse if (lowerMessage.includes('hitung zakat fitrah') || lowerMessage.includes('zakat fitrah')) {\n  commandType = 'zakat_fitrah';\n  const peopleMatch = message.match(/(\\d+)\\s*(orang|jiwa|org|keluarga)/i);\n  if (peopleMatch) {\n    extractedData.jumlahJiwa = parseInt(peopleMatch[1]);\n  } else {\n    const numMatch = message.match(/(\\d+)/);\n    extractedData.jumlahJiwa = numMatch ? parseInt(numMatch[1]) : 1;\n  }\n}\n// Check for invoice/donation input with more flexible parsing\nelse if (lowerMessage.includes('no.liq') || lowerMessage.includes('noliq') || \n         lowerMessage.includes('input') || lowerMessage.includes('catat') ||\n         (lowerMessage.includes('nominal') && (lowerMessage.includes('donasi') || \n          lowerMessage.includes('shodaqoh') || lowerMessage.includes('sedekah') ||\n          lowerMessage.includes('infaq') || lowerMessage.includes('zakat')))) {\n  commandType = 'invoice_input';\n  \n  // Extract no.liq with multiple patterns\n  const noLiqPatterns = [\n    /no\\.?\\s*liq\\.?\\s*[:#]?\\s*([\\w\\d\\/-]+)/i,\n    /noliq\\.?\\s*[:#]?\\s*([\\w\\d\\/-]+)/i,\n    /nomor\\s*[:#]?\\s*([\\w\\d\\/-]+)/i,\n    /no\\.?\\s*[:#]?\\s*([\\w\\d\\/-]+)/i\n  ];\n  \n  for (const pattern of noLiqPatterns) {\n    const match = message.match(pattern);\n    if (match) {\n      extractedData.noLiq = match[1].trim();\n      break;\n    }\n  }\n  if (!extractedData.noLiq) extractedData.noLiq = '';\n  \n  // Extract nama donatur\n  const namaPatterns = [\n    /(?:dari|nama|donatur|atas\\s*nama|an\\.)\\s*[:#]?\\s*([A-Za-z\\s]+?)(?=\\s*(?:nominal|untuk|rp|\\d|$))/i,\n    /donatur\\s*[:#]?\\s*([A-Za-z\\s]+)/i\n  ];\n  \n  for (const pattern of namaPatterns) {\n    const match = message.match(pattern);\n    if (match) {\n      extractedData.namaDonatur = match[1].trim();\n      break;\n    }\n  }\n  if (!extractedData.namaDonatur) extractedData.namaDonatur = '';\n  \n  // Extract nominal with comprehensive patterns\n  let nominal = 0;\n  const nominalPatterns = [\n    /(?:nominal|rp\\.?|idr|sejumlah)\\s*[:#]?\\s*([\\d.,]+)\\s*(ribu|rb|juta|jt|k|m)?/i,\n    /([\\d.,]+)\\s*(ribu|rb|juta|jt|k|m)/i,\n    /rp\\.?\\s*([\\d.,]+)/i\n  ];\n  \n  for (const pattern of nominalPatterns) {\n    const match = message.match(pattern);\n    if (match) {\n      nominal = parseFloat(match[1].replace(/\\./g, '').replace(',', '.'));\n      const multiplier = match[2]?.toLowerCase();\n      if (multiplier === 'ribu' || multiplier === 'rb' || multiplier === 'k') {\n        nominal *= 1000;\n      } else if (multiplier === 'juta' || multiplier === 'jt' || multiplier === 'm') {\n        nominal *= 1000000;\n      }\n      break;\n    }\n  }\n  extractedData.nominal = nominal;\n  \n  // Extract jenis donasi\n  let jenis = 'Lainnya';\n  if (lowerMessage.includes('shodaqoh') || lowerMessage.includes('sedekah') || lowerMessage.includes('sodaqoh') || lowerMessage.includes('shadaqah')) {\n    jenis = 'Shodaqoh';\n  } else if (lowerMessage.includes('infaq') || lowerMessage.includes('infak')) {\n    jenis = 'Infaq';\n  } else if (lowerMessage.includes('zakat fitrah')) {\n    jenis = 'Zakat Fitrah';\n  } else if (lowerMessage.includes('zakat mal') || lowerMessage.includes('zakat penghasilan') || lowerMessage.includes('zakat harta')) {\n    jenis = 'Zakat Mal';\n  } else if (lowerMessage.includes('zakat')) {\n    jenis = 'Zakat';\n  } else if (lowerMessage.includes('wakaf')) {\n    jenis = 'Wakaf';\n  } else if (lowerMessage.includes('fidyah')) {\n    jenis = 'Fidyah';\n  } else if (lowerMessage.includes('qurban') || lowerMessage.includes('kurban')) {\n    jenis = 'Qurban';\n  }\n  extractedData.jenis = jenis;\n}\n// Check if it's an image\nelse if (hasMedia || messageType === 'image') {\n  commandType = 'invoice_image';\n  extractedData.mediaUrl = mediaUrl;\n}\n\nreturn {\n  json: {\n    from,\n    chatId,\n    message,\n    messageType,\n    hasMedia,\n    mediaUrl,\n    commandType,\n    extractedData,\n    timestamp: new Date().toISOString(),\n    dateFormatted: new Date().toLocaleDateString('id-ID', { \n      day: '2-digit', \n      month: '2-digit', \n      year: 'numeric',\n      hour: '2-digit',\n      minute: '2-digit'\n    })\n  }\n};"
+      },
+      "id": "parse-message",
+      "name": "Parse Message",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "rules": {
+          "rules": [
+            {
+              "conditions": {
+                "options": { "caseSensitive": false, "leftValue": "", "typeValidation": "loose" },
+                "conditions": [{ "leftValue": "={{ $json.commandType }}", "rightValue": "invoice_input", "operator": { "type": "string", "operation": "equals" }}],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputLabel": "Invoice Input"
+            },
+            {
+              "conditions": {
+                "options": { "caseSensitive": false, "leftValue": "", "typeValidation": "loose" },
+                "conditions": [{ "leftValue": "={{ $json.commandType }}", "rightValue": "invoice_image", "operator": { "type": "string", "operation": "equals" }}],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputLabel": "Invoice Image"
+            },
+            {
+              "conditions": {
+                "options": { "caseSensitive": false, "leftValue": "", "typeValidation": "loose" },
+                "conditions": [{ "leftValue": "={{ $json.commandType }}", "rightValue": "zakat_mal", "operator": { "type": "string", "operation": "equals" }}],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputLabel": "Zakat Mal"
+            },
+            {
+              "conditions": {
+                "options": { "caseSensitive": false, "leftValue": "", "typeValidation": "loose" },
+                "conditions": [{ "leftValue": "={{ $json.commandType }}", "rightValue": "zakat_fitrah", "operator": { "type": "string", "operation": "equals" }}],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputLabel": "Zakat Fitrah"
+            },
+            {
+              "conditions": {
+                "options": { "caseSensitive": false, "leftValue": "", "typeValidation": "loose" },
+                "conditions": [{ "leftValue": "={{ $json.commandType }}", "rightValue": "help", "operator": { "type": "string", "operation": "equals" }}],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputLabel": "Help"
+            }
+          ]
+        },
+        "options": { "fallbackOutput": "extra" }
+      },
+      "id": "router",
+      "name": "Route by Command",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3,
+      "position": [680, 300]
+    },
+    {
+      "parameters": {
+        "documentId": { "__rl": true, "value": "YOUR_SPREADSHEET_ID", "mode": "id" },
+        "sheetName": { "__rl": true, "value": "Donasi", "mode": "name" },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "No.Liq": "={{ $json.extractedData.noLiq }}",
+            "Nama Donatur": "={{ $json.extractedData.namaDonatur }}",
+            "Nominal": "={{ $json.extractedData.nominal }}",
+            "Jenis": "={{ $json.extractedData.jenis }}",
+            "Tanggal": "={{ $json.dateFormatted }}",
+            "Dari WA": "={{ $json.from }}",
+            "Pesan Asli": "={{ $json.message }}"
+          },
+          "matchingColumns": [],
+          "schema": []
+        },
+        "options": {}
+      },
+      "id": "append-invoice",
+      "name": "Append Invoice to Sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.4,
+      "position": [920, 80],
+      "credentials": {
+        "googleSheetsOAuth2Api": { "id": "YOUR_GOOGLE_CREDENTIAL_ID", "name": "Google Sheets OAuth2" }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Parse Message').item.json.chatId }}",
+        "text": "=*Data Invoice Berhasil Disimpan!*\n\nNo.Liq: {{ $('Parse Message').item.json.extractedData.noLiq || '-' }}\nNama Donatur: {{ $('Parse Message').item.json.extractedData.namaDonatur || '-' }}\nNominal: Rp {{ $('Parse Message').item.json.extractedData.nominal.toLocaleString('id-ID') }}\nJenis: {{ $('Parse Message').item.json.extractedData.jenis }}\nTanggal: {{ $('Parse Message').item.json.dateFormatted }}\n\nJazakumullah Khairan Katsiran atas donasinya.",
+        "session": "default"
+      },
+      "id": "send-invoice-confirm",
+      "name": "Send Invoice Confirmation",
+      "type": "n8n-nodes-waha.wahaSendText",
+      "typeVersion": 1,
+      "position": [1140, 80],
+      "credentials": {
+        "wahaApi": { "id": "YOUR_WAHA_CREDENTIAL_ID", "name": "WAHA API" }
+      }
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.extractedData.mediaUrl }}",
+        "options": { "response": { "response": { "responseFormat": "file" }}}
+      },
+      "id": "download-image",
+      "name": "Download Image",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [920, 200]
+    },
+    {
+      "parameters": {
+        "resource": "chat",
+        "operation": "complete",
+        "modelId": { "__rl": true, "value": "gpt-4o", "mode": "list" },
+        "messages": {
+          "values": [
+            {
+              "role": "system",
+              "content": "Kamu adalah asisten yang mengekstrak data dari gambar invoice/kwitansi donasi. Ekstrak data dan kembalikan HANYA dalam format JSON berikut tanpa penjelasan tambahan:\n{\"noLiq\": \"nomor kwitansi\", \"namaDonatur\": \"nama pembayar\", \"nominal\": angka_tanpa_rp, \"jenis\": \"Shodaqoh/Infaq/Zakat/Wakaf/Lainnya\"}\n\nJika field tidak ditemukan: gunakan string kosong untuk text, 0 untuk nominal, \"Lainnya\" untuk jenis."
+            },
+            {
+              "role": "user",
+              "content": "Ekstrak data dari gambar invoice ini:"
+            }
+          ]
+        },
+        "options": { "maxTokens": 500 }
+      },
+      "id": "ocr-openai",
+      "name": "OCR with OpenAI",
+      "type": "n8n-nodes-base.openAi",
+      "typeVersion": 1.4,
+      "position": [1140, 200],
+      "credentials": {
+        "openAiApi": { "id": "YOUR_OPENAI_CREDENTIAL_ID", "name": "OpenAI API" }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const ocrResult = $input.item.json;\nlet extractedData = { noLiq: '', namaDonatur: '', nominal: 0, jenis: 'Lainnya' };\n\ntry {\n  const content = ocrResult.message?.content || ocrResult.choices?.[0]?.message?.content || '';\n  const jsonMatch = content.match(/\\{[\\s\\S]*\\}/);\n  if (jsonMatch) {\n    const parsed = JSON.parse(jsonMatch[0]);\n    extractedData = {\n      noLiq: parsed.noLiq || '',\n      namaDonatur: parsed.namaDonatur || '',\n      nominal: parseFloat(parsed.nominal) || 0,\n      jenis: parsed.jenis || 'Lainnya'\n    };\n  }\n} catch (e) {\n  console.log('Error parsing OCR:', e.message);\n}\n\nconst originalData = $('Parse Message').item.json;\n\nreturn {\n  json: {\n    ...originalData,\n    extractedData,\n    ocrSuccess: extractedData.nominal > 0\n  }\n};"
+      },
+      "id": "process-ocr",
+      "name": "Process OCR Result",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1360, 200]
+    },
+    {
+      "parameters": {
+        "documentId": { "__rl": true, "value": "YOUR_SPREADSHEET_ID", "mode": "id" },
+        "sheetName": { "__rl": true, "value": "Donasi", "mode": "name" },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "No.Liq": "={{ $json.extractedData.noLiq }}",
+            "Nama Donatur": "={{ $json.extractedData.namaDonatur }}",
+            "Nominal": "={{ $json.extractedData.nominal }}",
+            "Jenis": "={{ $json.extractedData.jenis }}",
+            "Tanggal": "={{ $json.dateFormatted }}",
+            "Dari WA": "={{ $json.from }}",
+            "Pesan Asli": "=[Image OCR]"
+          },
+          "matchingColumns": [],
+          "schema": []
+        },
+        "options": {}
+      },
+      "id": "append-ocr-invoice",
+      "name": "Append OCR Invoice",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.4,
+      "position": [1580, 200],
+      "credentials": {
+        "googleSheetsOAuth2Api": { "id": "YOUR_GOOGLE_CREDENTIAL_ID", "name": "Google Sheets OAuth2" }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.chatId }}",
+        "text": "=*Data dari Gambar Invoice Berhasil Disimpan!*\n\nNo.Liq: {{ $json.extractedData.noLiq || '-' }}\nNama Donatur: {{ $json.extractedData.namaDonatur || '-' }}\nNominal: Rp {{ $json.extractedData.nominal.toLocaleString('id-ID') }}\nJenis: {{ $json.extractedData.jenis }}\n\nJazakumullah Khairan Katsiran.",
+        "session": "default"
+      },
+      "id": "send-ocr-confirm",
+      "name": "Send OCR Confirmation",
+      "type": "n8n-nodes-waha.wahaSendText",
+      "typeVersion": 1,
+      "position": [1800, 200],
+      "credentials": {
+        "wahaApi": { "id": "YOUR_WAHA_CREDENTIAL_ID", "name": "WAHA API" }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// Konfigurasi Zakat Mal\nconst CONFIG = {\n  HARGA_EMAS_PER_GRAM: 1200000, // Rp 1.200.000/gram (sesuaikan dengan harga terkini)\n  NISAB_GRAM_EMAS: 85, // 85 gram emas\n  TARIF_ZAKAT: 0.025 // 2.5%\n};\n\nconst NISAB = CONFIG.HARGA_EMAS_PER_GRAM * CONFIG.NISAB_GRAM_EMAS; // ~Rp 102.000.000\n\nconst penghasilan = $json.extractedData.penghasilan || 0;\nconst chatId = $json.chatId;\n\nlet responseMessage = '';\nlet zakatAmount = 0;\nlet wajibZakat = false;\n\nif (penghasilan <= 0) {\n  responseMessage = `*Perhitungan Zakat Mal*\\n\\n` +\n    `Mohon masukkan nominal penghasilan/harta.\\n\\n` +\n    `Contoh: hitung zakat mal penghasilan 150000000`;\n} else if (penghasilan >= NISAB) {\n  wajibZakat = true;\n  zakatAmount = Math.round(penghasilan * CONFIG.TARIF_ZAKAT);\n  responseMessage = `*Perhitungan Zakat Mal*\\n\\n` +\n    `Penghasilan/Harta: Rp ${penghasilan.toLocaleString('id-ID')}\\n` +\n    `Nisab (${CONFIG.NISAB_GRAM_EMAS} gram emas): Rp ${NISAB.toLocaleString('id-ID')}\\n\\n` +\n    `Status: *WAJIB ZAKAT*\\n\\n` +\n    `*Zakat yang harus dibayar:*\\n` +\n    `Rp ${zakatAmount.toLocaleString('id-ID')}\\n` +\n    `(2.5% x Rp ${penghasilan.toLocaleString('id-ID')})\\n\\n` +\n    `_Semoga Allah SWT menerima zakat Anda dan menjadikannya pembersih harta serta penyuci jiwa._`;\n} else {\n  const kekurangan = NISAB - penghasilan;\n  responseMessage = `*Perhitungan Zakat Mal*\\n\\n` +\n    `Penghasilan/Harta: Rp ${penghasilan.toLocaleString('id-ID')}\\n` +\n    `Nisab (${CONFIG.NISAB_GRAM_EMAS} gram emas): Rp ${NISAB.toLocaleString('id-ID')}\\n\\n` +\n    `Status: *BELUM WAJIB ZAKAT*\\n` +\n    `Kekurangan dari nisab: Rp ${kekurangan.toLocaleString('id-ID')}\\n\\n` +\n    `Meskipun belum wajib, Anda tetap bisa bersedekah untuk mendapatkan pahala.`;\n}\n\nreturn {\n  json: {\n    chatId,\n    penghasilan,\n    nisab: NISAB,\n    wajibZakat,\n    zakatAmount,\n    responseMessage\n  }\n};"
+      },
+      "id": "calc-zakat-mal",
+      "name": "Calculate Zakat Mal",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [920, 340]
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.chatId }}",
+        "text": "={{ $json.responseMessage }}",
+        "session": "default"
+      },
+      "id": "send-zakat-mal",
+      "name": "Send Zakat Mal Result",
+      "type": "n8n-nodes-waha.wahaSendText",
+      "typeVersion": 1,
+      "position": [1140, 340],
+      "credentials": {
+        "wahaApi": { "id": "YOUR_WAHA_CREDENTIAL_ID", "name": "WAHA API" }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// Konfigurasi Zakat Fitrah\nconst CONFIG = {\n  HARGA_BERAS_PER_KG: 18000, // Rp 18.000/kg (sesuaikan dengan harga beras di daerah Anda)\n  BERAS_PER_JIWA_KG: 2.5, // 2.5 kg atau 3.5 liter per jiwa\n  BERAS_PER_JIWA_LITER: 3.5\n};\n\nconst ZAKAT_PER_JIWA = CONFIG.HARGA_BERAS_PER_KG * CONFIG.BERAS_PER_JIWA_KG;\n\nconst jumlahJiwa = $json.extractedData.jumlahJiwa || 1;\nconst chatId = $json.chatId;\n\nconst totalBeras = jumlahJiwa * CONFIG.BERAS_PER_JIWA_KG;\nconst totalLiter = jumlahJiwa * CONFIG.BERAS_PER_JIWA_LITER;\nconst totalUang = Math.round(jumlahJiwa * ZAKAT_PER_JIWA);\n\nconst responseMessage = `*Perhitungan Zakat Fitrah*\\n\\n` +\n  `Jumlah Jiwa: ${jumlahJiwa} orang\\n\\n` +\n  `*Total Zakat Fitrah:*\\n` +\n  `Beras: ${totalBeras} kg (atau ${totalLiter} liter)\\n` +\n  `Uang: Rp ${totalUang.toLocaleString('id-ID')}\\n` +\n  `_(dengan harga beras Rp ${CONFIG.HARGA_BERAS_PER_KG.toLocaleString('id-ID')}/kg)_\\n\\n` +\n  `*Rincian per jiwa:*\\n` +\n  `- ${CONFIG.BERAS_PER_JIWA_KG} kg beras\\n` +\n  `- atau Rp ${ZAKAT_PER_JIWA.toLocaleString('id-ID')}\\n\\n` +\n  `*Catatan:*\\n` +\n  `Zakat fitrah wajib dikeluarkan sebelum shalat Idul Fitri.\\n` +\n  `Waktu terbaik: setelah terbenam matahari akhir Ramadhan sampai sebelum shalat Ied.\\n\\n` +\n  `_Semoga Allah SWT menerima zakat Anda._`;\n\nreturn {\n  json: {\n    chatId,\n    jumlahJiwa,\n    totalBeras,\n    totalLiter,\n    totalUang,\n    responseMessage\n  }\n};"
+      },
+      "id": "calc-zakat-fitrah",
+      "name": "Calculate Zakat Fitrah",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [920, 480]
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.chatId }}",
+        "text": "={{ $json.responseMessage }}",
+        "session": "default"
+      },
+      "id": "send-zakat-fitrah",
+      "name": "Send Zakat Fitrah Result",
+      "type": "n8n-nodes-waha.wahaSendText",
+      "typeVersion": 1,
+      "position": [1140, 480],
+      "credentials": {
+        "wahaApi": { "id": "YOUR_WAHA_CREDENTIAL_ID", "name": "WAHA API" }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.chatId }}",
+        "text": "*Panduan Penggunaan Bot Donasi & Zakat*\n\n*1. Input Invoice Donasi:*\nFormat: no.liq [nomor] nominal [jumlah] untuk [jenis]\nContoh:\n- no.liq 001 nominal 50ribu untuk shodaqoh\n- no.liq 002 dari Ahmad nominal 100000 untuk infaq\n- no.liq 003 nominal 1juta untuk zakat mal\n\n*2. Kirim Gambar Invoice:*\nKirim foto kwitansi/invoice dan sistem akan otomatis mengekstrak datanya.\n\n*3. Hitung Zakat Mal:*\nFormat: hitung zakat mal penghasilan [jumlah]\nContoh:\n- hitung zakat mal penghasilan 150000000\n- hitung zakat mal 100juta\n\n*4. Hitung Zakat Fitrah:*\nFormat: hitung zakat fitrah [jumlah] orang\nContoh:\n- hitung zakat fitrah 5 orang\n- hitung zakat fitrah 3 jiwa\n\n*Jenis Donasi yang Didukung:*\nShodaqoh, Infaq, Zakat, Zakat Fitrah, Zakat Mal, Wakaf, Fidyah, Qurban\n\nJazakumullah Khairan.",
+        "session": "default"
+      },
+      "id": "send-help",
+      "name": "Send Help",
+      "type": "n8n-nodes-waha.wahaSendText",
+      "typeVersion": 1,
+      "position": [920, 620],
+      "credentials": {
+        "wahaApi": { "id": "YOUR_WAHA_CREDENTIAL_ID", "name": "WAHA API" }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Parse Message').item.json.chatId }}",
+        "text": "Maaf, perintah tidak dikenali.\n\nKetik *help* atau *bantuan* untuk melihat panduan penggunaan.",
+        "session": "default"
+      },
+      "id": "send-unknown",
+      "name": "Send Unknown Command",
+      "type": "n8n-nodes-waha.wahaSendText",
+      "typeVersion": 1,
+      "position": [920, 760],
+      "credentials": {
+        "wahaApi": { "id": "YOUR_WAHA_CREDENTIAL_ID", "name": "WAHA API" }
+      }
+    }
+  ],
+  "connections": {
+    "WAHA Trigger": {
+      "main": [[{ "node": "Parse Message", "type": "main", "index": 0 }]]
+    },
+    "Parse Message": {
+      "main": [[{ "node": "Route by Command", "type": "main", "index": 0 }]]
+    },
+    "Route by Command": {
+      "main": [
+        [{ "node": "Append Invoice to Sheet", "type": "main", "index": 0 }],
+        [{ "node": "Download Image", "type": "main", "index": 0 }],
+        [{ "node": "Calculate Zakat Mal", "type": "main", "index": 0 }],
+        [{ "node": "Calculate Zakat Fitrah", "type": "main", "index": 0 }],
+        [{ "node": "Send Help", "type": "main", "index": 0 }],
+        [{ "node": "Send Unknown Command", "type": "main", "index": 0 }]
+      ]
+    },
+    "Append Invoice to Sheet": {
+      "main": [[{ "node": "Send Invoice Confirmation", "type": "main", "index": 0 }]]
+    },
+    "Download Image": {
+      "main": [[{ "node": "OCR with OpenAI", "type": "main", "index": 0 }]]
+    },
+    "OCR with OpenAI": {
+      "main": [[{ "node": "Process OCR Result", "type": "main", "index": 0 }]]
+    },
+    "Process OCR Result": {
+      "main": [[{ "node": "Append OCR Invoice", "type": "main", "index": 0 }]]
+    },
+    "Append OCR Invoice": {
+      "main": [[{ "node": "Send OCR Confirmation", "type": "main", "index": 0 }]]
+    },
+    "Calculate Zakat Mal": {
+      "main": [[{ "node": "Send Zakat Mal Result", "type": "main", "index": 0 }]]
+    },
+    "Calculate Zakat Fitrah": {
+      "main": [[{ "node": "Send Zakat Fitrah Result", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": { "executionOrder": "v1" },
+  "staticData": null,
+  "tags": [{ "name": "WAHA" }, { "name": "Invoice" }, { "name": "Zakat" }],
+  "triggerCount": 1,
+  "pinData": {}
+}
