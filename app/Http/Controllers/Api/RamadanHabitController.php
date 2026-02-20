@@ -8,24 +8,10 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use App\Models\RamadanHabit;
 use App\Models\RamadanHabitCompletion;
+use App\Models\RamadanDefaultHabit;
 
 class RamadanHabitController extends Controller
 {
-    private const DEFAULT_HABITS = [
-        ['name' => 'Puasa (Sahur & Buka tepat waktu)', 'icon' => 'moon', 'sort_order' => 1],
-        ['name' => 'Shalat 5 Waktu', 'icon' => 'pray', 'sort_order' => 2],
-        ['name' => 'Shalat Rawatib', 'icon' => 'pray', 'sort_order' => 3],
-        ['name' => 'Shalat Tarawih & Witir', 'icon' => 'mosque', 'sort_order' => 4],
-        ['name' => 'Tilawah Al-Quran / Murajaah Hafalan', 'icon' => 'book-open', 'sort_order' => 5],
-        ['name' => 'Sedekah Harian', 'icon' => 'heart', 'sort_order' => 6],
-        ['name' => 'Dzikir Setelah Shalat', 'icon' => 'sun', 'sort_order' => 7],
-        ['name' => 'Istighfar Sebelum Tidur', 'icon' => 'star', 'sort_order' => 8],
-        ['name' => 'Baca Buku', 'icon' => 'book', 'sort_order' => 9],
-        ['name' => 'Olahraga Ringan', 'icon' => 'heart-pulse', 'sort_order' => 10],
-    ];
-
-    private const POINTS_PER_HABIT = 10;
-
     public function index(Request $request)
     {
         $user = Auth::user();
@@ -49,14 +35,17 @@ class RamadanHabitController extends Controller
                 'id' => $habit->id,
                 'name' => $habit->name,
                 'icon' => $habit->icon,
+                'points' => $habit->points,
                 'sort_order' => $habit->sort_order,
                 'is_completed' => in_array($habit->id, $completedHabitIds),
             ];
         });
 
-        $completedCount = count($completedHabitIds);
+        $completedHabits = $habits->whereIn('id', $completedHabitIds);
+        $completedCount = $completedHabits->count();
         $totalCount = $habits->count();
         $percentage = $totalCount > 0 ? round(($completedCount / $totalCount) * 100) : 0;
+        $pointsToday = $completedHabits->sum('points');
 
         return response()->json([
             'habits' => $habitsWithStatus,
@@ -64,7 +53,7 @@ class RamadanHabitController extends Controller
                 'completed' => $completedCount,
                 'total' => $totalCount,
                 'percentage' => $percentage,
-                'points_today' => $completedCount * self::POINTS_PER_HABIT,
+                'points_today' => $pointsToday,
             ],
             'date' => $date,
         ]);
@@ -83,7 +72,8 @@ class RamadanHabitController extends Controller
         $completionIds = $request->input('completions', []);
 
         // Verify all habit IDs belong to the current user
-        $userHabitIds = RamadanHabit::where('user_id', $user->id)->pluck('id')->toArray();
+        $userHabits = RamadanHabit::where('user_id', $user->id)->get();
+        $userHabitIds = $userHabits->pluck('id')->toArray();
         $validIds = array_intersect($completionIds, $userHabitIds);
 
         DB::transaction(function () use ($user, $date, $validIds) {
@@ -108,10 +98,13 @@ class RamadanHabitController extends Controller
             }
         });
 
+        // Calculate points earned from completed habits
+        $pointsEarned = $userHabits->whereIn('id', $validIds)->sum('points');
+
         return response()->json([
             'message' => 'Progress berhasil disimpan',
             'completed_count' => count($validIds),
-            'points_earned' => count($validIds) * self::POINTS_PER_HABIT,
+            'points_earned' => $pointsEarned,
         ]);
     }
 
@@ -119,14 +112,15 @@ class RamadanHabitController extends Controller
     {
         $currentUser = Auth::user();
 
-        // Get all users who have ramadan habits, along with their total completions
+        // Sum actual per-habit points via join to ramadan_habits
         $leaderboard = DB::table('ramadan_habit_completions')
+            ->join('ramadan_habits', 'ramadan_habit_completions.habit_id', '=', 'ramadan_habits.id')
             ->join('users', 'ramadan_habit_completions.user_id', '=', 'users.id')
             ->select(
                 'users.id',
                 'users.name',
                 DB::raw('COUNT(ramadan_habit_completions.id) as total_completions'),
-                DB::raw('COUNT(ramadan_habit_completions.id) * ' . self::POINTS_PER_HABIT . ' as total_points')
+                DB::raw('SUM(ramadan_habits.points) as total_points')
             )
             ->groupBy('users.id', 'users.name')
             ->orderByDesc('total_points')
@@ -162,8 +156,13 @@ class RamadanHabitController extends Controller
     {
         $user = Auth::user();
 
+        // Calculate total points using per-habit points
+        $totalPoints = DB::table('ramadan_habit_completions')
+            ->join('ramadan_habits', 'ramadan_habit_completions.habit_id', '=', 'ramadan_habits.id')
+            ->where('ramadan_habit_completions.user_id', $user->id)
+            ->sum('ramadan_habits.points');
+
         $totalCompletions = RamadanHabitCompletion::where('user_id', $user->id)->count();
-        $totalPoints = $totalCompletions * self::POINTS_PER_HABIT;
 
         $daysTracked = RamadanHabitCompletion::where('user_id', $user->id)
             ->distinct('completed_date')
@@ -176,7 +175,7 @@ class RamadanHabitController extends Controller
             : 0;
 
         return response()->json([
-            'total_points' => $totalPoints,
+            'total_points' => (int) $totalPoints,
             'days_tracked' => $daysTracked,
             'total_completions' => $totalCompletions,
             'habit_completion_rate' => $completionRate,
@@ -185,13 +184,34 @@ class RamadanHabitController extends Controller
 
     private function seedDefaultHabits(int $userId)
     {
+        $defaults = RamadanDefaultHabit::where('is_active', true)
+            ->orderBy('sort_order')
+            ->get();
+
+        // Fallback if default habits table is empty (seeder hasn't run yet)
+        if ($defaults->isEmpty()) {
+            $defaults = collect([
+                (object) ['name' => 'Puasa (Sahur & Buka tepat waktu)', 'icon' => 'moon', 'points' => 10, 'sort_order' => 1],
+                (object) ['name' => 'Shalat 5 Waktu', 'icon' => 'pray', 'points' => 10, 'sort_order' => 2],
+                (object) ['name' => 'Shalat Rawatib', 'icon' => 'pray', 'points' => 10, 'sort_order' => 3],
+                (object) ['name' => 'Shalat Tarawih & Witir', 'icon' => 'mosque', 'points' => 10, 'sort_order' => 4],
+                (object) ['name' => 'Tilawah Al-Quran / Murajaah Hafalan', 'icon' => 'book-open', 'points' => 10, 'sort_order' => 5],
+                (object) ['name' => 'Sedekah Harian', 'icon' => 'heart', 'points' => 10, 'sort_order' => 6],
+                (object) ['name' => 'Dzikir Setelah Shalat', 'icon' => 'sun', 'points' => 10, 'sort_order' => 7],
+                (object) ['name' => 'Istighfar Sebelum Tidur', 'icon' => 'star', 'points' => 10, 'sort_order' => 8],
+                (object) ['name' => 'Baca Buku', 'icon' => 'book', 'points' => 10, 'sort_order' => 9],
+                (object) ['name' => 'Olahraga Ringan', 'icon' => 'heart-pulse', 'points' => 10, 'sort_order' => 10],
+            ]);
+        }
+
         $habits = [];
-        foreach (self::DEFAULT_HABITS as $habit) {
+        foreach ($defaults as $default) {
             $habits[] = RamadanHabit::create([
                 'user_id' => $userId,
-                'name' => $habit['name'],
-                'icon' => $habit['icon'],
-                'sort_order' => $habit['sort_order'],
+                'name' => $default->name,
+                'icon' => $default->icon,
+                'points' => $default->points,
+                'sort_order' => $default->sort_order,
             ]);
         }
 

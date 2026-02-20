@@ -15,6 +15,7 @@ class RamadanHabit extends Model
         'user_id',
         'name',
         'icon',
+        'points',
         'sort_order',
     ];
 
