@@ -69,4 +69,14 @@ class User extends Authenticatable
         return $this->belongsTo(Mutation::class, 'approve_by', 'id');
     }
 
+    public function ramadanHabits()
+    {
+        return $this->hasMany(RamadanHabit::class);
+    }
+
+    public function ramadanHabitCompletions()
+    {
+        return $this->hasMany(RamadanHabitCompletion::class);
+    }
+
 }

@@ -169,5 +169,12 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/', [\App\Http\Controllers\Api\LayoutController::class, 'storePartner']);
         Route::delete('/{id}', [\App\Http\Controllers\Api\LayoutController::class, 'deletePartner']);
     });
+
+    Route::prefix('ramadan')->group(function () {
+        Route::get('/habits', [\App\Http\Controllers\Api\RamadanHabitController::class, 'index']);
+        Route::post('/habits/save-progress', [\App\Http\Controllers\Api\RamadanHabitController::class, 'saveProgress']);
+        Route::get('/leaderboard', [\App\Http\Controllers\Api\RamadanHabitController::class, 'leaderboard']);
+        Route::get('/stats', [\App\Http\Controllers\Api\RamadanHabitController::class, 'stats']);
+    });
 });
 
