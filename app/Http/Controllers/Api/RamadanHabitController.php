@@ -13,13 +13,15 @@ class RamadanHabitController extends Controller
 {
     private const DEFAULT_HABITS = [
         ['name' => 'Puasa (Sahur & Buka tepat waktu)', 'icon' => 'moon', 'sort_order' => 1],
-        ['name' => 'Shalat 5 Waktu Berjamaah', 'icon' => 'pray', 'sort_order' => 2],
-        ['name' => 'Shalat Tarawih & Witir', 'icon' => 'mosque', 'sort_order' => 3],
-        ['name' => 'Tilawah Al-Quran / Murajaah Hafalan', 'icon' => 'book-open', 'sort_order' => 4],
-        ['name' => 'Sedekah Harian', 'icon' => 'heart', 'sort_order' => 5],
-        ['name' => 'Dzikir Pagi/Petang', 'icon' => 'sun', 'sort_order' => 6],
-        ['name' => 'Dzikir Sebelum Tidur', 'icon' => 'star', 'sort_order' => 7],
-        ['name' => 'Baca Buku', 'icon' => 'book', 'sort_order' => 8],
+        ['name' => 'Shalat 5 Waktu', 'icon' => 'pray', 'sort_order' => 2],
+        ['name' => 'Shalat Rawatib', 'icon' => 'pray', 'sort_order' => 3],
+        ['name' => 'Shalat Tarawih & Witir', 'icon' => 'mosque', 'sort_order' => 4],
+        ['name' => 'Tilawah Al-Quran / Murajaah Hafalan', 'icon' => 'book-open', 'sort_order' => 5],
+        ['name' => 'Sedekah Harian', 'icon' => 'heart', 'sort_order' => 6],
+        ['name' => 'Dzikir Setelah Shalat', 'icon' => 'sun', 'sort_order' => 7],
+        ['name' => 'Istighfar Sebelum Tidur', 'icon' => 'star', 'sort_order' => 8],
+        ['name' => 'Baca Buku', 'icon' => 'book', 'sort_order' => 9],
+        ['name' => 'Olahraga Ringan', 'icon' => 'heart-pulse', 'sort_order' => 10],
     ];
 
     private const POINTS_PER_HABIT = 10;
@@ -198,10 +200,6 @@ class RamadanHabitController extends Controller
 
     private function maskName(string $name): string
     {
-        if (mb_strlen($name) <= 2) {
-            return $name . '***';
-        }
-
-        return mb_substr($name, 0, 2) . '***';
+        return 'Hamba Allah';
     }
 }

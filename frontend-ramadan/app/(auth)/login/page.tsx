@@ -28,18 +28,18 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-diamond-pattern flex flex-col items-center justify-center px-4 py-8">
+    <div className="min-h-screen bg-ramadan-ice flex flex-col items-center justify-center px-4 py-8">
       {/* Logo & Title */}
       <div className="text-center mb-8">
         <div className="w-20 h-20 mx-auto mb-4 bg-ramadan-ice rounded-full flex items-center justify-center shadow-sm">
           <span className="text-4xl">🌙</span>
         </div>
-        <h1 className="text-2xl font-bold text-ramadan-slate">Mutaba&apos;ah Ramadhan</h1>
+        <h1 className="text-2xl font-bold text-ramadan-slate">Riyadhah Ramadhan</h1>
         <p className="text-ramadan-slate/60 mt-1">Habit Builder untuk kebiasaan baik</p>
       </div>
 
       {/* Tab Toggle */}
-      <div className="flex w-full max-w-sm mb-6">
+      <div className="flex w-full max-w-sm mb-6 bg-ramadan-snow rounded-xl shadow-sm">
         <div className="flex-1 py-3 text-center font-semibold text-ramadan-slate border-2 border-ramadan-slate/30 rounded-xl bg-white">
           Masuk
         </div>
