@@ -67,20 +67,20 @@ export default function HorizontalCalendar({ selectedDate, onSelectDate }: Horiz
               onClick={() => onSelectDate(dateStr)}
               className={`flex-shrink-0 flex flex-col items-center py-2 px-3 rounded-xl min-w-[60px] transition-all ${
                 isSelected
-                  ? 'bg-ramadan-sage text-white shadow-md'
+                  ? 'bg-ramadan-blue text-white shadow-md'
                   : today
-                  ? 'bg-ramadan-cream dark:bg-gray-700 text-ramadan-brown dark:text-white'
-                  : 'text-ramadan-brown/60 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700'
+                  ? 'bg-ramadan-ice dark:bg-gray-700 text-ramadan-slate dark:text-white'
+                  : 'text-ramadan-slate/60 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700'
               }`}
             >
               <span className="text-xs font-medium">{DAYS_ID[day.getDay()]}</span>
-              <span className={`text-lg font-bold mt-0.5 ${isSelected ? 'text-white' : today ? 'text-ramadan-sage-dark' : ''}`}>
+              <span className={`text-lg font-bold mt-0.5 ${isSelected ? 'text-white' : today ? 'text-ramadan-blue-dark' : ''}`}>
                 {day.getDate()}
               </span>
               <span className="text-xs">{MONTHS_ID[day.getMonth()]}</span>
               {today && isSelected && (
                 <div className="w-4 h-4 mt-1 bg-white rounded-full flex items-center justify-center">
-                  <svg className="w-3 h-3 text-ramadan-sage" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                  <svg className="w-3 h-3 text-ramadan-blue" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                   </svg>
                 </div>

@@ -11,7 +11,7 @@ interface HabitChecklistProps {
 export default function HabitChecklist({ habits, onToggle }: HabitChecklistProps) {
   return (
     <div>
-      <h2 className="font-bold text-ramadan-brown dark:text-white mb-3">
+      <h2 className="font-bold text-ramadan-slate dark:text-white mb-3">
         Aktivitas Hari Ini
       </h2>
       <div className="space-y-2">

@@ -24,13 +24,13 @@ export default function HabitItem({ habit, onToggle }: HabitItemProps) {
       onClick={() => onToggle(habit.id)}
       className={`w-full flex items-center gap-4 p-4 rounded-2xl transition-all ${
         habit.is_completed
-          ? 'bg-ramadan-sage/10 dark:bg-ramadan-sage/20'
+          ? 'bg-ramadan-blue/10 dark:bg-ramadan-blue/20'
           : 'bg-white dark:bg-gray-800'
       }`}
     >
       {/* Icon */}
       <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-2xl flex-shrink-0 ${
-        habit.is_completed ? 'bg-ramadan-sage/20' : 'bg-gray-100 dark:bg-gray-700'
+        habit.is_completed ? 'bg-ramadan-blue/20' : 'bg-gray-100 dark:bg-gray-700'
       }`}>
         {iconMap[habit.icon] || '📋'}
       </div>
@@ -38,17 +38,17 @@ export default function HabitItem({ habit, onToggle }: HabitItemProps) {
       {/* Name & Points */}
       <div className="flex-1 text-left">
         <p className={`font-medium text-sm ${
-          habit.is_completed ? 'text-ramadan-sage-dark dark:text-ramadan-sage line-through' : 'text-ramadan-brown dark:text-white'
+          habit.is_completed ? 'text-ramadan-blue-dark dark:text-ramadan-blue line-through' : 'text-ramadan-slate dark:text-white'
         }`}>
           {habit.name}
         </p>
-        <p className="text-xs text-ramadan-brown/40 dark:text-gray-500 mt-0.5">+10 poin</p>
+        <p className="text-xs text-ramadan-slate/40 dark:text-gray-500 mt-0.5">+10 poin</p>
       </div>
 
       {/* Checkbox */}
       <div className={`w-7 h-7 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-all ${
         habit.is_completed
-          ? 'bg-ramadan-sage border-ramadan-sage'
+          ? 'bg-ramadan-blue border-ramadan-blue'
           : 'border-gray-300 dark:border-gray-600'
       }`}>
         {habit.is_completed && (

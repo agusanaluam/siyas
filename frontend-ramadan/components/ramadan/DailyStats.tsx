@@ -42,19 +42,19 @@ export default function DailyStats({ summary, stats }: DailyStatsProps) {
       {/* Points Cards */}
       <div className="grid grid-cols-2 gap-3">
         <div className="card text-center">
-          <p className="text-2xl font-bold text-ramadan-sage-dark">{summary.points_today}</p>
-          <p className="text-xs text-ramadan-brown/50 dark:text-gray-400 mt-1">Poin Hari Ini</p>
+          <p className="text-2xl font-bold text-ramadan-blue-dark">{summary.points_today}</p>
+          <p className="text-xs text-ramadan-slate/50 dark:text-gray-400 mt-1">Poin Hari Ini</p>
         </div>
         <div className="card text-center">
-          <p className="text-2xl font-bold text-ramadan-brown dark:text-white">{totalPoints}</p>
-          <p className="text-xs text-ramadan-brown/50 dark:text-gray-400 mt-1">Total Poin</p>
+          <p className="text-2xl font-bold text-ramadan-slate dark:text-white">{totalPoints}</p>
+          <p className="text-xs text-ramadan-slate/50 dark:text-gray-400 mt-1">Total Poin</p>
         </div>
       </div>
 
       {/* Streak */}
       <div className="card flex items-center gap-3">
         <div className="relative">
-          <div className="w-10 h-10 bg-ramadan-cream dark:bg-gray-700 rounded-full flex items-center justify-center text-xl">
+          <div className="w-10 h-10 bg-ramadan-ice dark:bg-gray-700 rounded-full flex items-center justify-center text-xl">
             🔥
           </div>
           {daysTracked > 0 && (
@@ -64,10 +64,10 @@ export default function DailyStats({ summary, stats }: DailyStatsProps) {
           )}
         </div>
         <div>
-          <p className="font-semibold text-sm text-ramadan-brown dark:text-white">
+          <p className="font-semibold text-sm text-ramadan-slate dark:text-white">
             {daysTracked} hari berturut-turut
           </p>
-          <p className="text-xs text-ramadan-brown/50 dark:text-gray-400">
+          <p className="text-xs text-ramadan-slate/50 dark:text-gray-400">
             {daysTracked < 3
               ? `${3 - daysTracked} hari lagi untuk bonus +50 poin`
               : 'Terus semangat!'}
@@ -81,15 +81,15 @@ export default function DailyStats({ summary, stats }: DailyStatsProps) {
           <div className="flex items-center gap-2">
             <span className="text-xl">{current.icon}</span>
             <div>
-              <p className="font-semibold text-sm text-ramadan-brown dark:text-white">{current.name}</p>
-              <p className="text-xs text-ramadan-brown/50 dark:text-gray-400">{totalPoints} poin</p>
+              <p className="font-semibold text-sm text-ramadan-slate dark:text-white">{current.name}</p>
+              <p className="text-xs text-ramadan-slate/50 dark:text-gray-400">{totalPoints} poin</p>
             </div>
           </div>
           {next && (
             <div className="flex items-center gap-2 text-right">
               <div>
-                <p className="text-xs text-ramadan-brown/50 dark:text-gray-400">Selanjutnya</p>
-                <p className="font-semibold text-sm text-ramadan-brown dark:text-white">{next.name}</p>
+                <p className="text-xs text-ramadan-slate/50 dark:text-gray-400">Selanjutnya</p>
+                <p className="font-semibold text-sm text-ramadan-slate dark:text-white">{next.name}</p>
               </div>
               <span className="text-xl">{next.icon}</span>
             </div>
@@ -98,13 +98,13 @@ export default function DailyStats({ summary, stats }: DailyStatsProps) {
         {/* Progress bar */}
         <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2 mt-2">
           <div
-            className="bg-ramadan-sage h-2 rounded-full transition-all duration-500"
+            className="bg-ramadan-blue h-2 rounded-full transition-all duration-500"
             style={{ width: `${progressToNext}%` }}
           />
         </div>
         <div className="flex justify-between mt-1">
-          <span className="text-xs text-ramadan-brown/40 dark:text-gray-500">{current.min}</span>
-          <span className="text-xs text-ramadan-brown/40 dark:text-gray-500">{next?.min || 'MAX'}</span>
+          <span className="text-xs text-ramadan-slate/40 dark:text-gray-500">{current.min}</span>
+          <span className="text-xs text-ramadan-slate/40 dark:text-gray-500">{next?.min || 'MAX'}</span>
         </div>
       </div>
     </div>

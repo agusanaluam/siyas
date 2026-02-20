@@ -85,18 +85,18 @@ export default function DashboardPage() {
   if (authLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-pulse text-ramadan-brown text-lg">Memuat...</div>
+        <div className="animate-pulse text-ramadan-slate text-lg">Memuat...</div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-ramadan-beige dark:bg-gray-900 pb-20">
+    <div className="min-h-screen bg-ramadan-snow dark:bg-gray-900 pb-20">
       <RamadanHeader />
 
       <main className="max-w-lg mx-auto px-4 py-4 space-y-4">
         {/* Date Display */}
-        <div className="flex items-center gap-2 text-ramadan-brown/70 dark:text-gray-400">
+        <div className="flex items-center gap-2 text-ramadan-slate/70 dark:text-gray-400">
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
           </svg>
@@ -118,7 +118,7 @@ export default function DashboardPage() {
         {/* Habit Checklist */}
         {loading && localHabits.length === 0 ? (
           <div className="card text-center py-8">
-            <div className="animate-pulse text-ramadan-brown/50">Memuat aktivitas...</div>
+            <div className="animate-pulse text-ramadan-slate/50">Memuat aktivitas...</div>
           </div>
         ) : (
           <HabitChecklist habits={localHabits} onToggle={handleToggle} />
@@ -132,7 +132,7 @@ export default function DashboardPage() {
               disabled={saving || !hasChanges}
               className={`w-full py-3.5 rounded-2xl font-semibold text-white transition-all shadow-lg ${
                 hasChanges
-                  ? 'bg-ramadan-sage hover:bg-ramadan-sage-dark active:scale-[0.98]'
+                  ? 'bg-ramadan-blue hover:bg-ramadan-blue-dark active:scale-[0.98]'
                   : 'bg-gray-300 dark:bg-gray-600 cursor-not-allowed'
               }`}
             >
