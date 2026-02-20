@@ -8,6 +8,7 @@ import BottomNav from '@/components/layout/BottomNav'
 import HorizontalCalendar from '@/components/ramadan/HorizontalCalendar'
 import HabitChecklist from '@/components/ramadan/HabitChecklist'
 import DailyStats from '@/components/ramadan/DailyStats'
+import MurajaahTracker from '@/components/ramadan/MurajaahTracker'
 import toast from 'react-hot-toast'
 
 function formatToday(): string {
@@ -27,7 +28,7 @@ function formatDateIndonesian(dateStr: string): string {
 
 export default function DashboardPage() {
   const { loading: authLoading } = useAuth()
-  const { habits, summary, stats, loading, fetchHabits, saveProgress, fetchStats } = useRamadan()
+  const { habits, summary, stats, surahList, murajaah, loading, fetchHabits, saveProgress, fetchStats, fetchSurahList, fetchMurajaah, saveMurajaah, deleteMurajaah } = useRamadan()
   const [selectedDate, setSelectedDate] = useState(formatToday())
   const [localHabits, setLocalHabits] = useState(habits)
   const [hasChanges, setHasChanges] = useState(false)
@@ -37,6 +38,8 @@ export default function DashboardPage() {
     if (!authLoading) {
       fetchHabits(selectedDate)
       fetchStats()
+      fetchSurahList()
+      fetchMurajaah()
     }
   }, [selectedDate, authLoading])
 
@@ -78,6 +81,15 @@ export default function DashboardPage() {
     setSelectedDate(date)
   }
 
+  // Calculate points correctly: positive adds, negative subtracts
+  const positivePoints = localHabits
+    .filter((h) => h.is_completed && h.type !== 'negative')
+    .reduce((sum, h) => sum + h.points, 0)
+  const negativePoints = localHabits
+    .filter((h) => h.is_completed && h.type === 'negative')
+    .reduce((sum, h) => sum + h.points, 0)
+  const localPointsToday = positivePoints - negativePoints
+
   const localCompleted = localHabits.filter((h) => h.is_completed).length
   const localTotal = localHabits.length
   const localPercentage = localTotal > 0 ? Math.round((localCompleted / localTotal) * 100) : 0
@@ -105,7 +117,7 @@ export default function DashboardPage() {
 
         {/* Stats Cards */}
         <DailyStats
-          summary={{ ...summary, points_today: localCompleted * 10 }}
+          summary={{ ...summary, points_today: localPointsToday }}
           stats={stats}
         />
 
@@ -140,6 +152,14 @@ export default function DashboardPage() {
             </button>
           </div>
         )}
+
+        {/* Muraja'ah Tracker */}
+        <MurajaahTracker
+          surahList={surahList}
+          murajaah={murajaah}
+          onSave={saveMurajaah}
+          onDelete={deleteMurajaah}
+        />
       </main>
 
       <BottomNav />

@@ -5,28 +5,24 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class RamadanHabit extends Model
+class RamadanMurajaah extends Model
 {
     use HasFactory;
 
-    protected $table = 'ramadan_habits';
+    protected $table = 'ramadan_murajaah';
 
     protected $fillable = [
         'user_id',
-        'name',
-        'icon',
-        'points',
-        'type',
-        'sort_order',
+        'surah_number',
+        'surah_name',
+        'ayah_number',
+        'ayah_ar',
+        'ayah_tr',
+        'ayah_idn',
     ];
 
     public function user()
     {
         return $this->belongsTo(User::class);
-    }
-
-    public function completions()
-    {
-        return $this->hasMany(RamadanHabitCompletion::class, 'habit_id');
     }
 }

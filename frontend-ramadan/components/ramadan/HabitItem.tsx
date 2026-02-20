@@ -16,21 +16,31 @@ const iconMap: Record<string, string> = {
   sun: '☀️',
   star: '⭐',
   book: '📚',
+  'heart-pulse': '💓',
+  warning: '⚠️',
 }
 
 export default function HabitItem({ habit, onToggle }: HabitItemProps) {
+  const isNegative = habit.type === 'negative'
+
   return (
     <button
       onClick={() => onToggle(habit.id)}
       className={`w-full flex items-center gap-4 p-4 rounded-2xl transition-all ${
         habit.is_completed
-          ? 'bg-ramadan-blue/10 dark:bg-ramadan-blue/20'
+          ? isNegative
+            ? 'bg-red-500/10 dark:bg-red-500/20'
+            : 'bg-ramadan-blue/10 dark:bg-ramadan-blue/20'
           : 'bg-white dark:bg-gray-800'
       }`}
     >
       {/* Icon */}
       <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-2xl flex-shrink-0 ${
-        habit.is_completed ? 'bg-ramadan-blue/20' : 'bg-gray-100 dark:bg-gray-700'
+        habit.is_completed
+          ? isNegative
+            ? 'bg-red-500/20'
+            : 'bg-ramadan-blue/20'
+          : 'bg-gray-100 dark:bg-gray-700'
       }`}>
         {iconMap[habit.icon] || '📋'}
       </div>
@@ -38,17 +48,27 @@ export default function HabitItem({ habit, onToggle }: HabitItemProps) {
       {/* Name & Points */}
       <div className="flex-1 text-left">
         <p className={`font-medium text-sm ${
-          habit.is_completed ? 'text-ramadan-blue-dark dark:text-ramadan-blue line-through' : 'text-ramadan-slate dark:text-white'
+          habit.is_completed
+            ? isNegative
+              ? 'text-red-600 dark:text-red-400 line-through'
+              : 'text-ramadan-blue-dark dark:text-ramadan-blue line-through'
+            : 'text-ramadan-slate dark:text-white'
         }`}>
           {habit.name}
         </p>
-        <p className="text-xs text-ramadan-slate/40 dark:text-gray-500 mt-0.5">+{habit.points} poin</p>
+        <p className={`text-xs mt-0.5 ${
+          isNegative ? 'text-red-400 dark:text-red-500' : 'text-ramadan-slate/40 dark:text-gray-500'
+        }`}>
+          {isNegative ? `-${habit.points} poin` : `+${habit.points} poin`}
+        </p>
       </div>
 
       {/* Checkbox */}
       <div className={`w-7 h-7 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-all ${
         habit.is_completed
-          ? 'bg-ramadan-blue border-ramadan-blue'
+          ? isNegative
+            ? 'bg-red-500 border-red-500'
+            : 'bg-ramadan-blue border-ramadan-blue'
           : 'border-gray-300 dark:border-gray-600'
       }`}>
         {habit.is_completed && (

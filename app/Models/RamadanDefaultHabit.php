@@ -16,6 +16,7 @@ class RamadanDefaultHabit extends Model
         'icon',
         'points',
         'sort_order',
+        'type',
         'is_active',
     ];
 

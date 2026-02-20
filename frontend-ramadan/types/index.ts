@@ -11,7 +11,8 @@ export interface RamadanHabit {
   id: number
   name: string
   icon: string
-    points: number
+  points: number
+  type: 'positive' | 'negative'
   sort_order: number
   is_completed: boolean
 }
@@ -48,4 +49,34 @@ export interface AuthResponse {
   user: User
   token: string
   message?: string
+}
+
+export interface Surah {
+  nomor: number
+  nama_latin: string
+  jumlah_ayat: number
+}
+
+export interface SurahAyah {
+  nomor: number
+  ar: string
+  tr: string
+  idn: string
+}
+
+export interface SurahDetail {
+  nomor: number
+  nama_latin: string
+  jumlah_ayat: number
+  ayat: SurahAyah[]
+}
+
+export interface Murajaah {
+  id: number
+  surah_number: number
+  surah_name: string
+  ayah_number: number
+  ayah_ar: string
+  ayah_tr: string
+  ayah_idn: string
 }

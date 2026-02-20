@@ -175,6 +175,13 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/habits/save-progress', [\App\Http\Controllers\Api\RamadanHabitController::class, 'saveProgress']);
         Route::get('/leaderboard', [\App\Http\Controllers\Api\RamadanHabitController::class, 'leaderboard']);
         Route::get('/stats', [\App\Http\Controllers\Api\RamadanHabitController::class, 'stats']);
+
+        // Muraja'ah routes
+        Route::get('/surah-list', [\App\Http\Controllers\Api\RamadanMurajaahController::class, 'surahList']);
+        Route::get('/surah/{nomor}', [\App\Http\Controllers\Api\RamadanMurajaahController::class, 'surahDetail']);
+        Route::get('/murajaah', [\App\Http\Controllers\Api\RamadanMurajaahController::class, 'index']);
+        Route::post('/murajaah', [\App\Http\Controllers\Api\RamadanMurajaahController::class, 'store']);
+        Route::delete('/murajaah/{id}', [\App\Http\Controllers\Api\RamadanMurajaahController::class, 'destroy']);
     });
 });
 

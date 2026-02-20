@@ -36,16 +36,22 @@ class RamadanHabitController extends Controller
                 'name' => $habit->name,
                 'icon' => $habit->icon,
                 'points' => $habit->points,
+                'type' => $habit->type ?? 'positive',
                 'sort_order' => $habit->sort_order,
                 'is_completed' => in_array($habit->id, $completedHabitIds),
             ];
         });
 
         $completedHabits = $habits->whereIn('id', $completedHabitIds);
+
+        // Calculate points: positive habits add, negative habits subtract
+        $positivePoints = $completedHabits->where('type', 'positive')->sum('points');
+        $negativePoints = $completedHabits->where('type', 'negative')->sum('points');
+        $pointsToday = $positivePoints - $negativePoints;
+
         $completedCount = $completedHabits->count();
         $totalCount = $habits->count();
         $percentage = $totalCount > 0 ? round(($completedCount / $totalCount) * 100) : 0;
-        $pointsToday = $completedHabits->sum('points');
 
         return response()->json([
             'habits' => $habitsWithStatus,
@@ -98,8 +104,11 @@ class RamadanHabitController extends Controller
             }
         });
 
-        // Calculate points earned from completed habits
-        $pointsEarned = $userHabits->whereIn('id', $validIds)->sum('points');
+        // Calculate net points earned from completed habits
+        $completedHabits = $userHabits->whereIn('id', $validIds);
+        $positivePoints = $completedHabits->where('type', 'positive')->sum('points');
+        $negativePoints = $completedHabits->where('type', 'negative')->sum('points');
+        $pointsEarned = $positivePoints - $negativePoints;
 
         return response()->json([
             'message' => 'Progress berhasil disimpan',
@@ -112,7 +121,7 @@ class RamadanHabitController extends Controller
     {
         $currentUser = Auth::user();
 
-        // Sum actual per-habit points via join to ramadan_habits
+        // Sum points: positive habits add, negative habits subtract
         $leaderboard = DB::table('ramadan_habit_completions')
             ->join('ramadan_habits', 'ramadan_habit_completions.habit_id', '=', 'ramadan_habits.id')
             ->join('users', 'ramadan_habit_completions.user_id', '=', 'users.id')
@@ -120,7 +129,7 @@ class RamadanHabitController extends Controller
                 'users.id',
                 'users.name',
                 DB::raw('COUNT(ramadan_habit_completions.id) as total_completions'),
-                DB::raw('SUM(ramadan_habits.points) as total_points')
+                DB::raw("SUM(CASE WHEN ramadan_habits.type = 'negative' THEN -ramadan_habits.points ELSE ramadan_habits.points END) as total_points")
             )
             ->groupBy('users.id', 'users.name')
             ->orderByDesc('total_points')
@@ -156,11 +165,12 @@ class RamadanHabitController extends Controller
     {
         $user = Auth::user();
 
-        // Calculate total points using per-habit points
+        // Calculate total points: positive habits add, negative habits subtract
         $totalPoints = DB::table('ramadan_habit_completions')
             ->join('ramadan_habits', 'ramadan_habit_completions.habit_id', '=', 'ramadan_habits.id')
             ->where('ramadan_habit_completions.user_id', $user->id)
-            ->sum('ramadan_habits.points');
+            ->selectRaw("SUM(CASE WHEN ramadan_habits.type = 'negative' THEN -ramadan_habits.points ELSE ramadan_habits.points END) as net_points")
+            ->value('net_points') ?? 0;
 
         $totalCompletions = RamadanHabitCompletion::where('user_id', $user->id)->count();
 
@@ -191,16 +201,21 @@ class RamadanHabitController extends Controller
         // Fallback if default habits table is empty (seeder hasn't run yet)
         if ($defaults->isEmpty()) {
             $defaults = collect([
-                (object) ['name' => 'Puasa (Sahur & Buka tepat waktu)', 'icon' => 'moon', 'points' => 10, 'sort_order' => 1],
-                (object) ['name' => 'Shalat 5 Waktu', 'icon' => 'pray', 'points' => 10, 'sort_order' => 2],
-                (object) ['name' => 'Shalat Rawatib', 'icon' => 'pray', 'points' => 10, 'sort_order' => 3],
-                (object) ['name' => 'Shalat Tarawih & Witir', 'icon' => 'mosque', 'points' => 10, 'sort_order' => 4],
-                (object) ['name' => 'Tilawah Al-Quran / Murajaah Hafalan', 'icon' => 'book-open', 'points' => 10, 'sort_order' => 5],
-                (object) ['name' => 'Sedekah Harian', 'icon' => 'heart', 'points' => 10, 'sort_order' => 6],
-                (object) ['name' => 'Dzikir Setelah Shalat', 'icon' => 'sun', 'points' => 10, 'sort_order' => 7],
-                (object) ['name' => 'Istighfar Sebelum Tidur', 'icon' => 'star', 'points' => 10, 'sort_order' => 8],
-                (object) ['name' => 'Baca Buku', 'icon' => 'book', 'points' => 10, 'sort_order' => 9],
-                (object) ['name' => 'Olahraga Ringan', 'icon' => 'heart-pulse', 'points' => 10, 'sort_order' => 10],
+                (object) ['name' => 'Puasa (Sahur & Buka tepat waktu)', 'icon' => 'moon', 'points' => 10, 'sort_order' => 1, 'type' => 'positive'],
+                (object) ['name' => 'Shalat 5 Waktu', 'icon' => 'pray', 'points' => 10, 'sort_order' => 2, 'type' => 'positive'],
+                (object) ['name' => 'Shalat Rawatib', 'icon' => 'pray', 'points' => 10, 'sort_order' => 3, 'type' => 'positive'],
+                (object) ['name' => 'Shalat Tarawih & Witir', 'icon' => 'mosque', 'points' => 10, 'sort_order' => 4, 'type' => 'positive'],
+                (object) ['name' => 'Tilawah Al-Quran / Murajaah Hafalan', 'icon' => 'book-open', 'points' => 10, 'sort_order' => 5, 'type' => 'positive'],
+                (object) ['name' => 'Sedekah Harian', 'icon' => 'heart', 'points' => 10, 'sort_order' => 6, 'type' => 'positive'],
+                (object) ['name' => 'Dzikir Setelah Shalat', 'icon' => 'sun', 'points' => 10, 'sort_order' => 7, 'type' => 'positive'],
+                (object) ['name' => 'Istighfar Sebelum Tidur', 'icon' => 'star', 'points' => 10, 'sort_order' => 8, 'type' => 'positive'],
+                (object) ['name' => 'Baca Buku', 'icon' => 'book', 'points' => 10, 'sort_order' => 9, 'type' => 'positive'],
+                (object) ['name' => 'Olahraga Ringan', 'icon' => 'heart-pulse', 'points' => 10, 'sort_order' => 10, 'type' => 'positive'],
+                (object) ['name' => 'Berkata Kotor / Menyakiti Lisan', 'icon' => 'warning', 'points' => 5, 'sort_order' => 11, 'type' => 'negative'],
+                (object) ['name' => 'Marah Berlebihan', 'icon' => 'warning', 'points' => 5, 'sort_order' => 12, 'type' => 'negative'],
+                (object) ['name' => 'Menunda Solat Tanpa Uzur', 'icon' => 'warning', 'points' => 5, 'sort_order' => 13, 'type' => 'negative'],
+                (object) ['name' => 'Ghibah', 'icon' => 'warning', 'points' => 5, 'sort_order' => 14, 'type' => 'negative'],
+                (object) ['name' => 'Lalai Menjaga Hati', 'icon' => 'warning', 'points' => 5, 'sort_order' => 15, 'type' => 'negative'],
             ]);
         }
 
@@ -211,6 +226,7 @@ class RamadanHabitController extends Controller
                 'name' => $default->name,
                 'icon' => $default->icon,
                 'points' => $default->points,
+                'type' => $default->type ?? 'positive',
                 'sort_order' => $default->sort_order,
             ]);
         }
