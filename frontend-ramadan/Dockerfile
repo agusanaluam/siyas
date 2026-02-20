@@ -39,7 +39,9 @@ ENV NODE_ENV=production
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
-COPY --from=builder /app/public ./public
+# Ensure public dir exists even if empty, then copy
+RUN mkdir -p ./public
+COPY --from=builder /app/public/ ./public/
 
 # Set the correct permission for prerender cache
 RUN mkdir .next
