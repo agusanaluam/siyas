@@ -11,6 +11,7 @@ export interface RamadanHabit {
   id: number
   name: string
   icon: string
+    points: number
   sort_order: number
   is_completed: boolean
 }

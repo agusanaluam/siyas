@@ -42,7 +42,7 @@ export default function HabitItem({ habit, onToggle }: HabitItemProps) {
         }`}>
           {habit.name}
         </p>
-        <p className="text-xs text-ramadan-slate/40 dark:text-gray-500 mt-0.5">+10 poin</p>
+        <p className="text-xs text-ramadan-slate/40 dark:text-gray-500 mt-0.5">+{habit.points} poin</p>
       </div>
 
       {/* Checkbox */}
