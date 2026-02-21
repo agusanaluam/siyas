@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image'
 import RamadanHeader from '@/components/layout/RamadanHeader'
 import BottomNav from '@/components/layout/BottomNav'
 
@@ -31,19 +32,25 @@ export default function DonasiPage() {
           <h2 className="font-bold text-ramadan-slate dark:text-white mb-3 text-center">
             Scan QRIS untuk Donasi
           </h2>
-          <div className="bg-gray-100 dark:bg-gray-700 rounded-2xl p-8 flex flex-col items-center justify-center min-h-[300px]">
-            <div className="w-48 h-48 bg-white dark:bg-gray-600 rounded-xl flex items-center justify-center border-2 border-dashed border-gray-300 dark:border-gray-500">
-              <div className="text-center">
-                <svg className="w-12 h-12 text-gray-400 mx-auto mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 013.75 9.375v-4.5zM3.75 14.625c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5a1.125 1.125 0 01-1.125-1.125v-4.5zM13.5 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 0113.5 9.375v-4.5z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 6.75h.75v.75h-.75v-.75zM6.75 16.5h.75v.75h-.75v-.75zM16.5 6.75h.75v.75h-.75v-.75zM13.5 13.5h.75v.75h-.75v-.75zM13.5 19.5h.75v.75h-.75v-.75zM19.5 13.5h.75v.75h-.75v-.75zM19.5 19.5h.75v.75h-.75v-.75zM16.5 16.5h.75v.75h-.75v-.75z" />
-                </svg>
-                <p className="text-sm text-gray-400 font-medium">QRIS</p>
-              </div>
-            </div>
-            <p className="text-xs text-gray-500 dark:text-gray-400 mt-3">
-              Gambar QRIS akan ditampilkan di sini
-            </p>
+          <div className="bg-gray-100 dark:bg-gray-700 rounded-2xl p-6 flex flex-col items-center justify-center gap-4">
+            <Image
+              src="/qris-ycab.png"
+              alt="QRIS Yayasan Cahaya Ayah Bunda"
+              width={256}
+              height={256}
+              className="rounded-xl"
+              unoptimized
+            />
+            <a
+              href="/qris-ycab.png"
+              download="QRIS-YCAB.png"
+              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-ramadan-slate dark:bg-gray-600 text-white text-sm font-medium hover:opacity-90 active:scale-[0.98] transition-all"
+            >
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+              </svg>
+              Download QRIS
+            </a>
           </div>
         </div>
 
