@@ -24,11 +24,6 @@ class BlogPostController extends Controller
 
     public function generate(Request $request)
     {
-        $user = auth()->user();
-        if (!in_array($user->level, ['administrator', 'root'])) {
-            return response()->json(['message' => 'Unauthorized'], 403);
-        }
-
         $request->validate([
             'topic' => 'required|string|max:500',
             'additional_instructions' => 'nullable|string|max:1000',
@@ -76,7 +71,7 @@ class BlogPostController extends Controller
                 'category_id' => $request->category_id,
                 'status' => $request->auto_publish ?? false,
                 'published_at' => ($request->auto_publish) ? now() : null,
-                'created_by' => auth()->id(),
+                'created_by' => null,
             ];
 
             $blog = BlogPost::create($blogData);

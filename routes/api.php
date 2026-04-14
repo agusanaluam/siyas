@@ -68,6 +68,11 @@ Route::get('/blog-categories/{id}', [\App\Http\Controllers\Api\BlogCategoryContr
 Route::get('/blog-tags', [\App\Http\Controllers\Api\BlogTagController::class, 'index']);
 Route::get('/blog-tags/{id}', [\App\Http\Controllers\Api\BlogTagController::class, 'show']);
 
+// External API - API Key auth
+Route::middleware([\App\Http\Middleware\VerifyApiKey::class, 'throttle:5,1'])->group(function () {
+    Route::post('/blogs/generate', [\App\Http\Controllers\Api\BlogPostController::class, 'generate']);
+});
+
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/groups', [\App\Http\Controllers\Api\GroupController::class, 'store']);
     Route::get('/groups/{id}', [\App\Http\Controllers\Api\GroupController::class, 'show']);
@@ -97,7 +102,6 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 
     Route::prefix('blogs')->group(function () {
-        Route::post('/generate', [\App\Http\Controllers\Api\BlogPostController::class, 'generate'])->middleware('throttle:5,1');
         Route::post('/', [\App\Http\Controllers\Api\BlogPostController::class, 'store']);
         Route::post('/upload-image', [\App\Http\Controllers\Api\BlogPostController::class, 'uploadImage']);
         Route::put('/{id}', [\App\Http\Controllers\Api\BlogPostController::class, 'update']);

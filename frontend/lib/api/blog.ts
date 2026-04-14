@@ -56,8 +56,21 @@ export const blogService = {
     auto_publish?: boolean
     category_id?: number
   }): Promise<{ data: BlogPost; message: string }> {
-    const response = await apiClient.post<{ data: BlogPost; message: string }>('/blogs/generate', data)
-    return response.data
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'
+    const apiKey = process.env.NEXT_PUBLIC_BLOG_GENERATE_API_KEY || ''
+    const response = await fetch(`${apiUrl}/blogs/generate`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-API-Key': apiKey,
+      },
+      body: JSON.stringify(data),
+    })
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({}))
+      throw { response: { data: error } }
+    }
+    return response.json()
   },
 }
 
