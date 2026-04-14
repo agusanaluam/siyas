@@ -91,8 +91,11 @@ export interface BlogCategory {
 export interface BlogPost {
   id: number
   title: string
+  slug?: string
   content: string
   excerpt?: string
+  meta_description?: string
+  meta_keywords?: string
   featured_image?: string
   status: boolean
   published_at?: string

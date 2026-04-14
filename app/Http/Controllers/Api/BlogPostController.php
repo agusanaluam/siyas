@@ -9,6 +9,7 @@ use App\Models\Master\BlogPost;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use App\Services\ImageUploadService;
+use App\Services\ClaudeService;
 
 class BlogPostController extends Controller
 {
@@ -18,6 +19,60 @@ class BlogPostController extends Controller
     public function __construct(ImageUploadService $imageService)
     {
         $this->imageService = $imageService;
+    }
+
+    public function generate(Request $request)
+    {
+        $user = auth()->user();
+        if (!in_array($user->level, ['administrator', 'root'])) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        $request->validate([
+            'topic' => 'required|string|max:500',
+            'additional_instructions' => 'nullable|string|max:1000',
+            'auto_publish' => 'nullable|boolean',
+            'category_id' => 'nullable|integer|exists:blog_categories,id',
+        ]);
+
+        try {
+            $claudeService = app(ClaudeService::class);
+            $article = $claudeService->generateArticle(
+                $request->topic,
+                $request->additional_instructions
+            );
+
+            $slug = Str::slug($article['title']);
+            $slugCount = BlogPost::where('slug', $slug)->count();
+            if ($slugCount > 0) {
+                $slug = $slug . '-' . ($slugCount + 1);
+            }
+
+            $blogData = [
+                'title' => $article['title'],
+                'slug' => $slug,
+                'content' => $article['content'],
+                'excerpt' => $article['excerpt'],
+                'meta_description' => $article['meta_description'],
+                'meta_keywords' => $article['meta_keywords'],
+                'category_id' => $request->category_id,
+                'status' => $request->auto_publish ?? false,
+                'published_at' => ($request->auto_publish) ? now() : null,
+                'created_by' => auth()->id(),
+            ];
+
+            $blog = BlogPost::create($blogData);
+
+            return response()->json([
+                'message' => 'Artikel berhasil digenerate',
+                'data' => $blog->load(['creator', 'category']),
+            ], 201);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Gagal mengenerate artikel',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
     }
 
     public function index()
@@ -43,12 +98,24 @@ class BlogPostController extends Controller
         return response()->json($blog);
     }
 
+    public function published()
+    {
+        $blogs = BlogPost::where('status', true)
+            ->select('id', 'slug', 'updated_at')
+            ->orderBy('published_at', 'desc')
+            ->get();
+
+        return response()->json($blogs);
+    }
+
     public function store(Request $request)
     {
         $request->validate([
             'title' => 'required|string|max:200',
             'content' => 'required|string',
             'excerpt' => 'nullable|string',
+            'meta_description' => 'nullable|string|max:300',
+            'meta_keywords' => 'nullable|string|max:500',
             'featured_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'category_id' => 'nullable|integer|exists:blog_categories,id',
             'status' => 'nullable|boolean',
@@ -69,6 +136,8 @@ class BlogPostController extends Controller
                 'slug' => $slug,
                 'content' => $request->content,
                 'excerpt' => $request->excerpt,
+                'meta_description' => $request->meta_description,
+                'meta_keywords' => $request->meta_keywords,
                 'category_id' => $request->category_id,
                 'status' => $request->status ?? false,
                 'published_at' => $request->published_at ?? ($request->status ? now() : null),
@@ -103,6 +172,8 @@ class BlogPostController extends Controller
             'title' => 'required|string|max:200',
             'content' => 'required|string',
             'excerpt' => 'nullable|string',
+            'meta_description' => 'nullable|string|max:300',
+            'meta_keywords' => 'nullable|string|max:500',
             'featured_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'category_id' => 'nullable|integer|exists:blog_categories,id',
             'status' => 'nullable|boolean',
@@ -127,6 +198,8 @@ class BlogPostController extends Controller
                 'slug' => $slug,
                 'content' => $request->content,
                 'excerpt' => $request->excerpt,
+                'meta_description' => $request->meta_description,
+                'meta_keywords' => $request->meta_keywords,
                 'category_id' => $request->category_id ?? $blog->category_id,
                 'status' => $request->status ?? $blog->status,
                 'published_at' => $request->published_at ?? $blog->published_at,

@@ -46,6 +46,7 @@ Route::get('/donation-accounts', [\App\Http\Controllers\Api\DonationAccountContr
 Route::get('/campaigns', [\App\Http\Controllers\Api\CampaignController::class, 'index']);
 Route::get('/campaigns/{id}', [\App\Http\Controllers\Api\CampaignController::class, 'show']);
 Route::get('/blogs', [\App\Http\Controllers\Api\BlogPostController::class, 'index']);
+Route::get('/blogs/published', [\App\Http\Controllers\Api\BlogPostController::class, 'published']);
 Route::get('/blogs/{id}', [\App\Http\Controllers\Api\BlogPostController::class, 'show']);
 Route::get('/hero-slides', [\App\Http\Controllers\Api\LayoutController::class, 'getHeroSlides']);
 Route::get('/partners', [\App\Http\Controllers\Api\LayoutController::class, 'getPartners']);
@@ -96,6 +97,7 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 
     Route::prefix('blogs')->group(function () {
+        Route::post('/generate', [\App\Http\Controllers\Api\BlogPostController::class, 'generate'])->middleware('throttle:5,1');
         Route::post('/', [\App\Http\Controllers\Api\BlogPostController::class, 'store']);
         Route::post('/upload-image', [\App\Http\Controllers\Api\BlogPostController::class, 'uploadImage']);
         Route::put('/{id}', [\App\Http\Controllers\Api\BlogPostController::class, 'update']);

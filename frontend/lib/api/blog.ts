@@ -49,5 +49,15 @@ export const blogService = {
     )
     return { url: response.data.url }
   },
+
+  async generate(data: {
+    topic: string
+    additional_instructions?: string
+    auto_publish?: boolean
+    category_id?: number
+  }): Promise<{ data: BlogPost; message: string }> {
+    const response = await apiClient.post<{ data: BlogPost; message: string }>('/blogs/generate', data)
+    return response.data
+  },
 }
 
