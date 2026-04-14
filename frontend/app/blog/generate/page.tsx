@@ -187,9 +187,10 @@ export default function GenerateBlogPage() {
                 <ul className="list-disc list-inside space-y-1 text-blue-600">
                   <li>AI akan menghasilkan artikel dalam Bahasa Indonesia</li>
                   <li>Keyword YCAB dan Cahaya Ayah Bunda akan dimasukkan secara natural</li>
+                  <li>Gambar featured akan di-generate otomatis menggunakan Gemini AI</li>
                   <li>Artikel akan dibuat sebagai draft (kecuali auto-publish diaktifkan)</li>
-                  <li>Anda bisa mengedit artikel setelah di-generate</li>
-                  <li>Proses generate membutuhkan waktu sekitar 30-60 detik</li>
+                  <li>Anda bisa mengedit artikel dan gambar setelah di-generate</li>
+                  <li>Proses generate membutuhkan waktu sekitar 30-90 detik</li>
                 </ul>
               </div>
             </div>

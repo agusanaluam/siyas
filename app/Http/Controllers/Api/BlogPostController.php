@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use App\Services\ImageUploadService;
 use App\Services\ClaudeService;
+use App\Services\GeminiImageService;
 
 class BlogPostController extends Controller
 {
@@ -36,6 +37,7 @@ class BlogPostController extends Controller
         ]);
 
         try {
+            // Generate article text with Claude
             $claudeService = app(ClaudeService::class);
             $article = $claudeService->generateArticle(
                 $request->topic,
@@ -48,6 +50,21 @@ class BlogPostController extends Controller
                 $slug = $slug . '-' . ($slugCount + 1);
             }
 
+            // Generate featured image with Gemini
+            $featuredImageUrl = null;
+            try {
+                $geminiService = app(GeminiImageService::class);
+                $featuredImageUrl = $geminiService->generateAndSave(
+                    $article['title'],
+                    $request->topic
+                );
+            } catch (\Exception $e) {
+                // Image generation is optional, continue without it
+                \Illuminate\Support\Facades\Log::warning('Image generation failed, continuing without image', [
+                    'error' => $e->getMessage(),
+                ]);
+            }
+
             $blogData = [
                 'title' => $article['title'],
                 'slug' => $slug,
@@ -55,6 +72,7 @@ class BlogPostController extends Controller
                 'excerpt' => $article['excerpt'],
                 'meta_description' => $article['meta_description'],
                 'meta_keywords' => $article['meta_keywords'],
+                'featured_image' => $featuredImageUrl,
                 'category_id' => $request->category_id,
                 'status' => $request->auto_publish ?? false,
                 'published_at' => ($request->auto_publish) ? now() : null,
@@ -64,7 +82,7 @@ class BlogPostController extends Controller
             $blog = BlogPost::create($blogData);
 
             return response()->json([
-                'message' => 'Artikel berhasil digenerate',
+                'message' => 'Artikel berhasil digenerate' . ($featuredImageUrl ? ' dengan gambar' : ' tanpa gambar'),
                 'data' => $blog->load(['creator', 'category']),
             ], 201);
         } catch (\Exception $e) {
