@@ -27,8 +27,8 @@ COPY . .
 # Uncomment the following line in case you want to disable telemetry during the build.
 # ENV NEXT_TELEMETRY_DISABLED 1
 
-ARG NEXT_PUBLIC_API_URL
-ARG NEXT_PUBLIC_SITE_URL
+ARG NEXT_PUBLIC_API_URL=https://dev-api.cahayaayahbunda.org/api
+ARG NEXT_PUBLIC_SITE_URL=https://cahayaayahbunda.org
 ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
 ENV NEXT_PUBLIC_SITE_URL=${NEXT_PUBLIC_SITE_URL}
 
