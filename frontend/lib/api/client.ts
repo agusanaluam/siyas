@@ -10,7 +10,6 @@ class ApiClient {
     this.client = axios.create({
       baseURL: API_URL,
       headers: {
-        'Content-Type': 'application/json',
         'Accept': 'application/json',
       },
       withCredentials: true,
@@ -26,10 +25,12 @@ class ApiClient {
         if (token) {
           config.headers.Authorization = `Bearer ${token}`
         }
+        if (config.data instanceof FormData) {
+          delete config.headers['Content-Type']
+        } else {
+          config.headers['Content-Type'] = 'application/json'
+        }
         return config
-      },
-      (error) => {
-        return Promise.reject(error)
       }
     )
 

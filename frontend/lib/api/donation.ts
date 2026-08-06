@@ -24,20 +24,14 @@ export const donationService = {
   },
 
   async create(data: FormData): Promise<Donation> {
-    const response = await apiClient.post<Donation>('/donations', data, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    })
+
+    const response = await apiClient.post<Donation>('/donations', data)
     return response.data
   },
 
   async update(id: number, data: FormData): Promise<Donation> {
-    const response = await apiClient.post<Donation>(`/donations/${id}`, data, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    })
+
+    const response = await apiClient.post<Donation>(`/donations/${id}`, data)
     return response.data
   },
 

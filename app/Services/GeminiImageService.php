@@ -48,51 +48,72 @@ class GeminiImageService
      *
      * @return string|null Base64 decoded image data
      */
+    // private function generateImage(string $title, string $topic): ?string
+    // {
+    //     $prompt = "Create a professional, high-quality blog featured image for an article titled: \"{$title}\". "
+    //         . "Topic: {$topic}. "
+    //         . "Style: Modern, clean, professional editorial photography or illustration style. "
+    //         . "Suitable for a nonprofit organization website. No text in the image.";
+
+    //     $response = Http::timeout(120)->post(
+    //         "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key={$this->apiKey}",
+    //         [
+    //             'contents' => [
+    //                 [
+    //                     'parts' => [
+    //                         ['text' => $prompt],
+    //                     ],
+    //                 ],
+    //             ],
+    //             'generationConfig' => [
+    //                 'responseModalities' => ['TEXT', 'IMAGE'],
+    //             ],
+    //         ]
+    //     );
+
+    //     if (!$response->successful()) {
+    //         Log::error('Gemini API error', [
+    //             'status' => $response->status(),
+    //             'body' => $response->body(),
+    //         ]);
+    //         return null;
+    //     }
+
+    //     $data = $response->json();
+    //     $parts = $data['candidates'][0]['content']['parts'] ?? [];
+
+    //     foreach ($parts as $part) {
+    //         if (isset($part['inlineData'])) {
+    //             return base64_decode($part['inlineData']['data']);
+    //         }
+    //     }
+
+    //     Log::warning('Gemini response did not contain image data', [
+    //         'response' => $data,
+    //     ]);
+
+    //     return null;
+    // }
     private function generateImage(string $title, string $topic): ?string
     {
-        $prompt = "Create a professional, high-quality blog featured image for an article titled: \"{$title}\". "
-            . "Topic: {$topic}. "
-            . "Style: Modern, clean, professional editorial photography or illustration style. "
-            . "Suitable for a nonprofit organization website. No text in the image.";
-
-        $response = Http::timeout(120)->post(
-            "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key={$this->apiKey}",
-            [
-                'contents' => [
-                    [
-                        'parts' => [
-                            ['text' => $prompt],
-                        ],
-                    ],
-                ],
-                'generationConfig' => [
-                    'responseModalities' => ['TEXT', 'IMAGE'],
-                ],
-            ]
-        );
-
+        $prompt = urlencode("Professional blog featured image about {$topic}, modern clean style, nonprofit organization, no text");
+        $url = "https://image.pollinations.ai/prompt/{$prompt}?width=1200&height=630&nologo=true&model=flux";
+        $response = Http::timeout(120)->withoutVerifying()->get($url);
         if (!$response->successful()) {
-            Log::error('Gemini API error', [
+            Log::error('Pollinations image generation failed', [
                 'status' => $response->status(),
-                'body' => $response->body(),
             ]);
             return null;
         }
-
-        $data = $response->json();
-        $parts = $data['candidates'][0]['content']['parts'] ?? [];
-
-        foreach ($parts as $part) {
-            if (isset($part['inlineData'])) {
-                return base64_decode($part['inlineData']['data']);
-            }
+        $contentType = $response->header('Content-Type');
+        if (!$contentType || !str_contains($contentType, 'image/')) {
+            Log::error('Pollinations did not return an image', [
+                'content_type' => $contentType,
+                'body_preview' => substr($response->body(), 0, 200),
+            ]);
+            return null;
         }
-
-        Log::warning('Gemini response did not contain image data', [
-            'response' => $data,
-        ]);
-
-        return null;
+        return $response->body();
     }
 
     /**
@@ -110,6 +131,19 @@ class GeminiImageService
         $disk = Storage::disk($this->disk);
         $disk->put($path, $imageData, 'public');
 
-        return $disk->url($path);
+        // return $disk->url($path);
+        if ($this->disk === 'public') {
+            $url = asset('storage/' . $path);
+        } else {
+            $url = $disk->url($path);
+        }
+
+        Log::info('Blog image saved successfully', [
+            'url' => $url,
+            'disk' => $this->disk,
+            'path' => $path,
+        ]);
+
+        return $url;
     }
 }

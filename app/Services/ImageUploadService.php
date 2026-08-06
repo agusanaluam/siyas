@@ -51,7 +51,6 @@ class ImageUploadService
                 Storage::disk($this->disk)->put($path, (string)$encoded, 'public');
 
                 return $this->getUrl($path);
-
             } catch (\Throwable $e) {
                 // Check if it's just an image processing error or something else.
                 // If resizing fails, fallback to direct upload below.
@@ -96,9 +95,15 @@ class ImageUploadService
      * @param string $path
      * @return string
      */
+    // protected function getUrl(string $path): string
     protected function getUrl(string $path): string
     {
-        return Storage::disk($this->disk)->url($path);
+        if ($this->disk === 'public') {
+            return asset('storage/' . $path);
+        }
+        /** @var \Illuminate\Filesystem\FilesystemAdapter $disk */
+        $disk = Storage::disk($this->disk);
+        return $disk->url($path);
     }
 
     /**

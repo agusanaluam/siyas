@@ -35,11 +35,15 @@ class BlogPost extends Model
     public function getImageUrlAttribute()
     {
         if ($this->featured_image) {
-            // Jika featured_image sudah berupa URL lengkap (dari ImageUploadService/R2), kembalikan langsung
+            // 1. Full URL (dari GeminiImageService atau R2) — kembalikan langsung
             if (filter_var($this->featured_image, FILTER_VALIDATE_URL)) {
                 return $this->featured_image;
             }
-            // Jika berupa path relatif, gunakan asset()
+            // 2. URL-path mengandung prefix storage (data lama dari ImageUploadService)
+            if (str_starts_with($this->featured_image, '/storage/') || str_starts_with($this->featured_image, 'storage/')) {
+                return asset(ltrim($this->featured_image, '/'));
+            }
+            // 3. Bare filename — prepend folder
             return asset('storage/blog_images/' . $this->featured_image);
         }
         return null;

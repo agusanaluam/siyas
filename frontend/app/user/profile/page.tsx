@@ -177,11 +177,7 @@ export default function UserProfilePage() {
         formDataToSend.append('profile_picture', profilePicture)
       }
 
-      await apiClient.post('/user/profile', formDataToSend, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      })
+      await apiClient.post('/user/profile', formDataToSend)
 
       toast.success('Profil berhasil diupdate')
       fetchProfile()
