@@ -32,6 +32,9 @@ ARG NEXT_PUBLIC_SITE_URL=https://cahayaayahbunda.org
 ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
 ENV NEXT_PUBLIC_SITE_URL=${NEXT_PUBLIC_SITE_URL}
 
+ARG NEXT_PUBLIC_BLOG_GENERATE_API_KEY=rahasia123
+ENV NEXT_PUBLIC_BLOG_GENERATE_API_KEY=${NEXT_PUBLIC_BLOG_GENERATE_API_KEY}
+
 RUN \
     if [ -f yarn.lock ]; then yarn run build; \
     elif [ -f package-lock.json ]; then npm run build; \
