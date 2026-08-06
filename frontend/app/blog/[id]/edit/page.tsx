@@ -28,6 +28,7 @@ export default function EditBlogPage() {
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [submitting, setSubmitting] = useState(false)
   const [dataLoading, setDataLoading] = useState(true)
+  const [imageError, setImageError] = useState(false)
 
   useEffect(() => {
     if (!loading && !isAuthenticated) {
@@ -51,8 +52,12 @@ export default function EditBlogPage() {
           : '',
       })
 
-      if (data.featured_image) {
-        setExistingImage(data.featured_image)
+      // if (data.featured_image) {
+      //   setExistingImage(data.featured_image)
+      // }
+      if (data.image_url) {
+        setExistingImage(data.image_url)
+        setImageError(false)
       }
     } catch (error) {
       console.error('Error fetching blog:', error)
@@ -224,19 +229,33 @@ export default function EditBlogPage() {
                 />
               </div>
             )}
+
             {existingImage && !featuredImage && (
               <div className="mt-2">
                 <p className="text-sm text-gray-600 mb-2">Gambar saat ini:</p>
-                <div className="relative w-full h-48">
-                  <Image
-                    src={getImageUrl(existingImage.startsWith('http') || existingImage.startsWith('https') ? existingImage : `/storage/blog_images/${existingImage}`)}
-                    alt="Current"
-                    className="rounded-lg object-cover"
-                    fill
-                    sizes="(max-width: 768px) 100vw, 400px"
-                  />
-                </div>
+                {imageError ? (
+                  <div className="w-full h-48 bg-gray-100 rounded-lg flex items-center justify-center border border-gray-200">
+                    <p className="text-sm text-gray-400">Gambar tidak dapat dimuat. Silakan
+                      upload ulang.</p>
+                  </div>
+                ) : (
+                  <div className="relative w-full h-48">
+                    <Image
+                      src={getImageUrl(existingImage)}
+                      alt="Current"
+                      className="rounded-lg object-cover"
+                      fill
+                      sizes="(max-width: 768px) 100vw, 400px"
+                      unoptimized
+                      onError={() => setImageError(true)}
+                    />
+                  </div>
+                )}
               </div>
+            )}
+            {!existingImage && !featuredImage && (
+              <p className="mt-2 text-sm text-gray-400">Belum ada gambar. Silakan upload gambar.
+              </p>
             )}
           </div>
 

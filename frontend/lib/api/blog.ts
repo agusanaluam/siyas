@@ -22,12 +22,8 @@ export const blogService = {
   },
 
   async update(id: number, data: FormData): Promise<BlogPost> {
-    // Use POST with _method override for FormData compatibility
-    const response = await apiClient.post<BlogPost>(`/blogs/${id}`, data, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    })
+
+    const response = await apiClient.post<BlogPost>(`/blogs/${id}`, data)
     return response.data
   },
 
@@ -40,12 +36,7 @@ export const blogService = {
     formData.append('image', file)
     const response = await apiClient.post<{ success: boolean; url: string }>(
       '/blogs/upload-image',
-      formData,
-      {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      }
+      formData
     )
     return { url: response.data.url }
   },

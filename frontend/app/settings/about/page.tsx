@@ -75,9 +75,7 @@ export default function SettingsAboutPage() {
         formData.append('about_photo', aboutPhoto)
       }
 
-      await apiClient.post('/settings/about', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      })
+      await apiClient.post('/settings/about', formData)
 
       toast.success('Konten about berhasil disimpan')
       setAboutPhoto(null)
