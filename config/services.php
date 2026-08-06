@@ -35,4 +35,16 @@ return [
         ],
     ],
 
+    'anthropic' => [
+        'api_key' => env('ANTHROPIC_API_KEY'),
+    ],
+
+    'google_ai' => [
+        'api_key' => env('GOOGLE_AI_API_KEY'),
+    ],
+
+    'blog_generate' => [
+        'api_key' => env('BLOG_GENERATE_API_KEY'),
+    ],
+
 ];

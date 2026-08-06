@@ -12,25 +12,30 @@ use Yajra\DataTables\DataTables;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Intervention\Image\ImageManager;
-use Intervention\Image\Drivers\Imagick\Driver;
-use Intervention\Image\Decoders\FilePathImageDecoder;
-
-
+use Intervention\Image\Drivers\Gd\Driver;
 
 class CampaignController extends Controller
 {
+    /**
+     * Check if image processing is available
+     */
+    private function isImageProcessingAvailable()
+    {
+        return extension_loaded('gd') || extension_loaded('imagick');
+    }
     function index()
     {
         if (request()->ajax()) {
             $status = request()->input('status');
-            $data = Campaign::with('category');
+            $data = Campaign::with(['category', 'image']);
             if ($status > 0) {
                 $data = $data->where('status', $status);
             }
             return DataTables::of($data->get())
                 ->addIndexColumn()
                 ->addColumn('campaign', function ($data){
-                    $storage = "storage/campaign_pictures/".$data->image[0]->picture_path;
+                    $imagePath = $data->image->isNotEmpty() ? $data->image[0]->picture_path : 'default.jpg';
+                    $storage = "storage/campaign_pictures/".$imagePath;
                     return '<div class="productimgname">
                                 <a href="'.route('campaign.details',$data->id).'" class="product-img stock-img">
                                     <img src="'. asset($storage). '" alt="product">
@@ -128,15 +133,27 @@ class CampaignController extends Controller
 
     function store(Request $request)
     {
-        // Validasi input
+        // Validasi input dengan custom messages
         $request->validate([
             'name' => 'required|string|max:150',
             'start_date' => 'required|date',
             'end_date' => 'required|date',
             'description' => 'required',
             'pic' => 'required|string|max:150',
-            'campaign_picture.*' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048', // Validasi untuk foto
-
+            'campaign_picture.*' => 'required|image|mimes:jpeg,png,jpg,gif', // Validasi untuk foto (ukuran akan di-handle di logic)
+        ], [
+            'name.required' => 'Nama campaign wajib diisi',
+            'name.max' => 'Nama campaign maksimal 150 karakter',
+            'start_date.required' => 'Tanggal mulai wajib diisi',
+            'start_date.date' => 'Format tanggal mulai tidak valid',
+            'end_date.required' => 'Tanggal selesai wajib diisi',
+            'end_date.date' => 'Format tanggal selesai tidak valid',
+            'description.required' => 'Deskripsi wajib diisi',
+            'pic.required' => 'PIC wajib diisi',
+            'pic.max' => 'Nama PIC maksimal 150 karakter',
+            'campaign_picture.*.required' => 'Gambar campaign wajib diupload',
+            'campaign_picture.*.image' => 'File harus berupa gambar',
+            'campaign_picture.*.mimes' => 'Format gambar harus jpeg, png, jpg, atau gif',
         ]);
 
         DB::beginTransaction();
@@ -158,30 +175,58 @@ class CampaignController extends Controller
 
 
             if ($request->hasFile('campaign_picture')) {
-                $manager = new ImageManager(new Driver());
-
                 foreach ($request->file('campaign_picture') as $image) {
-                    $extension = $image->getClientOriginalExtension();
-                    $filenameSimpan = Str::random(16) . '_' . time() . '.' . $extension;
-                    $image->storeAs('public/campaign_pictures/', $filenameSimpan);
-                    $resizedImage = $manager->read($image->getPathname())->scaleDown(height: 115)->encodeByExtension($extension);
-                    Storage::disk('public')->put('campaign_pictures/resized_' . $filenameSimpan, (string) $resizedImage);
+                    try {
+                        $extension = $image->getClientOriginalExtension();
+                        $filenameSimpan = Str::random(16) . '_' . time() . '.' . $extension;
+                        
+                        if ($this->isImageProcessingAvailable()) {
+                            $manager = new ImageManager(new Driver());
+                            
+                            // Proses gambar: compress jika melebihi 2MB
+                            $processedImage = $this->processImage($image, $manager, $extension);
+                            
+                            // Simpan gambar asli (yang sudah di-compress jika perlu)
+                            Storage::disk('public')->put('campaign_pictures/' . $filenameSimpan, $processedImage);
+                            
+                            // Buat thumbnail untuk preview
+                            try {
+                                $imgForThumb = $manager->read($image->getPathname());
+                                $resizedImage = $imgForThumb->scaleDown(height: 115)->encodeByExtension($extension);
+                                Storage::disk('public')->put('campaign_pictures/resized_' . $filenameSimpan, (string) $resizedImage);
+                            } catch (\Exception $e) {
+                                // Jika gagal buat thumbnail, gunakan gambar asli
+                                Storage::disk('public')->put('campaign_pictures/resized_' . $filenameSimpan, $processedImage);
+                            }
+                        } else {
+                            // Jika extension tidak tersedia, simpan file asli
+                            $image->storeAs('public/campaign_pictures/', $filenameSimpan);
+                            // Copy untuk thumbnail (tanpa resize)
+                            Storage::disk('public')->copy('campaign_pictures/' . $filenameSimpan, 'campaign_pictures/resized_' . $filenameSimpan);
+                        }
 
-                    CampaignImage::create([
-                        'program_id' => $campaign->id,
-                        'picture_path' => $filenameSimpan,
-                    ]);
+                        CampaignImage::create([
+                            'program_id' => $campaign->id,
+                            'picture_path' => $filenameSimpan,
+                        ]);
+                    } catch (\Exception $e) {
+                        throw new \Exception('Gagal memproses gambar: ' . $e->getMessage());
+                    }
                 }
             }
             DB::Commit();
 
-            return redirect()->route('campaign.list')->withSuccess('Success insert data');
+            return redirect()->route('campaign.list')->withSuccess('Campaign berhasil ditambahkan');
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            DB::rollBack();
+            return redirect()->back()
+                ->withErrors($e->errors())
+                ->withInput();
         } catch (\Exception $e) {
-
-            DB::Rollback();
-
-            return redirect()->back()->withErrors(['error' => 'Oops. Something wrong: ' .$e->getMessage()])
-                ->onlyInput('name','pic','description','start_date','end_date','category','close_type', 'target_amount');
+            DB::rollBack();
+            return redirect()->back()
+                ->withErrors(['error' => 'Terjadi kesalahan saat menyimpan campaign: ' . $e->getMessage()])
+                ->withInput();
         }
     }
 
@@ -200,15 +245,26 @@ class CampaignController extends Controller
 
     function update(Request $request)
     {
-        // Validasi input
+        // Validasi input dengan custom messages
         $request->validate([
             'name' => 'required|string|max:150',
             'start_date' => 'required|date',
             'end_date' => 'required|date',
             'description' => 'required',
             'pic' => 'required|string|max:150',
-            'campaign_picture.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Validasi untuk foto
-
+            'campaign_picture.*' => 'nullable|image|mimes:jpeg,png,jpg,gif', // Validasi untuk foto (ukuran akan di-handle di logic)
+        ], [
+            'name.required' => 'Nama campaign wajib diisi',
+            'name.max' => 'Nama campaign maksimal 150 karakter',
+            'start_date.required' => 'Tanggal mulai wajib diisi',
+            'start_date.date' => 'Format tanggal mulai tidak valid',
+            'end_date.required' => 'Tanggal selesai wajib diisi',
+            'end_date.date' => 'Format tanggal selesai tidak valid',
+            'description.required' => 'Deskripsi wajib diisi',
+            'pic.required' => 'PIC wajib diisi',
+            'pic.max' => 'Nama PIC maksimal 150 karakter',
+            'campaign_picture.*.image' => 'File harus berupa gambar',
+            'campaign_picture.*.mimes' => 'Format gambar harus jpeg, png, jpg, atau gif',
         ]);
 
         DB::beginTransaction();
@@ -246,29 +302,58 @@ class CampaignController extends Controller
 
 
             if ($request->hasFile('campaign_picture')) {
-                $manager = new ImageManager(Driver::class);
                 foreach ($request->file('campaign_picture') as $image) {
-                    $extension = $image->getClientOriginalExtension();
-                    $filenameSimpan = Str::random(16) . '_' . time() .'.'. $extension;
-                    $image->storeAs('public/campaign_pictures/', $filenameSimpan);
-                    $resizedImage = $manager->read($image->getPathname())->scaleDown(height:115)->encodeByExtension($extension);
-
-                    Storage::disk('public')->put('campaign_pictures/resized_' . $filenameSimpan, (string) $resizedImage);
-                    CampaignImage::create([
-                        'program_id' => $campaign->id,
-                        'picture_path' => $filenameSimpan,
-                    ]);
+                    try {
+                        $extension = $image->getClientOriginalExtension();
+                        $filenameSimpan = Str::random(16) . '_' . time() .'.'. $extension;
+                        
+                        if ($this->isImageProcessingAvailable()) {
+                            $manager = new ImageManager(new Driver());
+                            
+                            // Proses gambar: compress jika melebihi 2MB
+                            $processedImage = $this->processImage($image, $manager, $extension);
+                            
+                            // Simpan gambar asli (yang sudah di-compress jika perlu)
+                            Storage::disk('public')->put('campaign_pictures/' . $filenameSimpan, $processedImage);
+                            
+                            // Buat thumbnail untuk preview
+                            try {
+                                $imgForThumb = $manager->read($image->getPathname());
+                                $resizedImage = $imgForThumb->scaleDown(height:115)->encodeByExtension($extension);
+                                Storage::disk('public')->put('campaign_pictures/resized_' . $filenameSimpan, (string) $resizedImage);
+                            } catch (\Exception $e) {
+                                // Jika gagal buat thumbnail, gunakan gambar asli
+                                Storage::disk('public')->put('campaign_pictures/resized_' . $filenameSimpan, $processedImage);
+                            }
+                        } else {
+                            // Jika extension tidak tersedia, simpan file asli
+                            $image->storeAs('public/campaign_pictures/', $filenameSimpan);
+                            // Copy untuk thumbnail (tanpa resize)
+                            Storage::disk('public')->copy('campaign_pictures/' . $filenameSimpan, 'campaign_pictures/resized_' . $filenameSimpan);
+                        }
+                        
+                        CampaignImage::create([
+                            'program_id' => $campaign->id,
+                            'picture_path' => $filenameSimpan,
+                        ]);
+                    } catch (\Exception $e) {
+                        throw new \Exception('Gagal memproses gambar: ' . $e->getMessage());
+                    }
                 }
             }
-            DB::Commit();
+            DB::commit();
 
-            return redirect()->route('campaign.list')->withSuccess('Success insert data');
+            return redirect()->route('campaign.list')->withSuccess('Campaign berhasil diupdate');
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            DB::rollBack();
+            return redirect()->back()
+                ->withErrors($e->errors())
+                ->withInput();
         } catch (\Exception $e) {
-
-            DB::Rollback();
-
-            return redirect()->back()->withErrors(['error' => 'Oops. Something wrong: ' . $e->getMessage()])
-                ->onlyInput('name', 'pic', 'description', 'start_date', 'end_date', 'category', 'close_type', 'target_amount');
+            DB::rollBack();
+            return redirect()->back()
+                ->withErrors(['error' => 'Terjadi kesalahan saat mengupdate campaign: ' . $e->getMessage()])
+                ->withInput();
         }
     }
 
@@ -310,5 +395,57 @@ class CampaignController extends Controller
     {
         $status = 3;
         return view('pages.campaign.list', compact('status'));
+    }
+
+    /**
+     * Process image: compress dan resize jika melebihi ukuran maksimal
+     */
+    private function processImage($image, $manager, $extension)
+    {
+        $maxSize = 2048 * 1024; // 2MB dalam bytes
+        $fileSize = $image->getSize();
+        
+        // Jika ukuran file sudah di bawah 2MB, langsung return
+        if ($fileSize <= $maxSize) {
+            return file_get_contents($image->getPathname());
+        }
+        
+        // Baca gambar
+        $img = $manager->read($image->getPathname());
+        
+        // Hitung rasio kompresi yang diperlukan
+        $compressionRatio = $maxSize / $fileSize;
+        $quality = max(60, min(90, (int)($compressionRatio * 100))); // Quality antara 60-90
+        
+        // Resize jika terlalu besar (max width 1920px untuk menjaga kualitas)
+        $width = $img->width();
+        if ($width > 1920) {
+            $img->scaleDown(width: 1920);
+        }
+        
+        // Encode dengan quality untuk JPEG, atau PNG dengan optimasi
+        if (in_array(strtolower($extension), ['jpg', 'jpeg'])) {
+            $encoded = $img->toJpeg($quality);
+        } else {
+            $encoded = $img->encodeByExtension($extension);
+        }
+        
+        // Jika masih melebihi, kurangi quality lebih lanjut
+        $encodedString = (string) $encoded;
+        $attempts = 0;
+        while (strlen($encodedString) > $maxSize && $attempts < 5 && $quality > 40) {
+            $quality -= 10;
+            if (in_array(strtolower($extension), ['jpg', 'jpeg'])) {
+                $encoded = $img->toJpeg($quality);
+            } else {
+                // Untuk PNG, coba resize lagi
+                $img->scale(width: (int)($img->width() * 0.9));
+                $encoded = $img->encodeByExtension($extension);
+            }
+            $encodedString = (string) $encoded;
+            $attempts++;
+        }
+        
+        return $encodedString;
     }
 }

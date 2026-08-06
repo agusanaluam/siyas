@@ -7,12 +7,111 @@ use Illuminate\Foundation\Configuration\Middleware;
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
         web: __DIR__.'/../routes/web.php',
+        api: __DIR__.'/../routes/api.php',
         commands: __DIR__.'/../routes/console.php',
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        //
+        // Add CORS middleware first in API middleware stack
+        $middleware->api(prepend: [
+            \App\Http\Middleware\ForceCorsHeaders::class,
+            \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
+        ]);
+        $middleware->validateCsrfTokens(except: [
+            'api/*',
+        ]);
+        $middleware->alias([
+            'verified' => \App\Http\Middleware\EnsureEmailIsVerified::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
-        //
+        // Ensure CORS headers are added even for exceptions and 404 errors
+        $exceptions->render(function (\Throwable $e, $request) {
+            $path = $request->path();
+
+            // Only handle API routes
+            if (str_starts_with($path, 'api/')) {
+                $origin = $request->header('Origin');
+                $allowedOrigins = array_filter(explode(',', env('CORS_ALLOWED_ORIGINS', 'http://localhost:3000,http://127.0.0.1:3000')));
+
+                // Tambahkan localhost untuk development
+                if (config('app.env') !== 'production') {
+                    $allowedOrigins = array_merge($allowedOrigins, [
+                        'http://localhost:3000',
+                        'http://127.0.0.1:3000',
+                        'http://localhost:3001',
+                        'http://127.0.0.1:3001',
+                    ]);
+                }
+
+                $allowedOrigin = in_array($origin, $allowedOrigins) ? $origin : ($allowedOrigins[0] ?? '*');
+
+                // Determine status code - ensure it's always an integer
+                $statusCode = 500;
+
+                if ($e instanceof \Symfony\Component\HttpKernel\Exception\NotFoundHttpException) {
+                    $statusCode = 404;
+                } elseif ($e instanceof \Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException) {
+                    $statusCode = 405;
+                } elseif ($e instanceof \Illuminate\Database\Eloquent\ModelNotFoundException) {
+                    $statusCode = 404;
+                } elseif ($e instanceof \Illuminate\Validation\ValidationException) {
+                    $statusCode = 422;
+                } elseif ($e instanceof \Illuminate\Auth\AuthenticationException) {
+                    $statusCode = 401;
+                } elseif (method_exists($e, 'getStatusCode')) {
+                    $statusCode = $e->getStatusCode();
+                    // Ensure getStatusCode() returns integer
+                    if (!is_int($statusCode)) {
+                        $statusCode = (int) $statusCode;
+                    }
+                } else {
+                    // Try to get code from exception
+                    $code = $e->getCode();
+                    if (is_numeric($code) && $code >= 400 && $code < 600) {
+                        $statusCode = (int) $code;
+                    }
+                }
+
+                // Final validation: ensure status code is always an integer and valid HTTP status code
+                $statusCode = (int) $statusCode;
+                if ($statusCode < 100 || $statusCode >= 600) {
+                    $statusCode = 500;
+                }
+
+                // Jangan expose error message detail di production
+                $isProduction = config('app.env') === 'production';
+                $errorMessage = $statusCode === 404
+                    ? 'Resource not found'
+                    : ($isProduction ? 'Terjadi kesalahan pada server' : $e->getMessage());
+
+                $response = response()->json([
+                    'message' => $errorMessage,
+                ], $statusCode);
+
+                // Log error detail untuk debugging (tidak di-expose ke client)
+                if (!$isProduction) {
+                    $response->setData(array_merge($response->getData(true), [
+                        'error' => $e->getMessage(),
+                    ]));
+                }
+
+                // Add CORS headers using header() method
+                $response->headers->set('Access-Control-Allow-Origin', $allowedOrigin, false);
+                $response->headers->set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH, HEAD', false);
+                $response->headers->set('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Accept, Origin, X-CSRF-TOKEN', false);
+                $response->headers->set('Access-Control-Allow-Credentials', 'true', false);
+                $response->headers->set('Access-Control-Max-Age', '86400', false);
+                $response->headers->set('Vary', 'Origin', false);
+
+                \Illuminate\Support\Facades\Log::info('Exception handler: CORS headers added', [
+                    'path' => $path,
+                    'status_code' => $statusCode,
+                    'origin' => $origin,
+                    'allowed_origin' => $allowedOrigin,
+                ]);
+
+                return $response;
+            }
+        });
     })->create();

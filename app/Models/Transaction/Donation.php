@@ -15,6 +15,7 @@ class Donation extends Model
 
     protected $table = 't_donation';
     protected $fillable = [
+        'user_id',
         'volunteer_id',
         'liq_number',
         'donatur_name',
@@ -26,6 +27,10 @@ class Donation extends Model
         'via_transfer',
         'reference_code',
         'reference_picture',
+        'payment_url',
+        'payment_status',
+        'midtrans_transaction_id',
+        'snap_token',
         'approve_lead',
         'status',
     ];

@@ -27,5 +27,6 @@ class DatabaseSeeder extends Seeder
         $this->call(DtProvinsiTableSeeder::class);
         $this->call(EduLevelTableSeeder::class);
         $this->call(MGroupTableSeeder::class);
+        $this->call(RamadanDefaultHabitSeeder::class);
     }
 }

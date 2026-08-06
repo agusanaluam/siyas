@@ -6,12 +6,13 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Laravel\Sanctum\HasApiTokens;
 use App\Models\Master\Volunteer;
 use App\Models\Transaction\Mutation;
 
 class User extends Authenticatable
 {
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable, HasApiTokens;
 
     /**
      * The attributes that are mass assignable.
@@ -66,6 +67,16 @@ class User extends Authenticatable
     public function mutationApprove()
     {
         return $this->belongsTo(Mutation::class, 'approve_by', 'id');
+    }
+
+    public function ramadanHabits()
+    {
+        return $this->hasMany(RamadanHabit::class);
+    }
+
+    public function ramadanHabitCompletions()
+    {
+        return $this->hasMany(RamadanHabitCompletion::class);
     }
 
 }
