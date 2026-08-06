@@ -48,14 +48,14 @@ export default function LoginPage() {
   }
 
   const logoUrl = setting?.photo
-    ? getImageUrl(`/storage/${setting.photo}`)
+    ? getImageUrl(setting.photo)
     : null
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-white relative overflow-hidden">
       {/* Back to Home Button */}
-      <Link 
-        href="/" 
+      <Link
+        href="/"
         className="absolute top-6 left-6 z-20 flex items-center text-gray-600 hover:text-primary-600 transition-colors"
       >
         <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -75,9 +75,9 @@ export default function LoginPage() {
         <div className="flex flex-col items-center justify-center gap-4">
           {logoUrl ? (
             <div className="relative w-20 h-20">
-              <Image 
-                src={logoUrl} 
-                alt={setting?.name || 'Logo'} 
+              <Image
+                src={logoUrl}
+                alt={setting?.name || 'Logo'}
                 className="object-contain"
                 fill
                 sizes="80px"
@@ -108,22 +108,20 @@ export default function LoginPage() {
             <button
               type="button"
               onClick={() => setLoginRole('relawan')}
-              className={`flex-1 px-4 py-2 text-sm font-medium text-center border rounded-l-lg transition-colors ${
-                loginRole === 'relawan'
+              className={`flex-1 px-4 py-2 text-sm font-medium text-center border rounded-l-lg transition-colors ${loginRole === 'relawan'
                   ? 'bg-primary-600 text-white border-primary-600'
                   : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
-              }`}
+                }`}
             >
               Relawan & Staf
             </button>
             <button
               type="button"
               onClick={() => setLoginRole('donatur')}
-              className={`flex-1 px-4 py-2 text-sm font-medium text-center border rounded-r-lg transition-colors ${
-                loginRole === 'donatur'
+              className={`flex-1 px-4 py-2 text-sm font-medium text-center border rounded-r-lg transition-colors ${loginRole === 'donatur'
                   ? 'bg-primary-600 text-white border-primary-600'
                   : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
-              }`}
+                }`}
             >
               Donatur
             </button>
