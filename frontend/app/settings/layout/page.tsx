@@ -81,15 +81,17 @@ export default function SettingsLayoutPage() {
       }
 
       if (editingSlide) {
-        await apiClient.post(`/hero-slides/${editingSlide.id}`, formData, {
-          headers: { 'Content-Type': 'multipart/form-data' }
-        })
+        // await apiClient.post(`/hero-slides/${editingSlide.id}`, formData, {
+        //   headers: { 'Content-Type': 'multipart/form-data' }
+        // })
+        await apiClient.post(`/hero-slides/${editingSlide.id}`, formData)
         toast.success('Slide updated successfully')
       } else {
         if (!slideImage) return toast.error('Image is required')
-        await apiClient.post('/hero-slides', formData, {
-          headers: { 'Content-Type': 'multipart/form-data' }
-        })
+        // await apiClient.post('/hero-slides', formData, {
+        //   headers: { 'Content-Type': 'multipart/form-data' }
+        // })
+        await apiClient.post('/hero-slides', formData)
         toast.success('Slide added successfully')
       }
 
@@ -126,10 +128,8 @@ export default function SettingsLayoutPage() {
       const formData = new FormData()
       formData.append('name', partnerForm.name)
       formData.append('image', partnerImage)
-
-      await apiClient.post('/partners', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
-      })
+      
+      await apiClient.post('/partners', formData)
 
       setPartnerForm({ name: '' })
       setPartnerImage(null)

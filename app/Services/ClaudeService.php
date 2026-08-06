@@ -8,8 +8,10 @@ use Illuminate\Support\Facades\Log;
 class ClaudeService
 {
     private string $apiKey;
-    private string $apiUrl = 'https://api.anthropic.com/v1/messages';
-    private string $model = 'claude-haiku-4-5-20251001';
+    // private string $apiUrl = 'https://api.anthropic.com/v1/messages';
+    // private string $model = 'claude-haiku-4-5-20251001';
+    private string $apiUrl = 'https://openrouter.ai/api/v1/chat/completions';
+    private string $model = 'anthropic/claude-haiku-4-5';
 
     public function __construct()
     {
@@ -21,18 +23,29 @@ class ClaudeService
         $systemPrompt = $this->buildSystemPrompt();
         $userPrompt = $this->buildUserPrompt($topic, $additionalInstructions);
 
+        // $response = Http::withHeaders([
+        //     'x-api-key' => $this->apiKey,
+        //     'anthropic-version' => '2023-06-01',
+        //     'content-type' => 'application/json',
+        // ])->timeout(120)->post($this->apiUrl, [
+        //     'model' => $this->model,
+        //     'max_tokens' => 4096,
+        //     'system' => $systemPrompt,
+        //     'messages' => [
+        //         ['role' => 'user', 'content' => $userPrompt],
+        //     ],
+        // ]);
         $response = Http::withHeaders([
-            'x-api-key' => $this->apiKey,
-            'anthropic-version' => '2023-06-01',
-            'content-type' => 'application/json',
-        ])->timeout(120)->post($this->apiUrl, [
-            'model' => $this->model,
-            'max_tokens' => 4096,
-            'system' => $systemPrompt,
-            'messages' => [
-                ['role' => 'user', 'content' => $userPrompt],
-            ],
-        ]);
+        'Authorization' => 'Bearer ' . $this->apiKey,
+        'content-type' => 'application/json',
+    ])->timeout(120)->post($this->apiUrl, [
+        'model' => $this->model,
+        'max_tokens' => 3000,
+        'messages' => [
+        ['role' => 'system', 'content' => $systemPrompt],
+        ['role' => 'user', 'content' => $userPrompt],
+        ],
+    ]);
 
         if (!$response->successful()) {
             Log::error('Claude API error', [
@@ -42,7 +55,7 @@ class ClaudeService
             throw new \Exception('Gagal mengenerate artikel: ' . $response->body());
         }
 
-        $content = $response->json('content.0.text');
+        $content = $response->json('choices.0.message.content');
         return $this->parseArticleResponse($content);
     }
 

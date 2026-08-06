@@ -134,12 +134,8 @@ export default function SettingsProfilePage() {
       if (photo) {
         formDataToSend.append('photo', photo)
       }
-
-      await apiClient.post('/settings/profile', formDataToSend, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      })
+      
+      await apiClient.post('/settings/profile', formDataToSend)
 
       toast.success('Profile yayasan berhasil diupdate')
       fetchSettings()

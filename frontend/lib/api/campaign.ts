@@ -28,20 +28,14 @@ export const campaignService = {
   },
 
   async create(data: FormData): Promise<Campaign> {
-    const response = await apiClient.post<Campaign>('/campaigns', data, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    })
+
+    const response = await apiClient.post<Campaign>('/campaigns', data)
     return response.data
   },
 
   async update(id: number, data: FormData): Promise<Campaign> {
-    const response = await apiClient.post<Campaign>(`/campaigns/${id}`, data, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    })
+
+    const response = await apiClient.post<Campaign>(`/campaigns/${id}`, data)
     return response.data
   },
 

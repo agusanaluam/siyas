@@ -52,11 +52,8 @@ export const volunteerService = {
   },
 
   async update(id: number, data: FormData): Promise<Volunteer> {
-    const response = await apiClient.post<Volunteer>(`/volunteers/${id}`, data, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    })
+
+    const response = await apiClient.post<Volunteer>(`/volunteers/${id}`, data)
     return response.data
   },
 
