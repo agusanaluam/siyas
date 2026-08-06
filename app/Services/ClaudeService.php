@@ -94,25 +94,30 @@ PROMPT;
     private function parseArticleResponse(string $content): array
     {
         $content = trim($content);
+        Log::info('Raw AI response', ['content' => $content]);
 
         // Remove markdown code fences if present
         if (preg_match('/```(?:json)?\s*([\s\S]*?)```/', $content, $matches)) {
             $content = trim($matches[1]);
         }
 
+        // Ekstrak JSON dari { pertama sampai } terakhir
+        if (preg_match('/\{[\s\S]*\}/', $content, $matches)) {
+            $content = $matches[0];
+        }
+
         $parsed = json_decode($content, true);
 
         if (json_last_error() !== JSON_ERROR_NONE) {
+            Log::error('JSON parse error', ['content' => $content]);
             throw new \Exception('Gagal parsing response dari Claude: ' . json_last_error_msg());
         }
-
         $required = ['title', 'content', 'excerpt', 'meta_description', 'meta_keywords'];
         foreach ($required as $field) {
             if (empty($parsed[$field])) {
                 throw new \Exception("Field '{$field}' tidak ditemukan dalam response Claude.");
             }
         }
-
         return $parsed;
     }
 }
