@@ -23,29 +23,17 @@ class ClaudeService
         $systemPrompt = $this->buildSystemPrompt();
         $userPrompt = $this->buildUserPrompt($topic, $additionalInstructions);
 
-        // $response = Http::withHeaders([
-        //     'x-api-key' => $this->apiKey,
-        //     'anthropic-version' => '2023-06-01',
-        //     'content-type' => 'application/json',
-        // ])->timeout(120)->post($this->apiUrl, [
-        //     'model' => $this->model,
-        //     'max_tokens' => 4096,
-        //     'system' => $systemPrompt,
-        //     'messages' => [
-        //         ['role' => 'user', 'content' => $userPrompt],
-        //     ],
-        // ]);
         $response = Http::withHeaders([
-        'Authorization' => 'Bearer ' . $this->apiKey,
-        'content-type' => 'application/json',
-    ])->timeout(120)->post($this->apiUrl, [
-        'model' => $this->model,
-        'max_tokens' => 3000,
-        'messages' => [
-        ['role' => 'system', 'content' => $systemPrompt],
-        ['role' => 'user', 'content' => $userPrompt],
-        ],
-    ]);
+            'Authorization' => 'Bearer ' . $this->apiKey,
+            'content-type' => 'application/json',
+        ])->timeout(120)->post($this->apiUrl, [
+            'model' => $this->model,
+            'max_tokens' => 2500,
+            'messages' => [
+                ['role' => 'system', 'content' => $systemPrompt],
+                ['role' => 'user', 'content' => $userPrompt],
+            ],
+        ]);
 
         if (!$response->successful()) {
             Log::error('Claude API error', [
